@@ -1,7 +1,7 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999,2000 TC TrustCenter for Security in DataNetworks GmbH 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
  * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,35 +28,7 @@
  * FILES:       -
  * SEE/ALSO:    -
  * AUTHOR:      lbe
- * BUGS: *      -
- * HISTORY:     $Log$
- * HISTORY:     Revision 1.4  2000/01/31 18:09:03  lbe
- * HISTORY:     lockdown prior to win_gdbm change
- * HISTORY:
- * HISTORY:     Revision 1.3  1999/11/02 13:47:19  lbe
- * HISTORY:     change of structures and bug fix in slot.c, add more files for tcsc_token: emptyfuncs and general_data
- * HISTORY:
- * HISTORY:     Revision 1.2  1999/10/06 07:57:23  lbe
- * HISTORY:     solved netscape symbol clash problem
- * HISTORY:
- * HISTORY:     Revision 1.1  1999/06/16 09:46:11  lbe
- * HISTORY:     reorder files
- * HISTORY:
- * HISTORY:     Revision 1.5  1999/01/19 12:19:46  lbe
- * HISTORY:     first release lockdown
- * HISTORY:
- * HISTORY:     Revision 1.4  1998/10/12 10:00:11  lbe
- * HISTORY:     clampdown
- * HISTORY:
- * HISTORY:     Revision 1.3  1998/08/05 09:00:20  lbe
- * HISTORY:     *** empty log message ***
- * HISTORY:
- * HISTORY:     Revision 1.2  1998/07/23 15:18:17  lbe
- * HISTORY:     working
- * HISTORY:
- * HISTORY:     Revision 1.1  1998/07/02 17:24:14  lbe
- * HISTORY:     Initial revision
- * HISTORY:
+ * BUGS:        -
  */
  
 static char RCSID[]="$Id$";

@@ -1,7 +1,7 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999,2000 TC TrustCenter for Security in DataNetworks GmbH 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
  * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,21 +22,13 @@
  * Source:      $Source$
  * Last Delta:  $Date$ $Revision$ $Author$
  * State:       $State$ $Locker$
- * NAME:        sessions.c
+ * NAME:        t_session_obj_delete2.c
  * SYNOPSIS:    -
  * DESCRIPTION: -
  * FILES:       -
  * SEE/ALSO:    -
  * AUTHOR:      lbe
- * BUGS: *      -
- * HISTORY:     $Log$
- * HISTORY:     Revision 1.1  2000/06/05 11:54:56  lbe
- * HISTORY:     added new files
- * HISTORY:
- * HISTORY:     Revision 1.1  2000/05/16 15:44:42  lbe
- * HISTORY:     *** empty log message ***
- * HISTORY:
- * HISTORY:
+ * BUGS:        -
  */
 /*
  * check that the creation and deletion of session objects works 
@@ -48,7 +40,7 @@
  * - try to manipulate/destroy object in B; both must fail as A 
  *   does not exist anymore
  *
- * all this must work in an RO session, since only 
+ * all this must work in an RO as RW session, since only 
  * session objects are created
  */ 
 

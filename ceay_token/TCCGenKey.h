@@ -1,20 +1,20 @@
 /* -*- c -*- */
 /*
- * This file is part of TC-PKCS11. 
- * (c) 1999 TC TrustCenter for Security in DataNetworks GmbH 
+ * This file is part of GPKCS11. 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
- * TC-PKCS11 is free software; you can redistribute it and/or modify
+ * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
  *  
- * TC-PKCS11 is distributed in the hope that it will be useful,
+ * GPKCS11 is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *  
  * You should have received a copy of the GNU General Public License
- * along with TC-PKCS11; see the file COPYING.  If not, write to the Free
+ * along with GPKCS11; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place - Suite 330, Boston, MA 02111, USA.  
  */
 /*
@@ -28,20 +28,7 @@
  * FILES:       -
  * SEE/ALSO:    -
  * AUTHOR:      gbe
- * BUGS: *      -
- * HISTORY:     $Log$
- * HISTORY:     Revision 1.1  1999/06/04 14:58:36  lbe
- * HISTORY:     change to libtool/automake complete (except for __umoddi prob)
- * HISTORY:
- * HISTORY:     Revision 1.2  1999/01/19 12:19:35  lbe
- * HISTORY:     first release lockdown
- * HISTORY:
- * HISTORY:     Revision 1.1  1999/01/18 13:02:33  lbe
- * HISTORY:     swapped Berkeley DB for gdbm
- * HISTORY:
- * HISTORY:     Revision 1.1  1998/10/28 10:59:12  gbe
- * HISTORY:     Initial revision
- * HISTORY:
+ * BUGS:        -
  */
 
 #ifndef _TCCKEYGEN_H

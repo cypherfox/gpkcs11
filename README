@@ -4,18 +4,19 @@
 			      GPKCS11
 				   
 What:         pure software implementation of the PKCS11 API as
-              specified by the document of RSA labs. A HTMLified
-              copy is in the docs directory, since there are free
-	      software tools in existence to view HTML, but not
-	      WinWord docs
+              specified by the document of the same name issued by RSA
+              Security Laboritories. A HTMLified
+              copy of version 2.01 is in the docs directory, since
+              there are free software tools in existence to view HTML,
+              but not Microsoft Word dokuments
 
-Version:      2.01 Cryptoki Standard
-              0.6.1 Library
+Version:      2.11 Cryptoki Standard
+              0.8.0 Library
               0.2.0 Ceay token
 	      
-Status:       late-alpha. A core of the functions have been
+Status:       beta. A core of the functions have been
 	      implemented, but still need a lot of testing. The
-	      following features are lacking at this time (03/00), but
+	      following features are lacking at this time (03/01), but
 	      will be implemented ASAP: 
 
 	      - propper SO/token reset support
@@ -70,7 +71,7 @@ Docs:         There is virtually none. Use the source Luke. B-) If you
 	      docs directory is a skeleton for docs to come.
 
 	      I have cobbled together some information on the internal
-	      interface in the texinfor documentation that you will
+	      interface in the texinfo documentation that you will
 	      find in the doc subdirectory.
 
 Licence:      (c) 1999,2000,2001 TC TrustCenter GmbH. The code to
@@ -120,8 +121,6 @@ Licence:      (c) 1999,2000,2001 TC TrustCenter GmbH. The code to
 
       The library is furthermore implemented in such a way that it should
       make implementing the support of real chip-/smart-card easier.
-      While this may be done by third parties, my employer is offering
-      this a service to the paying customer.
 
 
 
@@ -195,7 +194,7 @@ basic rules:
  - The code has to be layouted according to the GNU Coding Standard.
    It is described on http://www.gnu.org/prep/standards_toc.html
  - The code contains marks for the emacs folding mode (my way of handling
-   source files of more then 6K lines B-}). They look like this:
+   source files of more then 9K lines B-}). They look like this:
 
       /* {{{ <some explanation> */
        :
@@ -218,20 +217,18 @@ basic rules:
 			       CONTACT
 			       -------
 
-There are three mailing lists in existence that are supposed to help the
-work on the package. All of the may be subscribed to by sending a mail
-to <majordomo@trustcenter.de> with an empty subject line and the following
-message in the body:
-
-  subscribe <ML-NAME>
-
-where <ML-NAME> is one of the lists below:
+There are four mailing lists in existence that are supposed to help the
+work on the package. For details on how to subscribe, please check the
+project pages on  sourceforge
 
  gpkcs11-announce    Announcements about new releases or other items for
                      all interested
- gpkcs11-dev         discussion about the state of things as far as the actual
-                     package is concerned.
- gpkcs11-users       discussion for making use of gpkcs11 in applications.
+ gpkcs11-dev         discussion about the state of things as far as
+                     the actual package is concerned.
+ gpkcs11-users       discussion for making use of gpkcs11 in
+                     applications.
+ gpkcs11-submit      sends an email each time a submission to the CVS
+                     repository is made.
 
 All MLs are of rather low traffic right now, but that will hopefully change.
 
@@ -242,7 +239,6 @@ dutch (except for Palm) or belgium lager please) or patches contact me at
 Lutz Behnke
 email: behnke@trustcenter.de
 
-TC TrustCenter for Security
-in Data Networks GmbH                   
+TC TrustCenter for Security GmbH                   
 Sonninstrasse 24-28
 20097 Hamburg, Germany

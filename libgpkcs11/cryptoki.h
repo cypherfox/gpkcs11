@@ -1,7 +1,7 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999,2000 TC TrustCenter GmbH 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
  * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,47 +28,7 @@
  * FILES:       -
  * SEE/ALSO:    -
  * AUTHOR:      lbe
- * BUGS: *      -
- * HISTORY:     $Log$
- * HISTORY:     Revision 1.6  2000/09/19 09:14:54  lbe
- * HISTORY:     write flag for pin change onto SC, support Auth Pin path
- * HISTORY:
- * HISTORY:     Revision 1.5.2.1  2000/09/04 17:45:41  lbe
- * HISTORY:     mem leak fixes to tcsc-token, remove key_block/8 from cryptdb.c
- * HISTORY:
- * HISTORY:     Revision 1.5  2000/02/07 14:04:10  lbe
- * HISTORY:     release 0.6 and clean up of files
- * HISTORY:
- * HISTORY:     Revision 1.4  2000/01/31 18:09:02  lbe
- * HISTORY:     lockdown prior to win_gdbm change
- * HISTORY:
- * HISTORY:     Revision 1.3  1999/11/30 14:02:42  lbe
- * HISTORY:     write tons of small changes
- * HISTORY:
- * HISTORY:     Revision 1.2  1999/11/25 16:46:51  lbe
- * HISTORY:     moved all lib version defines into the conf.h
- * HISTORY:
- * HISTORY:     Revision 1.1  1999/06/16 09:46:06  lbe
- * HISTORY:     reorder files
- * HISTORY:
- * HISTORY:     Revision 1.6  1999/03/11 09:19:53  lbe
- * HISTORY:     added config file
- * HISTORY:
- * HISTORY:     Revision 1.5  1999/01/19 12:19:37  lbe
- * HISTORY:     first release lockdown
- * HISTORY:
- * HISTORY:     Revision 1.4  1998/10/12 10:07:56  lbe
- * HISTORY:     clampdown
- * HISTORY:
- * HISTORY:     Revision 1.3  1998/07/30 15:29:52  lbe
- * HISTORY:     Win32 Port
- * HISTORY:
- * HISTORY:     Revision 1.2  1998/07/16 08:28:03  lbe
- * HISTORY:     CRYPTOKI_H Macro als Include-Schutz hinzugefügt
- * HISTORY:
- * HISTORY:     Revision 1.1  1998/07/02 17:08:19  lbe
- * HISTORY:     Initial revision
- * HISTORY:
+ * BUGS:        -
  */
 
 #ifndef CRYPTOKI_H 

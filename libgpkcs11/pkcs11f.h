@@ -1,16 +1,4 @@
 /* $Id$ */
-/* 
- * $Log$
- * Revision 1.1  1999/06/16 09:46:11  lbe
- * reorder files
- *
- * Revision 1.1  1998/07/02 17:23:51  lbe
- * Initial revision
- *
- * Revision 1.1  1998/05/19 10:09:42  sage
- * Initial revision
- *
- */
 /* pkcs11f.h include file for PKCS #11.  1997 December 22 */
 
 /* This function contains pretty much everything about all the */

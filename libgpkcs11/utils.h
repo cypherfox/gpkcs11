@@ -1,7 +1,7 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999,2000 TC TrustCenter for Security in DataNetworks GmbH 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
  * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,26 +28,7 @@
  * FILES:	-
  * SEE/ALSO:	-
  * AUTHOR:	lin
- * BUGS: *	-
- * HISTORY:	$Log$
- * HISTORY:	Revision 1.3  2000/03/08 09:59:08  lbe
- * HISTORY:	fix SIGBUS in cryptdb, improve readeability for C_FindObject log output
- * HISTORY:	
- * HISTORY:	Revision 1.2  2000/01/31 18:09:03  lbe
- * HISTORY:	lockdown prior to win_gdbm change
- * HISTORY:	
- * HISTORY:	Revision 1.1  1999/06/16 09:46:12  lbe
- * HISTORY:	reorder files
- * HISTORY:	
- * HISTORY:	Revision 1.3  1999/01/19 12:19:48  lbe
- * HISTORY:	first release lockdown
- * HISTORY:
- * HISTORY:	Revision 1.2  1999/01/18 16:30:09  lbe
- * HISTORY:	util cleanup and package build
- * HISTORY:
- * HISTORY:	Revision 1.1  1999/01/18 13:02:35  lbe
- * HISTORY:	swapped Berkeley DB for gdbm
- * HISTORY:
+ * BUGS: 	-
  */
 
 

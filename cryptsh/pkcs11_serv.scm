@@ -1,24 +1,35 @@
-;; - scheme -
-;; Copyright (c) TC TrustCenter for Security in Data Networks GmbH - all rights reserved
-;; RCSID:        $Id$
-;; Source:       $Source$
-;; Last Delta:   $Date$ $Revision$ $Author$
-;; State:        $State$ $Locker$
-;; NAME:         pkcs11_serv.scm
-;; SYNOPSOS :    -
-;; DESCRIPTION:  -
-;; FILES:        -
-;; SEE/ALSO:     -
-;; AUTHOR :      lbe
-;; BUGS:         -
-;; HISTORY:      $Log$
-;; HISTORY:      Revision 1.1  1999/06/16 09:46:06  lbe
-;; HISTORY:      reorder files
-;; HISTORY:
-;; HISTORY:      Revision 1.1  1998/11/04 17:43:52  lbe
-;; HISTORY:      debug-lockdown
-;; HISTORY:
-;;
+; - scheme -
+;
+; This file is part of GPKCS11. 
+; (c) 1999-2001 TC TrustCenter GmbH 
+;
+; GPKCS11 is free software; you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by
+; the Free Software Foundation; either version 2, or (at your option)
+; any later version.
+;  
+; GPKCS11 is distributed in the hope that it will be useful,
+; but WITHOUT ANY WARRANTY; without even the implied warranty of
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+; GNU General Public License for more details.
+;  
+; You should have received a copy of the GNU General Public License
+; along with GPKCS11; see the file COPYING.  If not, write to the Free
+; Software Foundation, 59 Temple Place - Suite 330, Boston, MA 02111, USA.  
+;
+; Copyright (c) TC TrustCenter for Security in Data Networks GmbH - all rights reserved
+; RCSID:        $Id$
+; Source:       $Source$
+; Last Delta:   $Date$ $Revision$ $Author$
+; State:        $State$ $Locker$
+; NAME:         pkcs11_serv.scm
+; SYNOPSOS :    -
+; DESCRIPTION:  start cryptsh as a server to accept command on a socket port
+; FILES:        -
+; SEE/ALSO:     -
+; AUTHOR :      lbe
+; BUGS:         -
+;
 
 
 ; global variable may be set to stop the server gracefully

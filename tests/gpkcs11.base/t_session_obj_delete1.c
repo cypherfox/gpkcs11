@@ -1,7 +1,7 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999,2000 TC TrustCenter for Security in DataNetworks GmbH 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
  * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,15 +28,7 @@
  * FILES:       -
  * SEE/ALSO:    -
  * AUTHOR:      lbe
- * BUGS: *      -
- * HISTORY:     $Log$
- * HISTORY:     Revision 1.1  2000/06/05 11:54:56  lbe
- * HISTORY:     added new files
- * HISTORY:
- * HISTORY:     Revision 1.1  2000/05/16 15:44:42  lbe
- * HISTORY:     *** empty log message ***
- * HISTORY:
- * HISTORY:
+ * BUGS:        -
  */
 /*
  * check that the creation and deletion of session objects works 
@@ -46,7 +38,7 @@
  * - create a session B
  * - delete the object O1 in B
  *
- * all this must work in an RO session, since only 
+ * all this must work in an RO as well as in a RW session, since only 
  * session objects are created
  */ 
 

@@ -1,20 +1,20 @@
 /* -*- c -*- */
 /*
- * This file is part of TC-PKCS11. 
- * (c) 1999 TC TrustCenter for Security in DataNetworks GmbH 
+ * This file is part of GPKCS11. 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
- * TC-PKCS11 is free software; you can redistribute it and/or modify
+ * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
  *  
- * TC-PKCS11 is distributed in the hope that it will be useful,
+ * GPKCS11 is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *  
  * You should have received a copy of the GNU General Public License
- * along with TC-PKCS11; see the file COPYING.  If not, write to the Free
+ * along with GPKCS11; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place - Suite 330, Boston, MA 02111, USA.  
  */
 /*
@@ -28,32 +28,7 @@
  * FILES:       -
  * SEE/ALSO:    -
  * AUTHOR:      lbe
- * BUGS: *      -
- * HISTORY:     $Log$
- * HISTORY:     Revision 1.3  2000/02/08 16:12:45  lbe
- * HISTORY:     last changes from beta testers
- * HISTORY:
- * HISTORY:     Revision 1.2  2000/01/31 18:09:00  lbe
- * HISTORY:     lockdown prior to win_gdbm change
- * HISTORY:
- * HISTORY:     Revision 1.1  1999/06/04 14:58:37  lbe
- * HISTORY:     change to libtool/automake complete (except for __umoddi prob)
- * HISTORY:
- * HISTORY:     Revision 1.5  1999/01/22 08:35:32  lbe
- * HISTORY:     full build with new perisistant storage complete
- * HISTORY:
- * HISTORY:     Revision 1.4  1999/01/19 12:19:37  lbe
- * HISTORY:     first release lockdown
- * HISTORY:
- * HISTORY:     Revision 1.3  1999/01/19 10:10:19  lbe
- * HISTORY:     pre package clampdown
- * HISTORY:
- * HISTORY:     Revision 1.2  1999/01/18 13:02:33  lbe
- * HISTORY:     swapped Berkeley DB for gdbm
- * HISTORY:
- * HISTORY:     Revision 1.1  1999/01/13 16:17:31  lbe
- * HISTORY:     Initial revision
- * HISTORY:
+ * BUGS:        -
  */
  
 #ifndef CRYPTDB_H

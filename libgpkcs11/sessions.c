@@ -1,7 +1,7 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999,2000 TC TrustCenter for Security in DataNetworks GmbH 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
  * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,89 +28,7 @@
  * FILES:       -
  * SEE/ALSO:    -
  * AUTHOR:      lbe
- * BUGS: *      -
- * HISTORY:     $Log$
- * HISTORY:     Revision 1.11  2000/09/19 09:14:54  lbe
- * HISTORY:     write flag for pin change onto SC, support Auth Pin path
- * HISTORY:
- * HISTORY:     Revision 1.10  2000/01/31 18:09:03  lbe
- * HISTORY:     lockdown prior to win_gdbm change
- * HISTORY:
- * HISTORY:     Revision 1.9  2000/01/12 23:06:45  lbe
- * HISTORY:     changes for 0.5.7: detect missing card
- * HISTORY:
- * HISTORY:     Revision 1.8  2000/01/12 15:01:55  lbe
- * HISTORY:     changes for clean CoMMi on linux
- * HISTORY:
- * HISTORY:     Revision 1.7  2000/01/07 10:24:44  lbe
- * HISTORY:     introduce changes for release
- * HISTORY:
- * HISTORY:     Revision 1.6  1999/12/08 16:06:28  lbe
- * HISTORY:     clean up of token prior to creation of new gen-data token
- * HISTORY:
- * HISTORY:     Revision 1.5  1999/12/01 13:44:47  lbe
- * HISTORY:     debug build system for missing central lib directory and debug afchine changes
- * HISTORY:
- * HISTORY:     Revision 1.4  1999/12/01 11:37:22  lbe
- * HISTORY:     write back changes by afchine
- * HISTORY:
- * HISTORY:     Revision 1.3  1999/11/02 13:47:19  lbe
- * HISTORY:     change of structures and bug fix in slot.c, add more files for tcsc_token: emptyfuncs and general_data
- * HISTORY:
- * HISTORY:     Revision 1.2  1999/10/06 07:57:23  lbe
- * HISTORY:     solved netscape symbol clash problem
- * HISTORY:
- * HISTORY:     Revision 1.1  1999/06/16 09:46:11  lbe
- * HISTORY:     reorder files
- * HISTORY:
- * HISTORY:     Revision 1.16  1999/03/18 14:10:21  lbe
- * HISTORY:     entered patches from externals
- * HISTORY:
- * HISTORY:     Revision 1.15  1999/03/11 09:19:53  lbe
- * HISTORY:     added config file
- * HISTORY:
- * HISTORY:     Revision 1.14  1999/01/22 08:35:33  lbe
- * HISTORY:     full build with new perisistant storage complete
- * HISTORY:
- * HISTORY:     Revision 1.13  1999/01/19 12:19:46  lbe
- * HISTORY:     first release lockdown
- * HISTORY:
- * HISTORY:     Revision 1.12  1998/12/07 13:20:23  lbe
- * HISTORY:     TC_free von parametern für Zeile und Datei befreit.
- * HISTORY:
- * HISTORY:     Revision 1.11  1998/12/02 10:46:44  lbe
- * HISTORY:     work on persistent storage.
- * HISTORY:
- * HISTORY:     Revision 1.10  1998/11/26 10:14:44  lbe
- * HISTORY:     added persistent storage
- * HISTORY:
- * HISTORY:     Revision 1.9  1998/11/13 10:10:10  lbe
- * HISTORY:     added persistent storage.
- * HISTORY:
- * HISTORY:     Revision 1.8  1998/11/10 09:42:01  lbe
- * HISTORY:     hash iter geaendert: hashtabelle braucht nicht mehr an fkts uebergeben werden.
- * HISTORY:
- * HISTORY:     Revision 1.7  1998/11/03 15:59:35  lbe
- * HISTORY:     auto-lockdown
- * HISTORY:
- * HISTORY:     Revision 1.6  1998/10/12 10:00:09  lbe
- * HISTORY:     clampdown
- * HISTORY:
- * HISTORY:     Revision 1.5  1998/08/05 09:00:23  lbe
- * HISTORY:     *** empty log message ***
- * HISTORY:
- * HISTORY:     Revision 1.4  1998/07/30 15:25:03  lbe
- * HISTORY:     Win32 Port
- * HISTORY:
- * HISTORY:     Revision 1.3  1998/07/23 15:18:17  lbe
- * HISTORY:     working
- * HISTORY:
- * HISTORY:     Revision 1.2  1998/07/13 15:37:38  lbe
- * HISTORY:     typo (?)
- * HISTORY:
- * HISTORY:     Revision 1.1  1998/07/02 17:24:34  lbe
- * HISTORY:     Initial revision
- * HISTORY:
+ * BUGS:        -
  */
  
 static char RCSID[]="$Id$";

@@ -1,7 +1,7 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999,2000 TC TrustCenter for Security in DataNetworks GmbH 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
  * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,77 +28,7 @@
  * FILES:       -
  * SEE/ALSO:    -
  * AUTHOR:      lbe
- * BUGS: *      -
- * HISTORY:     $Log$
- * HISTORY:     Revision 1.14  2000/09/19 09:14:55  lbe
- * HISTORY:     write flag for pin change onto SC, support Auth Pin path
- * HISTORY:
- * HISTORY:     Revision 1.13  2000/06/05 11:43:43  lbe
- * HISTORY:     tcsc token breakup, return pSlotCount in SlotList, code for event handling deactivated
- * HISTORY:
- * HISTORY:     Revision 1.12  2000/05/16 09:54:14  lbe
- * HISTORY:     checkin to test bonsai
- * HISTORY:
- * HISTORY:     Revision 1.11  2000/05/12 13:13:15  lbe
- * HISTORY:     zwischen durchmal B-)
- * HISTORY:
- * HISTORY:     Revision 1.10  2000/01/31 18:09:03  lbe
- * HISTORY:     lockdown prior to win_gdbm change
- * HISTORY:
- * HISTORY:     Revision 1.9  2000/01/12 23:06:45  lbe
- * HISTORY:     changes for 0.5.7: detect missing card
- * HISTORY:
- * HISTORY:     Revision 1.8  2000/01/07 10:24:44  lbe
- * HISTORY:     introduce changes for release
- * HISTORY:
- * HISTORY:     Revision 1.7  1999/12/02 14:16:27  lbe
- * HISTORY:     tons of small bug fixes and bullet proofing of libgpkcs11 and cryptsh
- * HISTORY:
- * HISTORY:     Revision 1.6  1999/11/25 16:46:52  lbe
- * HISTORY:     moved all lib version defines into the conf.h
- * HISTORY:
- * HISTORY:     Revision 1.5  1999/11/02 13:47:19  lbe
- * HISTORY:     change of structures and bug fix in slot.c, add more files for tcsc_token: emptyfuncs and general_data
- * HISTORY:
- * HISTORY:     Revision 1.4  1999/10/08 13:00:13  lbe
- * HISTORY:     release version 0.5.5
- * HISTORY:
- * HISTORY:     Revision 1.3  1999/10/06 07:57:23  lbe
- * HISTORY:     solved netscape symbol clash problem
- * HISTORY:
- * HISTORY:     Revision 1.2  1999/07/20 17:40:01  lbe
- * HISTORY:     fix bug in gdbm Makefile: there is not allways an 'install' around
- * HISTORY:
- * HISTORY:     Revision 1.1  1999/06/16 09:46:11  lbe
- * HISTORY:     reorder files
- * HISTORY:
- * HISTORY:     Revision 1.9  1999/01/26 08:11:34  lbe
- * HISTORY:     test system in first form
- * HISTORY:
- * HISTORY:     Revision 1.8  1999/01/19 12:19:47  lbe
- * HISTORY:     first release lockdown
- * HISTORY:
- * HISTORY:     Revision 1.7  1999/01/13 16:16:40  lbe
- * HISTORY:     clampdown for persistent storage complete.
- * HISTORY:
- * HISTORY:     Revision 1.6  1998/11/04 17:12:34  lbe
- * HISTORY:     debug-lockdown
- * HISTORY:
- * HISTORY:     Revision 1.5  1998/10/14 15:57:40  lbe
- * HISTORY:     *** empty log message ***
- * HISTORY:
- * HISTORY:     Revision 1.4  1998/10/12 10:00:10  lbe
- * HISTORY:     clampdown
- * HISTORY:
- * HISTORY:     Revision 1.3  1998/08/05 09:00:27  lbe
- * HISTORY:     *** empty log message ***
- * HISTORY:
- * HISTORY:     Revision 1.2  1998/07/23 15:18:19  lbe
- * HISTORY:     working
- * HISTORY:
- * HISTORY:     Revision 1.1  1998/07/02 17:25:43  lbe
- * HISTORY:     Initial revision
- * HISTORY:
+ * BUGS:        -
  */
  
 static char RCSID[]="$Id$";

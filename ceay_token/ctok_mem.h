@@ -1,20 +1,20 @@
 /* -*- c -*- */
 /*
- * This file is part of TC-PKCS11. 
- * (c) 1999 TC TrustCenter for Security in DataNetworks GmbH 
+ * This file is part of GPKCS11. 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
- * TC-PKCS11 is free software; you can redistribute it and/or modify
+ * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
  *  
- * TC-PKCS11 is distributed in the hope that it will be useful,
+ * GPKCS11 is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *  
  * You should have received a copy of the GNU General Public License
- * along with TC-PKCS11; see the file COPYING.  If not, write to the Free
+ * along with GPKCS11; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place - Suite 330, Boston, MA 02111, USA.  
  */
 /*
@@ -28,23 +28,7 @@
  * FILES:	-
  * SEE/ALSO:	-
  * AUTHOR:	lbe
- * BUGS: *	-
- * HISTORY:	$Log$
- * HISTORY:	Revision 1.1  1999/06/04 14:58:37  lbe
- * HISTORY:	change to libtool/automake complete (except for __umoddi prob)
- * HISTORY:	
- * HISTORY:	Revision 1.4  1999/01/19 12:19:38  lbe
- * HISTORY:	first release lockdown
- * HISTORY:
- * HISTORY:	Revision 1.3  1998/11/13 10:10:26  lbe
- * HISTORY:	added persistent storage.
- * HISTORY:
- * HISTORY:	Revision 1.2  1998/11/03 15:59:25  lbe
- * HISTORY:	auto-lockdown
- * HISTORY:
- * HISTORY:	Revision 1.1  1998/10/12 10:09:22  lbe
- * HISTORY:	clampdown
- * HISTORY:
+ * BUGS: 	-
  */
 
 #ifndef CTOK_MEM_H

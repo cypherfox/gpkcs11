@@ -1,7 +1,7 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999,2000 TC TrustCenter for Security in DataNetworks GmbH 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
  * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,32 +28,7 @@
  * FILES:       -
  * SEE/ALSO:    -
  * AUTHOR:      lbe
- * BUGS: *      -
- * HISTORY:     $Log$
- * HISTORY:     Revision 1.2  2000/01/31 18:09:02  lbe
- * HISTORY:     lockdown prior to win_gdbm change
- * HISTORY:
- * HISTORY:     Revision 1.1  1999/06/16 09:46:08  lbe
- * HISTORY:     reorder files
- * HISTORY:
- * HISTORY:     Revision 1.6  1999/01/19 12:19:41  lbe
- * HISTORY:     first release lockdown
- * HISTORY:
- * HISTORY:     Revision 1.5  1998/11/10 09:43:11  lbe
- * HISTORY:     hash iter geaendert: hashtabelle braucht nicht mehr an fkts uebergeben werden.
- * HISTORY:
- * HISTORY:     Revision 1.4  1998/10/12 10:01:08  lbe
- * HISTORY:     clampdown
- * HISTORY:
- * HISTORY:     Revision 1.3  1998/08/05 08:59:15  lbe
- * HISTORY:     added function for hash of string
- * HISTORY:
- * HISTORY:     Revision 1.2  1998/07/23 15:20:11  lbe
- * HISTORY:     working
- * HISTORY:
- * HISTORY:     Revision 1.1  1998/07/02 17:14:41  lbe
- * HISTORY:     Initial revision
- * HISTORY:
+ * BUGS:        -
  */
 
 #ifndef _HASH_H_

@@ -1,20 +1,20 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999 TC TrustCenter for Security in DataNetworks GmbH 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
- * TC-PKCS11 is free software; you can redistribute it and/or modify
+ * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
  *  
- * TC-PKCS11 is distributed in the hope that it will be useful,
+ * GPKCS11 is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *  
  * You should have received a copy of the GNU General Public License
- * along with TC-PKCS11; see the file COPYING.  If not, write to the Free
+ * along with GPKCS11; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place - Suite 330, Boston, MA 02111, USA.  
  */
 /*
@@ -28,86 +28,13 @@
  * FILES:       -
  * SEE/ALSO:    -
  * AUTHOR:      lbe
- * BUGS: *      -
- * HISTORY:     $Log$
- * HISTORY:     Revision 1.8  2000/01/31 18:09:00  lbe
- * HISTORY:     lockdown prior to win_gdbm change
- * HISTORY:
- * HISTORY:     Revision 1.7  1999/12/02 14:16:26  lbe
- * HISTORY:     tons of small bug fixes and bullet proofing of libgpkcs11 and cryptsh
- * HISTORY:
- * HISTORY:     Revision 1.6  1999/12/01 11:37:22  lbe
- * HISTORY:     write back changes by afchine
- * HISTORY:
- * HISTORY:     Revision 1.5  1999/11/02 13:47:15  lbe
- * HISTORY:     change of structures and bug fix in slot.c, add more files for tcsc_token: emptyfuncs and general_data
- * HISTORY:
- * HISTORY:     Revision 1.4  1999/10/08 13:00:10  lbe
- * HISTORY:     release version 0.5.5
- * HISTORY:
- * HISTORY:     Revision 1.3  1999/10/06 07:57:19  lbe
- * HISTORY:     solved netscape symbol clash problem
- * HISTORY:
- * HISTORY:     Revision 1.2  1999/07/20 17:39:58  lbe
- * HISTORY:     fix bug in gdbm Makefile: there is not allways an 'install' around
- * HISTORY:
- * HISTORY:     Revision 1.1  1999/06/04 14:58:36  lbe
- * HISTORY:     change to libtool/automake complete (except for __umoddi prob)
- * HISTORY:
- * HISTORY:     Revision 1.16  1999/02/18 11:12:43  lbe
- * HISTORY:     added support for CKM_RSA_X_509 and did some additional work on the tests
- * HISTORY:
- * HISTORY:     Revision 1.15  1999/01/22 08:35:32  lbe
- * HISTORY:     full build with new perisistant storage complete
- * HISTORY:
- * HISTORY:     Revision 1.14  1999/01/19 12:19:36  lbe
- * HISTORY:     first release lockdown
- * HISTORY:
- * HISTORY:     Revision 1.13  1999/01/15 15:08:32  lbe
- * HISTORY:     first revision of persistent storage completed
- * HISTORY:
- * HISTORY:     Revision 1.12  1999/01/13 16:16:59  lbe
- * HISTORY:     clampdown for persistent storage complete.
- * HISTORY:
- * HISTORY:     Revision 1.11  1999/01/11 16:21:33  lbe
- * HISTORY:     *** empty log message ***
- * HISTORY:
- * HISTORY:     Revision 1.10  1998/11/26 10:15:27  lbe
- * HISTORY:     added persistent storage
- * HISTORY:
- * HISTORY:     Revision 1.9  1998/11/13 10:10:29  lbe
- * HISTORY:     added persistent storage.
- * HISTORY:
- * HISTORY:     Revision 1.8  1998/11/10 09:43:27  lbe
- * HISTORY:     hash iter geaendert: hashtabelle braucht nicht mehr an fkts uebergeben werden.
- * HISTORY:
- * HISTORY:     Revision 1.7  1998/11/04 17:12:29  lbe
- * HISTORY:     debug-lockdown
- * HISTORY:
- * HISTORY:     Revision 1.6  1998/11/03 15:59:24  lbe
- * HISTORY:     auto-lockdown
- * HISTORY:
- * HISTORY:     Revision 1.5  1998/10/12 10:09:19  lbe
- * HISTORY:     clampdown
- * HISTORY:
- * HISTORY:     Revision 1.4  1998/07/30 15:29:39  lbe
- * HISTORY:     Win32 Port
- * HISTORY:
- * HISTORY:     Revision 1.3  1998/07/13 15:36:59  lbe
- * HISTORY:     Funktionen für SSL vervollständigt
- * HISTORY:
- * HISTORY:     Revision 1.2  1998/07/06 09:41:54  lbe
- * HISTORY:     DES info struct hinzugefügt
- * HISTORY:
- * HISTORY:     Revision 1.1  1998/07/02 17:07:19  lbe
- * HISTORY:     Initial revision
- * HISTORY:
+ * BUGS:        -
  */
 
 #include "internal.h"
 #include "cryptdb.h"
 
-/* *** includes der crypto lib *** */
+/* *** includes of the crypto lib *** */
 /* for bn.h */
 #ifndef WIN16
 #include <stdio.h>
@@ -124,7 +51,7 @@
 /* ### mechanism information ### */
 #define USE_ALL_CRYPT
 #ifdef USE_ALL_CRYPT
-# define CK_I_CEAY_MECHANISM_NUM 29
+# define CK_I_CEAY_MECHANISM_NUM 32
 #else
 # define CK_I_CEAY_MECHANISM_NUM 3
 #endif
@@ -767,6 +694,9 @@ typedef struct CK_I_CEAY_DES_INFO
 {
   des_key_schedule sched;
   des_cblock ivec;
+  CK_CHAR pad;
+  CK_CHAR round;
+  CK_CHAR lastblock[8];
 } CK_I_CEAY_DES_INFO;
 
 typedef CK_I_CEAY_DES_INFO CK_PTR CK_I_CEAY_DES_INFO_PTR;
@@ -811,6 +741,24 @@ typedef struct CK_I_SHA_MAC_STATE {
 } CK_I_SHA_MAC_STATE;
 
 typedef CK_I_SHA_MAC_STATE CK_PTR CK_I_SHA_MAC_STATE_PTR;
+
+/* For C_GetOperationState and C_SetOperationState services    */
+typedef struct CK_I_OPERATION_STATE {
+  CK_USER_TYPE user_type;              /* Type of user that runs this session */
+  CK_I_FIND_STATE_PTR find_state;      /* internal state for the FindObject functions */
+  CK_VOID_PTR digest_state;            /* Created by C_DigestInit */
+  CK_MECHANISM_TYPE digest_mechanism;  /* mechanism of active digest if digest_state != NULL_PTR */
+  CK_VOID_PTR encrypt_state;           /* Created by C_EncryptInit */
+  CK_MECHANISM_TYPE encrypt_mechanism; /* mechanism of active encryption if encrypt_state != NULL_PTR */
+  CK_VOID_PTR decrypt_state;           /* Created by C_DecryptInit */
+  CK_MECHANISM_TYPE decrypt_mechanism; /* mechanism of active decryption if decrypt_state != NULL_PTR */
+  CK_VOID_PTR sign_state;              /* Created by C_SignInit */
+  CK_MECHANISM_TYPE sign_mechanism;    /* mechanism of active signing if sign_state != NULL_PTR */   
+  CK_VOID_PTR verify_state;            /* Created by C_VerifyInit */
+  CK_MECHANISM_TYPE verify_mechanism;  /* mechanism of active verifying if verify_state != NULL_PTR */   
+} CK_I_OPERATION_STATE;
+
+typedef struct CK_I_OPERATION_STATE CK_PTR CK_I_OPERATION_STATE_PTR;
 
 /*
  * Local variables:

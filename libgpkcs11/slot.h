@@ -1,7 +1,7 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999,2000 TC TrustCenter for Security in DataNetworks GmbH 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
  * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,35 +28,7 @@
  * FILES:	-
  * SEE/ALSO:	-
  * AUTHOR:	lbe
- * BUGS: *	-
- * HISTORY:	$Log$
- * HISTORY:	Revision 1.6  2000/06/05 11:43:43  lbe
- * HISTORY:	tcsc token breakup, return pSlotCount in SlotList, code for event handling deactivated
- * HISTORY:	
- * HISTORY:	Revision 1.5  2000/05/16 09:54:14  lbe
- * HISTORY:	checkin to test bonsai
- * HISTORY:	
- * HISTORY:	Revision 1.4  2000/05/12 13:13:15  lbe
- * HISTORY:	zwischen durchmal B-)
- * HISTORY:	
- * HISTORY:	Revision 1.3  2000/01/31 18:09:03  lbe
- * HISTORY:	lockdown prior to win_gdbm change
- * HISTORY:	
- * HISTORY:	Revision 1.2  1999/07/20 17:40:02  lbe
- * HISTORY:	fix bug in gdbm Makefile: there is not allways an 'install' around
- * HISTORY:	
- * HISTORY:	Revision 1.1  1999/06/16 09:46:11  lbe
- * HISTORY:	reorder files
- * HISTORY:	
- * HISTORY:	Revision 1.3  1999/06/04 14:58:35  lbe
- * HISTORY:	change to libtool/automake complete (except for __umoddi prob)
- * HISTORY:	
- * HISTORY:	Revision 1.2  1999/01/19 12:19:47  lbe
- * HISTORY:	first release lockdown
- * HISTORY:
- * HISTORY:	Revision 1.1  1998/10/12 10:08:45  lbe
- * HISTORY:	clampdown
- * HISTORY:
+ * BUGS: 	-
  */
 
 #ifndef _SLOT_H

@@ -1,21 +1,21 @@
 // -*- c++ -*- only for the folding mode
 /////////////////////////////////////////////////////////////////////////////////////// 
 //
-// This file is part of TC-PKCS11. 
-// (c) 1999 TC TrustCenter for Security in DataNetworks GmbH 
+// This file is part of GPKCS11. 
+// (c) 1999-2001 TC TrustCenter for Security in DataNetworks GmbH 
 //
-// TC-PKCS11 is free software; you can redistribute it and/or modify
+// GPKCS11 is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2, or (at your option)
 // any later version.
 //  
-// TC-PKCS11 is distributed in the hope that it will be useful,
+// GPKCS11 is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //  
-// You should have received a copy of the GNU General Public License
-// along with TC-PKCS11; see the file COPYING.  If not, write to the Free
+// You should have received a copy of the GNU Lesser General Public License
+// along with GPKCS11; see the file COPYING.LIB.  If not, write to the Free
 // Software Foundation, 59 Temple Place - Suite 330, Boston, MA 02111, USA.  
 // 
 // RCSID:       $Id$
@@ -28,38 +28,7 @@
 // FILES:       -
 // SEE/ALSO:    -
 // AUTHOR:      lbe
-// BUGS: *      -
-// HISTORY:     $Log$
-// HISTORY:     Revision 1.4  2000/05/12 13:13:12  lbe
-// HISTORY:     zwischen durchmal B-)
-// HISTORY:
-// HISTORY:     Revision 1.3  1999/12/08 16:06:27  lbe
-// HISTORY:     clean up of token prior to creation of new gen-data token
-// HISTORY:
-// HISTORY:     Revision 1.2  1999/10/06 07:57:16  lbe
-// HISTORY:     solved netscape symbol clash problem
-// HISTORY:
-// HISTORY:     Revision 1.1  1999/06/16 09:45:50  lbe
-// HISTORY:     reorder files
-// HISTORY:
-// HISTORY:     Revision 1.6  1999/01/19 12:19:47  lbe
-// HISTORY:     first release lockdown
-// HISTORY:
-// HISTORY:     Revision 1.5  1999/01/15 15:09:27  lbe
-// HISTORY:     *** empty log message ***
-// HISTORY:
-// HISTORY:     Revision 1.4  1998/10/12 11:28:49  lbe
-// HISTORY:     clampdown
-// HISTORY:
-// HISTORY:     Revision 1.3  1998/07/30 15:34:44  lbe
-// HISTORY:     Win32 Port
-// HISTORY:
-// HISTORY:     Revision 1.2  1998/07/23 14:48:43  lbe
-// HISTORY:     test-revision
-// HISTORY:
-// HISTORY:     Revision 1.1  1998/07/17 10:04:03  lbe
-// HISTORY:     Initial revision
-// HISTORY:
+// BUGS:        -
 //
 // {{{ Crypto Mechanism Flags 
 CEAY_MECH_RSA_FLAG           =  0x1<<0; 

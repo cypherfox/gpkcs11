@@ -1,7 +1,7 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999 TC TrustCenter for Security in DataNetworks GmbH 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
  * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  *  
  * You should have received a copy of the GNU General Public License
- * along with TC-PKCS11; see the file COPYING.  If not, write to the Free
+ * along with GPKCS11; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place - Suite 330, Boston, MA 02111, USA.  
  */
 /*
@@ -24,136 +24,12 @@
  * State:       $State$ $Locker$
  * NAME:        ceay_token.c
  * SYNOPSIS:    -
- * DESCRIPTION: -
+ * DESCRIPTION: implements the core of the ceay token. All fkts except 
+ *              symetric en-/decryption is handled here.
  * FILES:       -
  * SEE/ALSO:    -
  * AUTHOR:      lbe
- * BUGS: *      -
- * HISTORY:     $Log$
- * HISTORY:     Revision 1.1.1.1  2000/10/15 16:49:03  cypherfox
- * HISTORY:     import of gpkcs11-0.7.2, first version for SourceForge
- * HISTORY:
- * HISTORY:     Revision 1.16  2000/07/24 15:43:53  lbe
- * HISTORY:     added the files for snacc usage
- * HISTORY:
- * HISTORY:     Revision 1.15  2000/05/12 13:13:12  lbe
- * HISTORY:     zwischen durchmal B-)
- * HISTORY:
- * HISTORY:     Revision 1.14  2000/03/08 09:59:05  lbe
- * HISTORY:     fix SIGBUS in cryptdb, improve readeability for C_FindObject log output
- * HISTORY:
- * HISTORY:     Revision 1.13  2000/02/08 16:12:45  lbe
- * HISTORY:     last changes from beta testers
- * HISTORY:
- * HISTORY:     Revision 1.12  2000/01/31 18:08:59  lbe
- * HISTORY:     lockdown prior to win_gdbm change
- * HISTORY:
- * HISTORY:     Revision 1.11  2000/01/07 10:24:42  lbe
- * HISTORY:     introduce changes for release
- * HISTORY:
- * HISTORY:     Revision 1.10  1999/12/10 16:58:40  jzu
- * HISTORY:     new data-token (2)
- * HISTORY:
- * HISTORY:     Revision 1.9  1999/12/01 13:44:45  lbe
- * HISTORY:     debug build system for missing central lib directory and debug afchine changes
- * HISTORY:
- * HISTORY:     Revision 1.8  1999/12/01 11:37:21  lbe
- * HISTORY:     write back changes by afchine
- * HISTORY:
- * HISTORY:     Revision 1.7  1999/11/25 16:46:49  lbe
- * HISTORY:     moved all lib version defines into the conf.h
- * HISTORY:
- * HISTORY:     Revision 1.6  1999/11/02 13:47:14  lbe
- * HISTORY:     change of structures and bug fix in slot.c, add more files for tcsc_token: emptyfuncs and general_data
- * HISTORY:
- * HISTORY:     Revision 1.5  1999/10/08 13:00:09  lbe
- * HISTORY:     release version 0.5.5
- * HISTORY:
- * HISTORY:     Revision 1.4  1999/10/06 07:57:18  lbe
- * HISTORY:     solved netscape symbol clash problem
- * HISTORY:
- * HISTORY:     Revision 1.3  1999/07/20 17:39:57  lbe
- * HISTORY:     fix bug in gdbm Makefile: there is not allways an 'install' around
- * HISTORY:
- * HISTORY:     Revision 1.2  1999/06/16 09:46:01  lbe
- * HISTORY:     reorder files
- * HISTORY:
- * HISTORY:     Revision 1.1  1999/06/04 14:58:36  lbe
- * HISTORY:     change to libtool/automake complete (except for __umoddi prob)
- * HISTORY:
- * HISTORY:     Revision 1.24  1999/03/18 14:10:20  lbe
- * HISTORY:     entered patches from externals
- * HISTORY:
- * HISTORY:     Revision 1.23  1999/03/01 14:36:42  lbe
- * HISTORY:     merged changes from the weekend
- * HISTORY:
- * HISTORY:     Revision 1.22  1999/02/18 11:12:42  lbe
- * HISTORY:     added support for CKM_RSA_X_509 and did some additional work on the tests
- * HISTORY:
- * HISTORY:     Revision 1.21  1999/01/22 08:35:31  lbe
- * HISTORY:     full build with new perisistant storage complete
- * HISTORY:
- * HISTORY:     Revision 1.20  1999/01/19 12:19:35  lbe
- * HISTORY:     first release lockdown
- * HISTORY:
- * HISTORY:     Revision 1.19  1999/01/14 16:29:34  lbe
- * HISTORY:     include statement for TCCGenKey changes
- * HISTORY:     so dependency can checked by make.
- * HISTORY:
- * HISTORY:     Revision 1.18  1999/01/13 16:13:59  lbe
- * HISTORY:     clampdown for persistent storage complete
- * HISTORY:
- * HISTORY:     Revision 1.17  1999/01/11 16:20:51  lbe
- * HISTORY:     *** empty log message ***
- * HISTORY:
- * HISTORY:     Revision 1.16  1998/12/07 13:18:46  lbe
- * HISTORY:     TC_free von parametern für Zeile und Datei befreit.
- * HISTORY:
- * HISTORY:     Revision 1.15  1998/12/02 10:46:24  lbe
- * HISTORY:     work on persistent storage.
- * HISTORY:
- * HISTORY:     Revision 1.14  1998/11/26 10:14:52  lbe
- * HISTORY:     added persistent storage
- * HISTORY:
- * HISTORY:     Revision 1.13  1998/11/13 10:10:27  lbe
- * HISTORY:     added persistent storage.
- * HISTORY:
- * HISTORY:     Revision 1.12  1998/11/10 09:43:29  lbe
- * HISTORY:     hash iter geaendert: hashtabelle braucht nicht mehr an fkts uebergeben werden.
- * HISTORY:
- * HISTORY:     Revision 1.11  1998/11/04 17:12:36  lbe
- * HISTORY:     debug-lockdown
- * HISTORY:
- * HISTORY:     Revision 1.10  1998/11/03 16:00:16  lbe
- * HISTORY:     auto-lockdown
- * HISTORY:
- * HISTORY:     Revision 1.9  1998/10/19 10:56:09  lbe
- * HISTORY:     check in before change to des_ecb code (buggy)
- * HISTORY:
- * HISTORY:     Revision 1.8  1998/10/12 10:00:14  lbe
- * HISTORY:     clampdown
- * HISTORY:
- * HISTORY:     Revision 1.7  1998/09/11 14:06:46  lbe
- * HISTORY:     lockdown for some dangerous hacks
- * HISTORY:
- * HISTORY:     Revision 1.6  1998/08/05 09:01:06  lbe
- * HISTORY:     *** empty log message ***
- * HISTORY:
- * HISTORY:     Revision 1.5  1998/07/30 15:29:43  lbe
- * HISTORY:     Win32 Port
- * HISTORY:
- * HISTORY:     Revision 1.4  1998/07/23 15:16:24  lbe
- * HISTORY:     works
- * HISTORY:
- * HISTORY:     Revision 1.3  1998/07/13 15:36:34  lbe
- * HISTORY:     Funktionen für SSL vervollständigt
- * HISTORY:
- * HISTORY:     Revision 1.2  1998/07/06 09:41:31  lbe
- * HISTORY:     DES funktionen hinzugefügt
- * HISTORY:
- * HISTORY:     Revision 1.1  1998/07/02 17:06:47  lbe
- * HISTORY:     Initial revision
- * HISTORY:
+ * BUGS:        -
  */
  
 static char RCSID[]="$Id$";
@@ -165,6 +41,7 @@ const char* ceay_token_c_version(){return RCSID;}
 #endif /* CK_I_library_build */
 
 #include "ceay_token.h"
+#include "ceay_symbols.h"
 #include "objects.h"
 #include "error.h"
 #include "mutex.h"
@@ -202,8 +79,9 @@ const char* ceay_token_c_version(){return RCSID;}
 /* TC-Utils RSA key gen */
 #include "TCCGenKey.h"
 
+
 /* #define CK_I_RSA_PKCS_SIZE_OFFSET 11 */
-/* this variable is defined in the SSL routines, but needed to in here */
+/* this variable is defined in the SSL routines, but needed in here too */
 int des_rw_mode;
 
 /* {{{ Global constants for template/object creation */
@@ -561,12 +439,15 @@ CK_MECHANISM_TYPE ceay_mechanism_list[CK_I_CEAY_MECHANISM_NUM] = {
   CKM_RC4,                             /* 21 */
   CKM_DES_ECB,                         /* 22 */
   CKM_DES_CBC,                         /* 23 */
-  CKM_IDEA_ECB,                        /* 24 */
-  CKM_IDEA_CBC,                        /* 25 */
-  CKM_DES3_ECB,                        /* 26 */
-  CKM_DES3_CBC,                        /* 27 */
-  CKM_SHA1_RSA_PKCS,                   /* 28 */
-  CKM_DSA_SHA1,                        /* 29 */
+  CKM_DES_CBC_PAD,                     /* 24 */
+  CKM_IDEA_ECB,                        /* 25 */
+  CKM_IDEA_CBC,                        /* 26 */
+  CKM_DES3_ECB,                        /* 27 */
+  CKM_DES3_CBC,                        /* 28 */
+  CKM_SHA1_RSA_PKCS,                   /* 29 */
+  CKM_MD5_RSA_PKCS,                    /* 30 */
+  CKM_MD2_RSA_PKCS,                    /* 31 */
+  CKM_DSA_SHA1,                        /* 32 */
 #endif
 };
 
@@ -598,11 +479,14 @@ CK_MECHANISM_INFO ceay_mechanism_info_list[CK_I_CEAY_MECHANISM_NUM]= {
   {   8, 2048, CKF_ENCRYPT|CKF_DECRYPT|CKF_WRAP|CKF_UNWRAP }, /* CKM_RC4 */
   {   0,    0, CKF_ENCRYPT|CKF_DECRYPT|CKF_WRAP|CKF_UNWRAP},  /* CKM_DES_ECB */
   {   0,    0, CKF_ENCRYPT|CKF_DECRYPT},                      /* CKM_DES_CBC */
+  {   0,    0, CKF_ENCRYPT|CKF_DECRYPT},                      /* CKM_DES_CBC_PAD */
   {   0,    0, CKF_ENCRYPT|CKF_DECRYPT|CKF_WRAP|CKF_UNWRAP},  /* CKM_IDEA_ECB */
   {   0,    0, CKF_ENCRYPT|CKF_DECRYPT},                      /* CKM_IDEA_CBC */
   {   0,    0, CKF_ENCRYPT|CKF_DECRYPT|CKF_WRAP|CKF_UNWRAP},  /* CKM_DES3_ECB */
   {   0,    0, CKF_ENCRYPT|CKF_DECRYPT},                      /* CKM_DES3_CBC */
   { 508, 4096, CKF_SIGN|CKF_VERIFY },                         /* CKM_SHA1_RSA_PKCS */
+  { 508, 4096, CKF_SIGN|CKF_VERIFY },                         /* CKM_MD5_RSA_PKCS */
+  { 508, 4096, CKF_SIGN|CKF_VERIFY },                         /* CKM_MD2_RSA_PKCS */
   { 512, 1024, CKF_SIGN|CKF_VERIFY },                         /* CKM_DSA_SHA1 */
 #endif
 };
@@ -777,6 +661,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_InitToken)(
 
   return CKR_OK;
 }
+
 /* }}} */
 
 /* {{{ CI_Ceay_FinalizeToken */
@@ -804,7 +689,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_FinalizeToken)(
     CI_ObjDestroyObj(CK_I_rsa_empty_private_key_obj);
 
   /* clear the space of the random number generator */
-  CI_Ceay_RAND_cleanup();
+  RAND_cleanup();
   
   return CKR_OK;
 }
@@ -1141,7 +1026,65 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_CloseSession)(
   CK_ULONG_PTR          pulOperationStateLen  /* gets state length */
 )
 {
-  return CKR_FUNCTION_NOT_SUPPORTED;
+  /* Save only the digest state, refuse the others */
+  CK_ULONG	ulStateLen = sizeof(CK_I_OPERATION_STATE);
+  CK_ULONG	ulDigestLen = 0;
+
+  if (session_data->find_state != NULL_PTR)
+    return CKR_STATE_UNSAVEABLE;
+
+  if (session_data->encrypt_state != NULL_PTR)
+    return CKR_STATE_UNSAVEABLE;
+
+  if (session_data->decrypt_state != NULL_PTR)
+    return CKR_STATE_UNSAVEABLE;
+
+  if (session_data->sign_state != NULL_PTR)
+    return CKR_STATE_UNSAVEABLE;
+
+  if (session_data->verify_state != NULL_PTR)
+    return CKR_STATE_UNSAVEABLE;
+
+  if (session_data->digest_state != NULL_PTR)
+  {
+    switch (session_data->digest_mechanism)
+    {
+    case CKM_MD2:
+      ulDigestLen = sizeof(MD2_CTX);
+      break;
+
+    case CKM_MD5:
+      ulDigestLen = sizeof(MD5_CTX);
+      break;
+      
+    case CKM_SHA_1:
+      ulDigestLen = sizeof(SHA_CTX);
+      break;
+
+    default:
+      return CKR_STATE_UNSAVEABLE;
+    }
+  }
+  ulStateLen += ulDigestLen;
+
+  if (pOperationState == NULL_PTR)
+  {
+    *pulOperationStateLen = ulStateLen;
+  }
+  else
+  {
+    if (*pulOperationStateLen < ulStateLen)
+      return CKR_BUFFER_TOO_SMALL;
+
+    memset(pOperationState, 0, ulStateLen);
+
+    ((CK_I_OPERATION_STATE_PTR)pOperationState)->digest_state = pOperationState + sizeof(CK_I_OPERATION_STATE);
+    ((CK_I_OPERATION_STATE_PTR)pOperationState)->digest_mechanism = session_data->digest_mechanism;
+    memcpy(((CK_I_OPERATION_STATE_PTR)pOperationState)->digest_state,
+	   session_data->digest_state,
+	   ulDigestLen);
+  }
+  return CKR_OK;
 }
 /* }}} */
 /* {{{ CI_Ceay_SetOperationState */
@@ -1153,8 +1096,57 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_SetOperationState)(
   CK_I_OBJ_PTR          auth_key_obj          /* sign/verify key */
 )
 {
-  return CKR_FUNCTION_NOT_SUPPORTED;
+  CK_ULONG	ulStateLen = sizeof(CK_I_OPERATION_STATE);
+  CK_ULONG	ulDigestLen;
+  CK_VOID_PTR	pNewDigestState = NULL_PTR;
+
+  if (((CK_I_OPERATION_STATE_PTR)pOperationState)->digest_state != NULL_PTR)
+  {
+    switch (((CK_I_OPERATION_STATE_PTR)pOperationState)->digest_mechanism)
+    {
+    case CKM_MD2:
+      ulDigestLen = sizeof(MD2_CTX);
+      break;
+
+    case CKM_MD5:
+      ulDigestLen = sizeof(MD5_CTX);
+      break;
+      
+    case CKM_SHA_1:
+      ulDigestLen = sizeof(SHA_CTX);
+      break;
+
+    default:
+      ulDigestLen = 0;
+    }
+    ulStateLen += ulDigestLen;
+
+    if (ulStateLen != ulOperationStateLen)
+      return CKR_SAVED_STATE_INVALID;
+    
+    pNewDigestState = TC_malloc(ulDigestLen);      
+    if (pNewDigestState == NULL_PTR)
+      return CKR_HOST_MEMORY;
+
+    memcpy(pNewDigestState,
+	   ((CK_I_OPERATION_STATE *)pOperationState)->digest_state,
+	   ulDigestLen);
+  }
+  else
+  {
+    if (ulStateLen != ulOperationStateLen)
+      return CKR_SAVED_STATE_INVALID;
+  }
+
+  if(session_data->digest_state != NULL_PTR)
+    TC_free(session_data->digest_state);
+  
+  session_data->digest_state = pNewDigestState;
+  session_data->digest_mechanism = ((CK_I_OPERATION_STATE *)pOperationState)->digest_mechanism;
+
+  return CKR_OK;
 }
+
 /* }}} */
 /* {{{ CI_Ceay_Login */
 CK_DECLARE_FUNCTION(CK_RV, CI_Ceay_Login)(
@@ -1303,7 +1295,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DigestInit)(
 
       session_data->digest_mechanism = CKM_SHA_1;
 
-      CI_Ceay_SHA1_Init((SHA_CTX CK_PTR)session_data->digest_state);
+      SHA1_Init((SHA_CTX CK_PTR)session_data->digest_state);
       break;
 
     default:
@@ -1371,8 +1363,8 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Digest)(
       session_data->digest_state = NULL_PTR;
       break;
     case CKM_SHA_1:
-      CI_Ceay_SHA1_Update((SHA_CTX CK_PTR)session_data->digest_state,pData,ulDataLen);
-      CI_Ceay_SHA1_Final(pDigest,(SHA_CTX CK_PTR)session_data->digest_state);
+      SHA1_Update((SHA_CTX CK_PTR)session_data->digest_state,pData,ulDataLen);
+      SHA1_Final(pDigest,(SHA_CTX CK_PTR)session_data->digest_state);
       TC_free(session_data->digest_state);
       session_data->digest_state = NULL_PTR;
       break;
@@ -1417,7 +1409,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DigestUpdate)(
 	       (unsigned char *)pPart,ulPartLen);
       break;
     case CKM_SHA_1:
-    CI_Ceay_SHA1_Update((SHA_CTX CK_PTR)session_data->digest_state,
+    SHA1_Update((SHA_CTX CK_PTR)session_data->digest_state,
 		(unsigned char *)pPart,ulPartLen);
       break;
     default:
@@ -1484,7 +1476,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DigestFinal)(
       MD2_Final(pDigest,(MD2_CTX CK_PTR)session_data->digest_state);
       break;
     case CKM_SHA_1:
-      CI_Ceay_SHA1_Final(pDigest,(SHA_CTX CK_PTR)session_data->digest_state);
+      SHA1_Final(pDigest,(SHA_CTX CK_PTR)session_data->digest_state);
       break;
     default:
       rv = CKR_MECHANISM_INVALID;
@@ -1541,7 +1533,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DigestKey)(
       MD2_Update((MD2_CTX CK_PTR)session_data->digest_state,pPart,ulPartLen);
       break;
     case CKM_SHA_1:
-      CI_Ceay_SHA1_Update((SHA_CTX CK_PTR)session_data->digest_state,pPart,ulPartLen);
+      SHA1_Update((SHA_CTX CK_PTR)session_data->digest_state,pPart,ulPartLen);
     default:
       return CKR_MECHANISM_INVALID;
     }
@@ -1626,7 +1618,101 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_SignInit)(
 	
 	session_data->digest_mechanism = CKM_SHA_1;
 	
-	CI_Ceay_SHA1_Init((SHA_CTX CK_PTR)session_data->digest_state);
+	SHA1_Init((SHA_CTX CK_PTR)session_data->digest_state);
+	
+      }
+      break;
+      /* }}} */
+      /* {{{ CKM_MD5_RSA_PKCS */
+    case CKM_MD5_RSA_PKCS:
+      {
+	RSA CK_PTR internal_key_obj = NULL_PTR;
+	
+	CI_LogEntry("CI_Ceay_SignInit with CKM_MD5_RSA_PKCS", "starting...", rv ,2);
+	
+	if (session_data->digest_state != NULL_PTR)
+	  {
+	    rv = CKR_OPERATION_ACTIVE;
+	    CI_LogEntry("CI_Ceay_SignInit with CKM_MD5_RSA_PKCS", "testing state", rv ,0);
+	    return rv;
+	  }
+	/* check that object is a private key */
+	if((CI_ObjLookup(key_obj,CK_IA_CLASS) == NULL_PTR) ||
+	   (*((CK_OBJECT_CLASS CK_PTR)CI_ObjLookup(key_obj,CK_IA_CLASS)->pValue) != CKO_PRIVATE_KEY))
+	  {
+	    rv = CKR_KEY_TYPE_INCONSISTENT;
+	    CI_LogEntry("CI_Ceay_SignInit with CKM_MD5_RSA_PKCS", 
+			"testing that object is a private key", rv ,0);
+	    return rv;
+	  }
+	
+	internal_key_obj = CI_Ceay_Obj2RSA(key_obj);
+	if(internal_key_obj == NULL_PTR)
+	  return CKR_HOST_MEMORY;
+	
+	session_data->sign_state = (CK_VOID_PTR)internal_key_obj;
+	session_data->sign_mechanism = CKM_MD5_RSA_PKCS;
+	
+	/* Allocating data structures */
+	session_data->digest_state = CI_MD5_CTX_new();
+	if (session_data->digest_state == NULL_PTR)
+	  {
+	    rv = CKR_HOST_MEMORY;
+	    CI_LogEntry("CI_Ceay_SignInit with CKM_MD5_RSA_PKCS", 
+			"alloc'ing memory for MD5 state", rv ,0);
+	    return rv;
+	  }
+	
+	session_data->digest_mechanism = CKM_MD5;
+	
+	MD5_Init((MD5_CTX CK_PTR)session_data->digest_state);
+	
+      }
+      break;
+      /* }}} */
+      /* {{{ CKM_MD2_RSA_PKCS */
+    case CKM_MD2_RSA_PKCS:
+      {
+	RSA CK_PTR internal_key_obj = NULL_PTR;
+	
+	CI_LogEntry("CI_Ceay_SignInit with CKM_MD2_RSA_PKCS", "starting...", rv ,2);
+	
+	if (session_data->digest_state != NULL_PTR)
+	  {
+	    rv = CKR_OPERATION_ACTIVE;
+	    CI_LogEntry("CI_Ceay_SignInit with CKM_MD2_RSA_PKCS", "testing state", rv ,0);
+	    return rv;
+	  }
+	/* check that object is a private key */
+	if((CI_ObjLookup(key_obj,CK_IA_CLASS) == NULL_PTR) ||
+	   (*((CK_OBJECT_CLASS CK_PTR)CI_ObjLookup(key_obj,CK_IA_CLASS)->pValue) != CKO_PRIVATE_KEY))
+	  {
+	    rv = CKR_KEY_TYPE_INCONSISTENT;
+	    CI_LogEntry("CI_Ceay_SignInit with CKM_MD2_RSA_PKCS", 
+			"testing that object is a private key", rv ,0);
+	    return rv;
+	  }
+	
+	internal_key_obj = CI_Ceay_Obj2RSA(key_obj);
+	if(internal_key_obj == NULL_PTR)
+	  return CKR_HOST_MEMORY;
+	
+	session_data->sign_state = (CK_VOID_PTR)internal_key_obj;
+	session_data->sign_mechanism = CKM_MD2_RSA_PKCS;
+	
+	/* Allocating data structures */
+	session_data->digest_state = CI_MD2_CTX_new();
+	if (session_data->digest_state == NULL_PTR)
+	  {
+	    rv = CKR_HOST_MEMORY;
+	    CI_LogEntry("CI_Ceay_SignInit with CKM_MD2_RSA_PKCS", 
+			"alloc'ing memory for MD2 state", rv ,0);
+	    return rv;
+	  }
+	
+	session_data->digest_mechanism = CKM_MD2;
+	
+	MD2_Init((MD2_CTX CK_PTR)session_data->digest_state);
 	
       }
       break;
@@ -1673,7 +1759,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_SignInit)(
 	
 	session_data->digest_mechanism = CKM_SHA_1;
 	
-	CI_Ceay_SHA1_Init((SHA_CTX CK_PTR)session_data->digest_state);
+	SHA1_Init((SHA_CTX CK_PTR)session_data->digest_state);
 	
       }
       break;
@@ -1899,12 +1985,12 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_SignInit)(
 		       rv,2,mac_state->params);
 	
 	/* start hashing of key */
-	CI_Ceay_SHA1_Update(mac_state->inner_CTX,key_data,key_len);
-	CI_Ceay_SHA1_Update(mac_state->inner_CTX,CK_I_ssl3_pad1,CK_I_ssl3_sha_pad_len);
+	SHA1_Update(mac_state->inner_CTX,key_data,key_len);
+	SHA1_Update(mac_state->inner_CTX,CK_I_ssl3_pad1,CK_I_ssl3_sha_pad_len);
 
 	/* start hashing of key */
-	CI_Ceay_SHA1_Update(mac_state->outer_CTX,key_data,key_len);
-	CI_Ceay_SHA1_Update(mac_state->outer_CTX,CK_I_ssl3_pad2,CK_I_ssl3_sha_pad_len);
+	SHA1_Update(mac_state->outer_CTX,key_data,key_len);
+	SHA1_Update(mac_state->outer_CTX,CK_I_ssl3_pad2,CK_I_ssl3_sha_pad_len);
 	
 	break;	
       }
@@ -1941,17 +2027,130 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Sign)(
 
   switch(session_data->sign_mechanism)
     {
+      /* {{{ CKM_MD2_RSA_PKCS */
+    case CKM_MD2_RSA_PKCS:
+      {
+	/* the data is copied in order to strip the space for the padding after the processing */
+	/* TODO: check if this correct. */
+	CK_BYTE_PTR tmp_buf = NULL_PTR;
+	int sign_len;
+	int ret;
+	
+	rv = CKR_OK;
+	sign_len = RSA_size((RSA CK_PTR)session_data->sign_state);
+	
+	/* check if this is only a call for the length of the output buffer */
+	if(pSignature == NULL_PTR)
+	  {
+	    *pulSignatureLen = sign_len;
+	    return CKR_OK;
+	  }
+	else /* check that buffer is of sufficent size */
+	  {
+	    if(*pulSignatureLen < sign_len)
+	      {
+		*pulSignatureLen = sign_len;
+		return CKR_BUFFER_TOO_SMALL;
+	      }
+	  }
+	
+	tmp_buf = CI_ByteStream_new(sign_len);
+	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto md2_rsa_pkcs1_err; }
+	
+	MD2_Update((MD2_CTX CK_PTR)session_data->digest_state,pData,ulDataLen);
+	MD2_Final(pSignature,(MD2_CTX CK_PTR)session_data->digest_state);
+
+	ret = RSA_sign(NID_md2, pSignature, MD2_DIGEST_LENGTH, 
+		 tmp_buf, &sign_len, (RSA *)session_data->sign_state);	
+
+	if(ret == 0)
+	  { rv = CKR_SIGNATURE_INVALID; goto md2_rsa_pkcs1_err; }
+	if(ret == -1)
+	  { rv = CKR_GENERAL_ERROR; goto md2_rsa_pkcs1_err; }
+
+	*pulSignatureLen = sign_len;
+
+	memcpy(pSignature,tmp_buf,sign_len);
+	
+      md2_rsa_pkcs1_err:
+	if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
+	if(session_data->digest_state != NULL_PTR)
+	  TC_free(session_data->digest_state);
+	session_data->digest_state = NULL_PTR;
+	if(session_data->sign_state != NULL_PTR)
+	  RSA_free(session_data->sign_state);
+	session_data->sign_state = NULL_PTR;
+      }
+      break;
+
+      /* }}} */
+      /* {{{ CKM_MD5_RSA_PKCS */
+    case CKM_MD5_RSA_PKCS:
+      {
+	/* the data is copied in order to strip the space for the padding after the processing */
+	/* TODO: check if this correct. */
+	CK_BYTE_PTR tmp_buf = NULL_PTR;
+	int sign_len;
+	int ret;
+	
+	rv = CKR_OK;
+	sign_len = RSA_size((RSA CK_PTR)session_data->sign_state);
+	
+	/* check if this is only a call for the length of the output buffer */
+	if(pSignature == NULL_PTR)
+	  {
+	    *pulSignatureLen = sign_len;
+	    return CKR_OK;
+	  }
+	else /* check that buffer is of sufficent size */
+	  {
+	    if(*pulSignatureLen < sign_len)
+	      {
+		*pulSignatureLen = sign_len;
+		return CKR_BUFFER_TOO_SMALL;
+	      }
+	  }
+	
+	tmp_buf = CI_ByteStream_new(sign_len);
+	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto md5_rsa_pkcs1_err; }
+	
+	MD5_Update((MD5_CTX CK_PTR)session_data->digest_state,pData,ulDataLen);
+	MD5_Final(pSignature,(MD5_CTX CK_PTR)session_data->digest_state);
+
+	ret = RSA_sign(NID_md5, pSignature, MD5_DIGEST_LENGTH, 
+		 tmp_buf, &sign_len, (RSA *)session_data->sign_state);	
+
+	if(ret == 0)
+	  { rv = CKR_SIGNATURE_INVALID; goto md5_rsa_pkcs1_err; }
+	if(ret == -1)
+	  { rv = CKR_GENERAL_ERROR; goto md5_rsa_pkcs1_err; }
+
+	*pulSignatureLen = sign_len;
+
+	memcpy(pSignature,tmp_buf,sign_len);
+	
+      md5_rsa_pkcs1_err:
+	if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
+	if(session_data->digest_state != NULL_PTR)
+	  TC_free(session_data->digest_state);
+	session_data->digest_state = NULL_PTR;
+	if(session_data->sign_state != NULL_PTR)
+	  RSA_free(session_data->sign_state);
+	session_data->sign_state = NULL_PTR;
+      }
+      break;
+      /* }}} */
       /* {{{ CKM_SHA1_RSA_PKCS */
     case CKM_SHA1_RSA_PKCS:
       {
 	/* the data is copied in order to strip the space for the padding after the processing */
 	/* TODO: check if this correct. */
 	CK_BYTE_PTR tmp_buf = NULL_PTR;
-	CK_ULONG sign_len;
-	long processed; /* number of bytes processed by the crypto routine */
+	int sign_len;
+	int ret;
 	
 	rv = CKR_OK;
-	sign_len = CI_Ceay_RSA_size((RSA CK_PTR)session_data->sign_state);
+	sign_len = RSA_size((RSA CK_PTR)session_data->sign_state);
 	
 	/* check if this is only a call for the length of the output buffer */
 	if(pSignature == NULL_PTR)
@@ -1971,26 +2170,32 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Sign)(
 	tmp_buf = CI_ByteStream_new(sign_len);
 	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto sha1_rsa_pkcs1_err; }
 	
-	CI_Ceay_SHA1_Update((SHA_CTX CK_PTR)session_data->digest_state,pData,ulDataLen);
-	CI_Ceay_SHA1_Final(pSignature,(SHA_CTX CK_PTR)session_data->digest_state);
-	session_data->digest_state = NULL_PTR;
+	SHA1_Update((SHA_CTX CK_PTR)session_data->digest_state,pData,ulDataLen);
+	SHA1_Final(pSignature,(SHA_CTX CK_PTR)session_data->digest_state);
+
+ 
+	ret = RSA_sign(NID_sha1, pSignature, SHA_DIGEST_LENGTH, 
+		       tmp_buf, &sign_len, (RSA *)session_data->sign_state);  
 	
-	processed = CI_Ceay_RSA_private_encrypt(SHA_DIGEST_LENGTH,pSignature,
-					tmp_buf,
-					session_data->sign_state,
-					RSA_PKCS1_PADDING);
-	if(processed == -1)
-	  { rv = CKR_GENERAL_ERROR; goto sha1_rsa_pkcs1_err; }
-	*pulSignatureLen = processed;
+	if(ret == 0)
+	  { rv = CKR_SIGNATURE_INVALID; goto sha1_rsa_pkcs1_err; }
+	if(ret == -1)
+          { rv = CKR_GENERAL_ERROR; goto sha1_rsa_pkcs1_err; }
+	
+	*pulSignatureLen = sign_len;
 	
 	memcpy(pSignature,tmp_buf,sign_len);
 	
-	TC_free(session_data->digest_state);
 	
       sha1_rsa_pkcs1_err:
 	if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
+
+	if(session_data->digest_state != NULL_PTR)
+	  TC_free(session_data->digest_state);
+	session_data->digest_state = NULL_PTR;
+
 	if(session_data->sign_state != NULL_PTR)
-	  CI_Ceay_RSA_free(session_data->sign_state);
+	  RSA_free(session_data->sign_state);
 	session_data->sign_state = NULL_PTR;
       }
       break;
@@ -2005,7 +2210,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Sign)(
 	long processed; /* number of bytes processed by the crypto routine */
 
 	rv = CKR_OK;
-	sign_len = CI_Ceay_RSA_size((RSA CK_PTR)session_data->sign_state);
+	sign_len = RSA_size((RSA CK_PTR)session_data->sign_state);
 
 	/* check if this is only a call for the length of the output buffer */
 	if(pSignature == NULL_PTR)
@@ -2029,7 +2234,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Sign)(
 	tmp_buf = CI_ByteStream_new(sign_len);
 	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto rsa_pkcs1_err; }
 	
-	processed = CI_Ceay_RSA_private_encrypt(ulDataLen,pData,
+	processed = RSA_private_encrypt(ulDataLen,pData,
 					tmp_buf,
 					session_data->sign_state,
 					RSA_PKCS1_PADDING);
@@ -2043,7 +2248,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Sign)(
 	if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
 	if(session_data->sign_state != NULL_PTR)
 	  { 
-	    CI_Ceay_RSA_free(session_data->sign_state); 
+	    RSA_free(session_data->sign_state); 
 	    session_data->sign_state = NULL_PTR;
 	  }
 	break;
@@ -2059,7 +2264,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Sign)(
 	long processed; /* number of bytes processed by the crypto routine */
 
 	rv = CKR_OK;
-	sign_len = CI_Ceay_RSA_size((RSA CK_PTR)session_data->sign_state);
+	sign_len = RSA_size((RSA CK_PTR)session_data->sign_state);
 
 	/* check if this is only a call for the length of the output buffer */
 	if(pSignature == NULL_PTR)
@@ -2083,10 +2288,14 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Sign)(
 	tmp_buf = CI_ByteStream_new(sign_len);
 	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto rsa_x509_err; }
 	
-	processed = CI_Ceay_RSA_private_encrypt(ulDataLen,pData,
-					tmp_buf,
-					session_data->sign_state,
-					RSA_NO_PADDING);
+	/* Pads the input data at the beginning with null characters */
+	memset(tmp_buf, 0, (sign_len - ulDataLen));
+	memcpy(&tmp_buf[sign_len - ulDataLen], pData, ulDataLen);
+	
+	processed = RSA_private_encrypt(ulDataLen,pData,
+						tmp_buf,
+						session_data->sign_state,
+						RSA_NO_PADDING);
 	if(processed == -1)
 	  { rv = CKR_GENERAL_ERROR; goto rsa_x509_err; }
 	*pulSignatureLen = processed;
@@ -2097,7 +2306,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Sign)(
 	if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
 	if(session_data->sign_state != NULL_PTR)
 	  { 
-	    CI_Ceay_RSA_free(session_data->sign_state); 
+	    RSA_free(session_data->sign_state); 
 	    session_data->sign_state = NULL_PTR;
 	  }
 	break;
@@ -2107,6 +2316,10 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Sign)(
     case CKM_DSA:
       {
 	unsigned int sig_len;
+	DSA_SIG *s;
+	CK_BYTE_PTR pTmpSign=NULL_PTR;
+	CK_BYTE_PTR pOut=pSignature;
+	unsigned int tmpSigLen, i;
 
 	rv = CKR_OK;
 	
@@ -2129,12 +2342,37 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Sign)(
 	if(ulDataLen != CK_I_DSA_DIGEST_LEN)
 	  { rv = CKR_DATA_LEN_RANGE; goto dsa_err; }
 	
-	if(!DSA_sign(0,
-		     pData,ulDataLen,
-		     pSignature, &sig_len,
-		     (DSA_PTR)session_data->sign_state))
-	  { rv = CKR_GENERAL_ERROR; goto dsa_err; }
+	s=DSA_do_sign(pData, ulDataLen, (DSA_PTR)session_data->sign_state);
+	if (s == NULL)
+	{
+	  *pulSignatureLen=0;
+	  rv = CKR_GENERAL_ERROR; 
+	  goto dsa_err;
+	}
 
+	pTmpSign = TC_malloc(CK_I_DSA_SIGN_LEN);      
+	if (pTmpSign == NULL_PTR)
+	  return CKR_HOST_MEMORY;
+
+	tmpSigLen=BN_bn2bin(s->r, pTmpSign);
+	if(tmpSigLen < 20)
+	  for(i = 0; i < (20 - tmpSigLen); i++, pOut++)
+	    *pOut=0; 
+
+	memcpy(pOut, pTmpSign, tmpSigLen);
+	pOut+=tmpSigLen;
+	sig_len=20;
+
+	tmpSigLen=BN_bn2bin(s->s, pTmpSign);
+	if(tmpSigLen < 20)
+	  for(i = 0; i < (20 - tmpSigLen); i++, pOut++)
+	    *pOut=0; 
+
+	memcpy(pOut, pTmpSign, tmpSigLen);
+	pOut+=tmpSigLen;
+	sig_len+=20;
+
+	TC_free(pTmpSign);
 	*pulSignatureLen = sig_len;
 
       dsa_err:
@@ -2152,7 +2390,10 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Sign)(
 	/* the data is copied in order to strip the space for the padding after the processing */
 	/* TODO: check if this correct. */
 	CK_BYTE_PTR tmp_buf = NULL_PTR;
-	unsigned int processed; /* number of bytes processed by the crypto routine */
+	DSA_SIG *s;
+	CK_BYTE_PTR pTmpSign = NULL_PTR;
+	CK_BYTE_PTR pOut=pSignature;
+	unsigned int tmpSigLen, i, sig_len;
 	
 	rv = CKR_OK;
 	
@@ -2174,24 +2415,49 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Sign)(
 	tmp_buf = CI_ByteStream_new(CK_I_DSA_SIGN_LEN);
 	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto dsa_sha1_err; }
 	
-	CI_Ceay_SHA1_Update((SHA_CTX CK_PTR)session_data->digest_state,pData,ulDataLen);
-	CI_Ceay_SHA1_Final(pSignature,(SHA_CTX CK_PTR)session_data->digest_state);
+	SHA1_Update((SHA_CTX CK_PTR)session_data->digest_state,pData,ulDataLen);
+	SHA1_Final(pSignature,(SHA_CTX CK_PTR)session_data->digest_state);
 	session_data->digest_state = NULL_PTR;
 	
-	if(!DSA_sign(0, pSignature, SHA_DIGEST_LENGTH,
-		     tmp_buf, &processed,
-		     (DSA_PTR)session_data->sign_state))
-	  { rv = CKR_GENERAL_ERROR; goto dsa_sha1_err; }
-	
-	*pulSignatureLen = processed;
-	memcpy(pSignature, tmp_buf, processed);
-	
-	TC_free(session_data->digest_state);
-	
+	s=DSA_do_sign(pSignature, SHA_DIGEST_LENGTH, (DSA_PTR)session_data->sign_state);
+	if (s == NULL)
+	{
+	  *pulSignatureLen=0;
+	  rv = CKR_GENERAL_ERROR; 
+	  goto dsa_sha1_err;
+	}
+
+	pTmpSign = TC_malloc(CK_I_DSA_SIGN_LEN);      
+	if (pTmpSign == NULL_PTR)
+	  return CKR_HOST_MEMORY;
+
+	tmpSigLen=BN_bn2bin(s->r, pTmpSign);
+	if(tmpSigLen < 20)
+	  for(i = 0; i < (20 - tmpSigLen); i++, pOut++)
+	    *pOut=0; 
+
+	memcpy(pOut, pTmpSign, tmpSigLen);
+	pOut+=tmpSigLen;
+	sig_len=20;
+
+	tmpSigLen=BN_bn2bin(s->s, pTmpSign);
+	if(tmpSigLen < 20)
+	  for(i = 0; i < (20 - tmpSigLen); i++, pOut++)
+	    *pOut=0; 
+
+	memcpy(pOut, pTmpSign, tmpSigLen);
+	pOut+=tmpSigLen;
+	sig_len+=20;
+
+	TC_free(pTmpSign);
+	*pulSignatureLen = sig_len;
+
       dsa_sha1_err:
 	if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
+	if(session_data->digest_state != NULL_PTR)
+	  TC_free(session_data->digest_state);
+	session_data->digest_state = NULL_PTR;
 	if(session_data->sign_state != NULL_PTR)
-	  
 	  DSA_free(session_data->sign_state);
 	session_data->sign_state = NULL_PTR;
       }
@@ -2269,14 +2535,14 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Sign)(
 	  }
 
 	/* add piece of data */
-	CI_Ceay_SHA1_Update(mac_state->inner_CTX,pData,ulDataLen);
+	SHA1_Update(mac_state->inner_CTX,pData,ulDataLen);
 
 	/* wrap up the digesting of the data */
-	CI_Ceay_SHA1_Final(internal_hash,mac_state->inner_CTX);
+	SHA1_Final(internal_hash,mac_state->inner_CTX);
 	
 	/* perform outer hash */
-	CI_Ceay_SHA1_Update(mac_state->outer_CTX,internal_hash,SHA_DIGEST_LENGTH);
-	CI_Ceay_SHA1_Final(internal_hash,mac_state->outer_CTX);
+	SHA1_Update(mac_state->outer_CTX,internal_hash,SHA_DIGEST_LENGTH);
+	SHA1_Final(internal_hash,mac_state->outer_CTX);
 
 	memcpy(pSignature,internal_hash,digestLen);
 
@@ -2328,11 +2594,29 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_SignUpdate)(
   
   switch(session_data->sign_mechanism)
     {
+      /* {{{ CKM_MD2_RSA_PKCS */
+    case CKM_MD2_RSA_PKCS:
+      {
+	MD2_Update((MD2_CTX CK_PTR)session_data->digest_state,
+		    (unsigned char *)pPart,ulPartLen);
+	
+      }
+      break;
+      /* }}} */
+      /* {{{ CKM_MD5_RSA_PKCS */
+    case CKM_MD5_RSA_PKCS:
+      {
+	MD5_Update((MD5_CTX CK_PTR)session_data->digest_state,
+		    (unsigned char *)pPart,ulPartLen);
+	
+      }
+      break;
+      /* }}} */
       /* {{{ CKM_DSA_SHA1 + CKM_SHA1_RSA_PKCS */
     case CKM_DSA_SHA1:
     case CKM_SHA1_RSA_PKCS:
       {
-	CI_Ceay_SHA1_Update((SHA_CTX CK_PTR)session_data->digest_state,
+	SHA1_Update((SHA_CTX CK_PTR)session_data->digest_state,
 		    (unsigned char *)pPart,ulPartLen);
 	
       }
@@ -2369,7 +2653,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_SignUpdate)(
     case CKM_SSL3_SHA1_MAC:
       {
 	/* add piece of data */
-	CI_Ceay_SHA1_Update(((CK_I_SHA_MAC_STATE_PTR)session_data->sign_state)->inner_CTX,pPart,ulPartLen);
+	SHA1_Update(((CK_I_SHA_MAC_STATE_PTR)session_data->sign_state)->inner_CTX,pPart,ulPartLen);
       }
     break;
     /* }}} */
@@ -2408,7 +2692,10 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_SignFinal)(
 	/* the data is copied in order to strip the space for the padding after the processing */
 	/* TODO: check if this correct. */
 	CK_BYTE_PTR tmp_buf = NULL_PTR;
-	unsigned int processed; /* number of bytes processed by the crypto routine */
+	DSA_SIG *s;
+	CK_BYTE_PTR pTmpSign = NULL_PTR;
+	CK_BYTE_PTR pOut=pSignature;
+	unsigned int tmpSigLen, i, sig_len;
 	
 	rv = CKR_OK;
 	
@@ -2430,23 +2717,168 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_SignFinal)(
 	tmp_buf = CI_ByteStream_new(CK_I_DSA_SIGN_LEN);
 	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto dsa_sha1_err; }
 	
-	CI_Ceay_SHA1_Final(pSignature,(SHA_CTX CK_PTR)session_data->digest_state);
+	SHA1_Final(pSignature,(SHA_CTX CK_PTR)session_data->digest_state);
 	session_data->digest_state = NULL_PTR;
 	
-	if(!DSA_sign(0, pSignature, SHA_DIGEST_LENGTH,
-		     tmp_buf, &processed,
-		     (DSA_PTR)session_data->sign_state))
-	  { rv = CKR_GENERAL_ERROR; goto dsa_sha1_err; }
-	
-	*pulSignatureLen = processed;
-	memcpy(pSignature, tmp_buf, processed);
-	
-	TC_free(session_data->digest_state);
+	s=DSA_do_sign(pSignature, SHA_DIGEST_LENGTH, (DSA_PTR)session_data->sign_state);
+	if (s == NULL)
+	{
+	  *pulSignatureLen=0;
+	  rv = CKR_GENERAL_ERROR; 
+	  goto dsa_sha1_err;
+	}
+
+	pTmpSign = TC_malloc(CK_I_DSA_SIGN_LEN);      
+	if (pTmpSign == NULL_PTR)
+	  return CKR_HOST_MEMORY;
+
+	tmpSigLen=BN_bn2bin(s->r, pTmpSign);
+	if(tmpSigLen < 20)
+	  for(i = 0; i < (20 - tmpSigLen); i++, pOut++)
+	    *pOut=0; 
+
+	memcpy(pOut, pTmpSign, tmpSigLen);
+	pOut+=tmpSigLen;
+	sig_len=20;
+
+	tmpSigLen=BN_bn2bin(s->s, pTmpSign);
+	if(tmpSigLen < 20)
+	  for(i = 0; i < (20 - tmpSigLen); i++, pOut++)
+	    *pOut=0; 
+
+	memcpy(pOut, pTmpSign, tmpSigLen);
+	pOut+=tmpSigLen;
+	sig_len+=20;
+
+	TC_free(pTmpSign);
+	*pulSignatureLen = sig_len;
 	
       dsa_sha1_err:
 	if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
+	if(session_data->digest_state != NULL_PTR)
+	  TC_free(session_data->digest_state);
+	session_data->digest_state = NULL_PTR;
 	if(session_data->sign_state != NULL_PTR)
-	  CI_Ceay_RSA_free(session_data->sign_state);
+	  DSA_free(session_data->sign_state);
+	session_data->sign_state = NULL_PTR;
+      }
+      break;
+      /* }}} */
+      /* {{{ CKM_MD2_RSA_PKCS */
+    case CKM_MD2_RSA_PKCS:
+      {
+	/* the data is copied in order to strip the space for the padding after the processing */
+	/* TODO: check if this correct. */
+	CK_BYTE_PTR tmp_buf = NULL_PTR;
+	int sign_len;
+	int ret;
+	
+	rv = CKR_OK;
+	sign_len = RSA_size((RSA CK_PTR)session_data->sign_state);
+	
+	/* check if this is only a call for the length of the output buffer */
+	if(pSignature == NULL_PTR)
+	  {
+	    *pulSignatureLen = sign_len;
+	    return CKR_OK;
+	  }
+	else /* check that buffer is of sufficent size */
+	  {
+	    if(*pulSignatureLen < sign_len)
+	      { 
+		*pulSignatureLen = sign_len;
+		return CKR_BUFFER_TOO_SMALL; 
+	      }
+	  }
+	
+	/* check for length of input */
+	if(MD2_DIGEST_LENGTH > sign_len-CK_I_PKCS1_MIN_PADDING)
+	  { rv = CKR_DATA_LEN_RANGE; goto md2_rsa_pkcs1_err; }
+	
+	tmp_buf = CI_ByteStream_new(sign_len);
+	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto md2_rsa_pkcs1_err; }
+	
+	MD2_Final(pSignature,(MD2_CTX CK_PTR)session_data->digest_state);
+
+	ret = RSA_sign(NID_md2, pSignature, MD2_DIGEST_LENGTH, 
+		 tmp_buf, &sign_len, (RSA *)session_data->sign_state);
+
+	if(ret == 0)
+	  { rv = CKR_SIGNATURE_INVALID; goto md2_rsa_pkcs1_err; }
+	if(ret == -1)
+	  { rv = CKR_GENERAL_ERROR; goto md2_rsa_pkcs1_err; }
+
+	*pulSignatureLen = sign_len;
+
+	memcpy(pSignature,tmp_buf,sign_len);
+
+	
+      md2_rsa_pkcs1_err:
+	if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
+	if(session_data->digest_state != NULL_PTR)
+	  TC_free(session_data->digest_state);
+	session_data->digest_state = NULL_PTR;
+	if(session_data->sign_state != NULL_PTR)
+	  RSA_free(session_data->sign_state);
+	session_data->sign_state = NULL_PTR;
+      }
+      break;
+      /* }}} */
+      /* {{{ CKM_MD5_RSA_PKCS */
+    case CKM_MD5_RSA_PKCS:
+      {
+	/* the data is copied in order to strip the space for the padding after the processing */
+	/* TODO: check if this correct. */
+	CK_BYTE_PTR tmp_buf = NULL_PTR;
+	int sign_len;
+	int ret;
+	
+	rv = CKR_OK;
+	sign_len = RSA_size((RSA CK_PTR)session_data->sign_state);
+	
+	/* check if this is only a call for the length of the output buffer */
+	if(pSignature == NULL_PTR)
+	  {
+	    *pulSignatureLen = sign_len;
+	    return CKR_OK;
+	  }
+	else /* check that buffer is of sufficent size */
+	  {
+	    if(*pulSignatureLen < sign_len)
+	      { 
+		*pulSignatureLen = sign_len;
+		return CKR_BUFFER_TOO_SMALL; 
+	      }
+	  }
+	
+	/* check for length of input */
+	if(MD5_DIGEST_LENGTH > sign_len-CK_I_PKCS1_MIN_PADDING)
+	  { rv = CKR_DATA_LEN_RANGE; goto md5_rsa_pkcs1_err; }
+	
+	tmp_buf = CI_ByteStream_new(sign_len);
+	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto md5_rsa_pkcs1_err; }
+	
+	MD5_Final(pSignature,(MD5_CTX CK_PTR)session_data->digest_state);
+
+	ret = RSA_sign(NID_md5, pSignature, MD5_DIGEST_LENGTH, 
+		 tmp_buf, &sign_len, (RSA *)session_data->sign_state);
+
+	if(ret == 0)
+	  { rv = CKR_SIGNATURE_INVALID; goto md5_rsa_pkcs1_err; }
+	if(ret == -1)
+	  { rv = CKR_GENERAL_ERROR; goto md5_rsa_pkcs1_err; }
+
+	*pulSignatureLen = sign_len;
+
+	memcpy(pSignature,tmp_buf,sign_len);
+	
+      md5_rsa_pkcs1_err:
+	if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
+	if(session_data->digest_state != NULL_PTR)
+	  TC_free(session_data->digest_state);
+	session_data->digest_state = NULL_PTR;
+	if(session_data->sign_state != NULL_PTR)
+	  RSA_free(session_data->sign_state);
 	session_data->sign_state = NULL_PTR;
       }
       break;
@@ -2457,11 +2889,11 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_SignFinal)(
 	/* the data is copied in order to strip the space for the padding after the processing */
 	/* TODO: check if this correct. */
 	CK_BYTE_PTR tmp_buf = NULL_PTR;
-	CK_ULONG sign_len;
-	long processed; /* number of bytes processed by the crypto routine */
+	int sign_len;
+	int ret;
 	
 	rv = CKR_OK;
-	sign_len = CI_Ceay_RSA_size((RSA CK_PTR)session_data->sign_state);
+	sign_len = RSA_size((RSA CK_PTR)session_data->sign_state);
 	
 	/* check if this is only a call for the length of the output buffer */
 	if(pSignature == NULL_PTR)
@@ -2485,16 +2917,17 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_SignFinal)(
 	tmp_buf = CI_ByteStream_new(sign_len);
 	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto sha1_rsa_pkcs1_err; }
 	
-	CI_Ceay_SHA1_Final(pSignature,(SHA_CTX CK_PTR)session_data->digest_state);
-	session_data->digest_state = NULL_PTR;
+	SHA1_Final(pSignature,(SHA_CTX CK_PTR)session_data->digest_state);
+ 
+	ret = RSA_sign(NID_sha1, pSignature, SHA_DIGEST_LENGTH, 
+		       tmp_buf, &sign_len, (RSA *)session_data->sign_state);
 	
-	processed = CI_Ceay_RSA_private_encrypt(SHA_DIGEST_LENGTH,pSignature,
-					tmp_buf,
-					session_data->sign_state,
-					RSA_PKCS1_PADDING);
-	if(processed == -1)
-	  { rv = CKR_GENERAL_ERROR; goto sha1_rsa_pkcs1_err; }
-	*pulSignatureLen = processed;
+	if(ret == 0)
+	  { rv = CKR_SIGNATURE_INVALID; goto sha1_rsa_pkcs1_err; }
+	if(ret == -1)
+          { rv = CKR_GENERAL_ERROR; goto sha1_rsa_pkcs1_err; }
+	
+	*pulSignatureLen = sign_len;
 	
 	memcpy(pSignature,tmp_buf,sign_len);
 	
@@ -2503,7 +2936,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_SignFinal)(
       sha1_rsa_pkcs1_err:
 	if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
 	if(session_data->sign_state != NULL_PTR)
-	  CI_Ceay_RSA_free(session_data->sign_state);
+	  RSA_free(session_data->sign_state);
 	session_data->sign_state = NULL_PTR;
       }
       break;
@@ -2602,11 +3035,11 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_SignFinal)(
 	  }
 
 	/* wrap up the digesting of the data */
-	CI_Ceay_SHA1_Final(internal_hash,mac_state->inner_CTX);
+	SHA1_Final(internal_hash,mac_state->inner_CTX);
 	
 	/* perform outer hash */
-	CI_Ceay_SHA1_Update(mac_state->outer_CTX,internal_hash,SHA_DIGEST_LENGTH);
-	CI_Ceay_SHA1_Final(internal_hash,mac_state->outer_CTX);
+	SHA1_Update(mac_state->outer_CTX,internal_hash,SHA_DIGEST_LENGTH);
+	SHA1_Final(internal_hash,mac_state->outer_CTX);
 
 	memcpy(pSignature,internal_hash,digestLen);
 
@@ -2723,7 +3156,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_SignRecover)(
 	long processed; /* number of bytes processed by the crypto routine */
 
 	rv = CKR_OK;
-	sign_len = CI_Ceay_RSA_size((RSA CK_PTR)session_data->sign_state);
+	sign_len = RSA_size((RSA CK_PTR)session_data->sign_state);
 
 	/* check if this is only a call for the length of the output buffer */
 	if(pSignature == NULL_PTR)
@@ -2748,7 +3181,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_SignRecover)(
 	tmp_buf = CI_ByteStream_new(sign_len);
 	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto rsa_pkcs1_err; }
 	
-	processed = CI_Ceay_RSA_private_encrypt(ulDataLen,pData,
+	processed = RSA_private_encrypt(ulDataLen,pData,
 					tmp_buf,
 					session_data->sign_state,
 					RSA_PKCS1_PADDING);
@@ -2762,7 +3195,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_SignRecover)(
 	if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
 	if(session_data->sign_state != NULL_PTR)
 	  { 
-	    CI_Ceay_RSA_free(session_data->sign_state); 
+	    RSA_free(session_data->sign_state); 
 	    session_data->sign_state = NULL_PTR;
 	  }
       }
@@ -2775,7 +3208,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_SignRecover)(
 	long processed; /* number of bytes processed by the crypto routine */
 
 	rv = CKR_OK;
-	sign_len = CI_Ceay_RSA_size((RSA CK_PTR)session_data->sign_state);
+	sign_len = RSA_size((RSA CK_PTR)session_data->sign_state);
 
 	/* check if this is only a call for the length of the output buffer */
 	if(pData == NULL_PTR)
@@ -2799,7 +3232,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_SignRecover)(
 	tmp_buf = CI_ByteStream_new(sign_len);
 	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto rsa_x509_err; }
 	
-	processed = CI_Ceay_RSA_private_encrypt(ulDataLen,pData,
+	processed = RSA_private_encrypt(ulDataLen,pData,
 					tmp_buf,
 					session_data->sign_state,
 					RSA_NO_PADDING);
@@ -2813,7 +3246,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_SignRecover)(
 	if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
 	if(session_data->sign_state != NULL_PTR)
 	  { 
-	    CI_Ceay_RSA_free(session_data->sign_state); 
+	    RSA_free(session_data->sign_state); 
 	    session_data->sign_state = NULL_PTR;
 	  }
       }
@@ -2873,6 +3306,96 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_VerifyInit)(
       }
       break;
       /* }}} */
+      /* {{{ CKM_MD2_RSA_PKCS */
+    case CKM_MD2_RSA_PKCS:
+      {
+	RSA CK_PTR internal_key_obj = NULL_PTR;
+	
+	CI_LogEntry("CI_Ceay_VerifyInit with CKM_MD2_RSA_PKCS", "starting...", rv ,2);
+	
+	if (session_data->digest_state != NULL_PTR)
+	  {
+	    rv = CKR_OPERATION_ACTIVE;
+	    CI_LogEntry("CI_Ceay_VerifyInit with CKM_MD2_RSA_PKCS", "testing state", rv ,0);
+	    return rv;
+	  }
+	/* check that object is a public key */
+	if(*((CK_OBJECT_CLASS CK_PTR)CI_ObjLookup(key_obj,CK_IA_CLASS)->pValue) != CKO_PUBLIC_KEY)
+	  {
+	    rv = CKR_KEY_TYPE_INCONSISTENT;
+	    CI_LogEntry("CI_Ceay_VerifyInit with CKM_MD2_RSA_PKCS", 
+			"testing that object is a private key", rv ,0);
+	    return rv;
+	  }
+	
+	internal_key_obj = CI_Ceay_Obj2RSA(key_obj);
+	if(internal_key_obj == NULL_PTR)
+	  return CKR_HOST_MEMORY;
+	
+	session_data->verify_state = (CK_VOID_PTR)internal_key_obj;
+	session_data->verify_mechanism = CKM_MD2_RSA_PKCS;
+	
+	/* Allocating data structures */
+	session_data->digest_state = CI_MD2_CTX_new();
+	if (session_data->digest_state == NULL_PTR)
+	  {
+	    rv = CKR_HOST_MEMORY;
+	    CI_LogEntry("CI_Ceay_VerifyInit with CKM_MD2_RSA_PKCS", 
+			"alloc'ing memory for MD2 state", rv ,0);
+	    return rv;
+	  }
+	
+	session_data->digest_mechanism = CKM_MD2;
+	
+	MD2_Init((MD2_CTX CK_PTR)session_data->digest_state);
+      }
+      break;
+      /* }}} */
+      /* {{{ CKM_MD5_RSA_PKCS */
+    case CKM_MD5_RSA_PKCS:
+      {
+	RSA CK_PTR internal_key_obj = NULL_PTR;
+	
+	CI_LogEntry("CI_Ceay_VerifyInit with CKM_MD5_RSA_PKCS", "starting...", rv ,2);
+	
+	if (session_data->digest_state != NULL_PTR)
+	  {
+	    rv = CKR_OPERATION_ACTIVE;
+	    CI_LogEntry("CI_Ceay_VerifyInit with CKM_MD5_RSA_PKCS", "testing state", rv ,0);
+	    return rv;
+	  }
+	/* check that object is a public key */
+	if(*((CK_OBJECT_CLASS CK_PTR)CI_ObjLookup(key_obj,CK_IA_CLASS)->pValue) != CKO_PUBLIC_KEY)
+	  {
+	    rv = CKR_KEY_TYPE_INCONSISTENT;
+	    CI_LogEntry("CI_Ceay_VerifyInit with CKM_MD5_RSA_PKCS", 
+			"testing that object is a private key", rv ,0);
+	    return rv;
+	  }
+	
+	internal_key_obj = CI_Ceay_Obj2RSA(key_obj);
+	if(internal_key_obj == NULL_PTR)
+	  return CKR_HOST_MEMORY;
+	
+	session_data->verify_state = (CK_VOID_PTR)internal_key_obj;
+	session_data->verify_mechanism = CKM_MD5_RSA_PKCS;
+	
+	/* Allocating data structures */
+	session_data->digest_state = CI_MD5_CTX_new();
+	if (session_data->digest_state == NULL_PTR)
+	  {
+	    rv = CKR_HOST_MEMORY;
+	    CI_LogEntry("CI_Ceay_VerifyInit with CKM_MD5_RSA_PKCS", 
+			"alloc'ing memory for MD5 state", rv ,0);
+	    return rv;
+	  }
+	
+	session_data->digest_mechanism = CKM_MD5;
+	
+	MD5_Init((MD5_CTX CK_PTR)session_data->digest_state);
+      }
+      break;
+      /* }}} */
       /* {{{ CKM_SHA1_RSA_PKCS */
     case CKM_SHA1_RSA_PKCS:
       {
@@ -2914,7 +3437,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_VerifyInit)(
 	
 	session_data->digest_mechanism = CKM_SHA_1;
 	
-	CI_Ceay_SHA1_Init((SHA_CTX CK_PTR)session_data->digest_state);
+	SHA1_Init((SHA_CTX CK_PTR)session_data->digest_state);
       }
       break;
       /* }}} */
@@ -2978,7 +3501,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_VerifyInit)(
 	
 	session_data->digest_mechanism = CKM_SHA_1;
 	
-	CI_Ceay_SHA1_Init((SHA_CTX CK_PTR)session_data->digest_state);
+	SHA1_Init((SHA_CTX CK_PTR)session_data->digest_state);
       }
       break;
       /* }}} */
@@ -3073,12 +3596,12 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_VerifyInit)(
 	mac_state->params = *((CK_MAC_GENERAL_PARAMS_PTR)pMechanism->pParameter);
 	
 	/* start hashing of key */
-	CI_Ceay_SHA1_Update(mac_state->inner_CTX,key_data,key_len);
-	CI_Ceay_SHA1_Update(mac_state->inner_CTX,CK_I_ssl3_pad1,CK_I_ssl3_sha_pad_len);
+	SHA1_Update(mac_state->inner_CTX,key_data,key_len);
+	SHA1_Update(mac_state->inner_CTX,CK_I_ssl3_pad1,CK_I_ssl3_sha_pad_len);
 
 	/* start hashing of key */
-	CI_Ceay_SHA1_Update(mac_state->outer_CTX,key_data,key_len);
-	CI_Ceay_SHA1_Update(mac_state->outer_CTX,CK_I_ssl3_pad2,CK_I_ssl3_sha_pad_len);
+	SHA1_Update(mac_state->outer_CTX,key_data,key_len);
+	SHA1_Update(mac_state->outer_CTX,CK_I_ssl3_pad2,CK_I_ssl3_sha_pad_len);
 	
 	break;	
       }
@@ -3114,7 +3637,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Verify)(
 	CK_ULONG sign_len;
 	long processed; /* number of bytes processed by the crypto routine */
 
-	sign_len = CI_Ceay_RSA_size((RSA CK_PTR)session_data->verify_state);
+	sign_len = RSA_size((RSA CK_PTR)session_data->verify_state);
 	if(sign_len != ulSignatureLen)
 	  {
 	    rv = CKR_SIGNATURE_LEN_RANGE;
@@ -3124,7 +3647,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Verify)(
 	tmp_buf = CI_ByteStream_new(sign_len);
 	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto rsa_pkcs1_err; }
 	
-	processed = CI_Ceay_RSA_public_decrypt(ulSignatureLen,pSignature,tmp_buf,
+	processed = RSA_public_decrypt(ulSignatureLen,pSignature,tmp_buf,
 					session_data->verify_state,
 					RSA_PKCS1_PADDING);
 	if(processed == -1)
@@ -3143,7 +3666,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Verify)(
 	if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
 	if(session_data->verify_state != NULL_PTR)
 	  { 
-	    CI_Ceay_RSA_free(session_data->verify_state); 
+	    RSA_free(session_data->verify_state); 
 	    session_data->verify_state = NULL_PTR;
 	  }
       }
@@ -3156,17 +3679,21 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Verify)(
 	CK_ULONG sign_len;
 	long processed; /* number of bytes processed by the crypto routine */
 
-	sign_len = CI_Ceay_RSA_size((RSA CK_PTR)session_data->verify_state);
+	sign_len = RSA_size((RSA CK_PTR)session_data->verify_state);
 	if(sign_len != ulSignatureLen)
 	  {
 	    rv = CKR_SIGNATURE_LEN_RANGE;
 	    goto rsa_x509_err;
 	  };
 	
+	/* check for length of input */
+	if(ulDataLen > sign_len)
+	  { rv = CKR_DATA_LEN_RANGE; goto rsa_x509_err; }
+	
 	tmp_buf = CI_ByteStream_new(sign_len);
 	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto rsa_x509_err; }
 	
-	processed = CI_Ceay_RSA_public_decrypt(ulSignatureLen,pSignature,tmp_buf,
+	processed = RSA_public_decrypt(ulSignatureLen,pSignature,tmp_buf,
 					session_data->verify_state,
 					RSA_NO_PADDING);
 	if(processed == -1)
@@ -3185,9 +3712,85 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Verify)(
 	if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
 	if(session_data->verify_state != NULL_PTR)
 	  { 
-	    CI_Ceay_RSA_free(session_data->verify_state); 
+	    RSA_free(session_data->verify_state); 
 	    session_data->verify_state = NULL_PTR;
 	  }
+      }
+      break;
+      /* }}} */
+      /* {{{ CKM_MD2_RSA_PKCS */
+    case CKM_MD2_RSA_PKCS:
+      {
+	CK_BYTE_PTR tmp_buf = NULL_PTR;
+	int sign_len;
+	int ret;
+	
+	sign_len = RSA_size((RSA CK_PTR)session_data->verify_state);
+	if(sign_len != ulSignatureLen)
+	  {
+	    rv = CKR_SIGNATURE_LEN_RANGE;
+	    goto md2_rsa_pkcs1_err;
+	  };
+	
+	tmp_buf = CI_ByteStream_new(sign_len);
+	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto md2_rsa_pkcs1_err; }      
+	MD2_Update((MD2_CTX CK_PTR)session_data->digest_state,pData,ulDataLen);
+	MD2_Final(tmp_buf,(MD2_CTX CK_PTR)session_data->digest_state);
+	
+	ret = RSA_verify(NID_md2,tmp_buf,MD2_DIGEST_LENGTH,pSignature,ulSignatureLen,
+			 session_data->verify_state); 
+	if(ret == 0)
+	  rv = CKR_SIGNATURE_INVALID;
+	if(ret == -1)
+	  rv = CKR_GENERAL_ERROR; 
+	
+      md2_rsa_pkcs1_err:
+	if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
+	if(session_data->digest_state != NULL_PTR)
+	  TC_free(session_data->digest_state);
+	session_data->digest_state = NULL_PTR;
+	if(session_data->verify_state != NULL_PTR)
+	  RSA_free(session_data->verify_state);
+	session_data->verify_state = NULL_PTR;
+      }
+      break;
+      /* }}} */
+      /* {{{ CKM_MD5_RSA_PKCS */
+    case CKM_MD5_RSA_PKCS:
+      {
+	CK_BYTE_PTR tmp_buf = NULL_PTR;
+	int sign_len;
+	int ret;
+	
+	sign_len = RSA_size((RSA CK_PTR)session_data->verify_state);
+	if(sign_len != ulSignatureLen)
+	  {
+	    rv = CKR_SIGNATURE_LEN_RANGE;
+	    goto md5_rsa_pkcs1_err;
+	  };
+	
+	tmp_buf = CI_ByteStream_new(sign_len);
+	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto md5_rsa_pkcs1_err; }
+	
+	MD5_Update((MD5_CTX CK_PTR)session_data->digest_state,pData,ulDataLen);
+	MD5_Final(tmp_buf,(MD5_CTX CK_PTR)session_data->digest_state);
+	
+	ret = RSA_verify(NID_md5,tmp_buf,MD5_DIGEST_LENGTH,pSignature,ulSignatureLen,
+			 session_data->verify_state);
+	
+	if(ret == 0)
+	  rv = CKR_SIGNATURE_INVALID;
+	if(ret == -1)
+	  rv = CKR_GENERAL_ERROR; 
+	
+      md5_rsa_pkcs1_err:
+	if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
+	if(session_data->digest_state != NULL_PTR)
+	  TC_free(session_data->digest_state);
+	session_data->digest_state = NULL_PTR;
+	if(session_data->verify_state != NULL_PTR)
+	  RSA_free(session_data->verify_state);
+	session_data->verify_state = NULL_PTR;
       }
       break;
       /* }}} */
@@ -3195,11 +3798,10 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Verify)(
     case CKM_SHA1_RSA_PKCS:
       {
 	CK_BYTE_PTR tmp_buf = NULL_PTR;
-	CK_BYTE_PTR tmp_buf1 = NULL_PTR;
-	CK_ULONG sign_len;
-	long processed; /* number of bytes processed by the crypto routine */
+	int sign_len;
+	int ret;
 	
-	sign_len = CI_Ceay_RSA_size((RSA CK_PTR)session_data->verify_state);
+	sign_len = RSA_size((RSA CK_PTR)session_data->verify_state);
 	if(sign_len != ulSignatureLen)
 	  {
 	    rv = CKR_SIGNATURE_LEN_RANGE;
@@ -3208,36 +3810,26 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Verify)(
 	
 	tmp_buf = CI_ByteStream_new(sign_len);
 	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto sha1_rsa_pkcs1_err; }
-	
-	CI_Ceay_SHA1_Update((SHA_CTX CK_PTR)session_data->digest_state,pData,ulDataLen);
-	CI_Ceay_SHA1_Final(tmp_buf,(SHA_CTX CK_PTR)session_data->digest_state);
-	session_data->digest_state = NULL_PTR;
-	
-	tmp_buf1 = CI_ByteStream_new(sign_len);
-	if(tmp_buf1 == NULL_PTR) { rv = CKR_HOST_MEMORY; goto sha1_rsa_pkcs1_err; }
-	
-	processed = CI_Ceay_RSA_public_decrypt(ulSignatureLen,pSignature,tmp_buf1,
-				       session_data->verify_state,
-				       RSA_PKCS1_PADDING);
-	if(processed == -1)
-	  { rv = CKR_GENERAL_ERROR; goto sha1_rsa_pkcs1_err; }
-	
-	if(SHA_DIGEST_LENGTH  != processed)
-	  {
-	    rv = CKR_DATA_LEN_RANGE;
-	    goto sha1_rsa_pkcs1_err;
-	  };
-	
-	if(memcmp(tmp_buf1,tmp_buf,processed)!= 0)
-	  rv = CKR_SIGNATURE_INVALID;
-	
+       
+       SHA1_Update((SHA_CTX CK_PTR)session_data->digest_state,pData,ulDataLen);
+       SHA1_Final(tmp_buf,(SHA_CTX CK_PTR)session_data->digest_state);
+       
+       ret = RSA_verify(NID_sha1,tmp_buf,SHA_DIGEST_LENGTH,pSignature,ulSignatureLen,
+			session_data->verify_state);
+       
+       if(ret == 0)
+         rv = CKR_SIGNATURE_INVALID;
+       if(ret == -1)
+         rv = CKR_GENERAL_ERROR; 
+       
       sha1_rsa_pkcs1_err:
-	TC_free(session_data->digest_state);
-	if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
-	if(tmp_buf1 != NULL_PTR) TC_free(tmp_buf1);
-	if(session_data->verify_state != NULL_PTR)
-	  CI_Ceay_RSA_free(session_data->verify_state);
-	session_data->verify_state = NULL_PTR;
+       if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
+       if(session_data->digest_state != NULL_PTR)
+         TC_free(session_data->digest_state);
+       session_data->digest_state = NULL_PTR;
+       if(session_data->verify_state != NULL_PTR)
+	 RSA_free(session_data->verify_state);
+       session_data->verify_state = NULL_PTR;
       }
       break;
       /* }}} */
@@ -3245,6 +3837,8 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Verify)(
     case CKM_DSA:
       {
 	int ret;
+	DSA_SIG *s;
+	CK_BYTE_PTR pIn=pSignature;
 
 	if(ulSignatureLen != CK_I_DSA_SIGN_LEN)
 	  {
@@ -3258,10 +3852,16 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Verify)(
 	    goto dsa_err;
 	  };
 	
-	ret = DSA_verify(0,
-			 pData,ulDataLen,
-			 pSignature,ulSignatureLen,
-			 session_data->verify_state);
+	s = DSA_SIG_new();
+	if (s == NULL) ret = -1;
+	else
+	{
+	  s->r=BN_bin2bn(pIn, 20, s->r);
+	  pIn+=20;
+	  s->s=BN_bin2bn(pIn, 20, s->s);
+	  ret=DSA_do_verify(pData, ulDataLen, s, session_data->verify_state);
+	  DSA_SIG_free(s);
+	}
 	/* actual error */
 	if(ret == -1)
 	  { rv = CKR_GENERAL_ERROR; goto dsa_err; }
@@ -3282,17 +3882,27 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Verify)(
       {
 	CK_BYTE_PTR tmp_buf = NULL_PTR;
 	long ret;
+	DSA_SIG *s;
+	CK_BYTE_PTR pIn=pSignature;
 	
 	tmp_buf = CI_ByteStream_new(SHA_DIGEST_LENGTH);
 	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto dsa_sha1_err; }
 	
-	CI_Ceay_SHA1_Update((SHA_CTX CK_PTR)session_data->digest_state,pData,ulDataLen);
-	CI_Ceay_SHA1_Final(tmp_buf,(SHA_CTX CK_PTR)session_data->digest_state);
+	SHA1_Update((SHA_CTX CK_PTR)session_data->digest_state,pData,ulDataLen);
+	SHA1_Final(tmp_buf,(SHA_CTX CK_PTR)session_data->digest_state);
 	session_data->digest_state = NULL_PTR;
 	
-	ret = DSA_verify(0, tmp_buf,SHA_DIGEST_LENGTH,
-			 pSignature,ulSignatureLen,
-			 session_data->verify_state);
+	s = DSA_SIG_new();
+	if (s == NULL) ret = -1;
+	else
+	{
+	  s->r=BN_bin2bn(pIn, 20, s->r);
+	  pIn+=20;
+	  s->s=BN_bin2bn(pIn, 20, s->s);
+	  ret=DSA_do_verify(tmp_buf, SHA_DIGEST_LENGTH, s, session_data->verify_state);
+	  DSA_SIG_free(s);
+	}
+
 	/* actual error */
 	if(ret == -1)
 	  { rv = CKR_GENERAL_ERROR; goto dsa_sha1_err; }
@@ -3300,8 +3910,10 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Verify)(
 	if(ret == 0)
 	  rv = CKR_SIGNATURE_INVALID;
       dsa_sha1_err:
-	TC_free(session_data->digest_state);
 	if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
+	if(session_data->digest_state != NULL_PTR)
+	  TC_free(session_data->digest_state);
+	session_data->digest_state = NULL_PTR;
 	if(session_data->verify_state != NULL_PTR)
 	  DSA_free(session_data->verify_state);
 	session_data->verify_state = NULL_PTR;
@@ -3370,14 +3982,14 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Verify)(
 	  }
 
 	/* add piece of data */
-	CI_Ceay_SHA1_Update(mac_state->inner_CTX,pData,ulDataLen);
+	SHA1_Update(mac_state->inner_CTX,pData,ulDataLen);
 
 	/* wrap up the digesting of the data */
-	CI_Ceay_SHA1_Final(internal_hash,mac_state->inner_CTX);
+	SHA1_Final(internal_hash,mac_state->inner_CTX);
 	
 	/* perform outer hash */
-	CI_Ceay_SHA1_Update(mac_state->outer_CTX,internal_hash,SHA_DIGEST_LENGTH);
-	CI_Ceay_SHA1_Final(internal_hash,mac_state->outer_CTX);
+	SHA1_Update(mac_state->outer_CTX,internal_hash,SHA_DIGEST_LENGTH);
+	SHA1_Final(internal_hash,mac_state->outer_CTX);
 
 	if(memcmp(pSignature,internal_hash,digestLen) != 0)
 	  {
@@ -3420,11 +4032,29 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_VerifyUpdate)(
 
   switch(session_data->verify_mechanism)
     {
+      /* {{{ CKM_MD2_RSA_PKCS */
+    case CKM_MD2_RSA_PKCS:
+      {
+	MD2_Update((MD2_CTX CK_PTR)session_data->digest_state,
+		    (unsigned char *)pPart,ulPartLen);
+	
+      }
+      break;
+      /* }}} */
+      /* {{{ CKM_MD5_RSA_PKCS */
+    case CKM_MD5_RSA_PKCS:
+      {
+	MD5_Update((MD5_CTX CK_PTR)session_data->digest_state,
+		    (unsigned char *)pPart,ulPartLen);
+	
+      }
+      break;
+      /* }}} */
       /* {{{ CKM_SHA1_RSA_PKCS + CKM_DSA_SHA1 */
      case CKM_SHA1_RSA_PKCS:
      case CKM_DSA_SHA1:
        {
-	 CI_Ceay_SHA1_Update((SHA_CTX CK_PTR)session_data->digest_state,
+	 SHA1_Update((SHA_CTX CK_PTR)session_data->digest_state,
 			     (unsigned char *)pPart,ulPartLen);
 	 
        }
@@ -3442,7 +4072,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_VerifyUpdate)(
     case CKM_SSL3_SHA1_MAC:
       {
 	/* add piece of data */
-	CI_Ceay_SHA1_Update(((CK_I_SHA_MAC_STATE_PTR)session_data->sign_state)->inner_CTX,pPart,ulPartLen);
+	SHA1_Update(((CK_I_SHA_MAC_STATE_PTR)session_data->sign_state)->inner_CTX,pPart,ulPartLen);
       }
     break;
     /* }}} */
@@ -3481,17 +4111,27 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_VerifyFinal)(
     case CKM_DSA_SHA1:
       {
 	CK_BYTE_PTR tmp_buf = NULL_PTR;
+	DSA_SIG *s;
+	CK_BYTE_PTR pIn=pSignature;
 	long ret;
 	
 	tmp_buf = CI_ByteStream_new(SHA_DIGEST_LENGTH);
 	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto dsa_sha1_err; }
 	
-	CI_Ceay_SHA1_Final(tmp_buf,(SHA_CTX CK_PTR)session_data->digest_state);
+	SHA1_Final(tmp_buf,(SHA_CTX CK_PTR)session_data->digest_state);
 	session_data->digest_state = NULL_PTR;
 	
-	ret = DSA_verify(0, tmp_buf, SHA_DIGEST_LENGTH,
-			 pSignature, ulSignatureLen,
-			 session_data->verify_state);
+	s = DSA_SIG_new();
+	if (s == NULL) ret = -1;
+	else
+	{
+	  s->r=BN_bin2bn(pIn, 20, s->r);
+	  pIn+=20;
+	  s->s=BN_bin2bn(pIn, 20, s->s);
+	  ret=DSA_do_verify(tmp_buf, SHA_DIGEST_LENGTH, s, session_data->verify_state);
+	  DSA_SIG_free(s);
+	}
+
 	/* actual error */
 	if(ret == -1)
 	  { rv = CKR_GENERAL_ERROR; goto dsa_sha1_err; }
@@ -3499,10 +4139,88 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_VerifyFinal)(
 	if(ret == 0)
 	  rv = CKR_SIGNATURE_INVALID;
       dsa_sha1_err:
-	TC_free(session_data->digest_state);
+	if(session_data->digest_state != NULL_PTR)
+	  TC_free(session_data->digest_state);
+	session_data->digest_state = NULL_PTR;
 	if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
 	if(session_data->verify_state != NULL_PTR)
 	  DSA_free(session_data->verify_state);
+	session_data->verify_state = NULL_PTR;
+      }
+      break;
+      /* }}} */
+      /* {{{ CKM_MD2_RSA_PKCS */
+    case CKM_MD2_RSA_PKCS:
+      {
+	CK_BYTE_PTR tmp_buf = NULL_PTR;
+	int sign_len;
+	int ret;
+	
+	sign_len = RSA_size((RSA CK_PTR)session_data->verify_state);
+	if(sign_len != ulSignatureLen)
+	  {
+	    rv = CKR_SIGNATURE_LEN_RANGE;
+	    goto md2_rsa_pkcs1_err;
+	  };
+	
+	tmp_buf = CI_ByteStream_new(sign_len);
+	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto md2_rsa_pkcs1_err; }
+	
+	MD2_Final(tmp_buf,(MD2_CTX CK_PTR)session_data->digest_state);
+	
+	ret = RSA_verify(NID_md2,tmp_buf,MD2_DIGEST_LENGTH,pSignature,ulSignatureLen,
+			 session_data->verify_state);
+	
+	if(ret == 0)
+	  rv = CKR_SIGNATURE_INVALID;
+	if(ret == -1)
+	  rv = CKR_GENERAL_ERROR; 
+	
+      md2_rsa_pkcs1_err:
+	if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
+	if(session_data->digest_state != NULL_PTR)
+	  TC_free(session_data->digest_state);
+	session_data->digest_state = NULL_PTR;
+	if(session_data->verify_state != NULL_PTR)
+	  RSA_free(session_data->verify_state);
+	session_data->verify_state = NULL_PTR;
+      }
+      break;
+      /* }}} */
+      /* {{{ CKM_MD5_RSA_PKCS */
+    case CKM_MD5_RSA_PKCS:
+      {
+	CK_BYTE_PTR tmp_buf = NULL_PTR;
+	int sign_len;
+	int ret;
+	
+	sign_len = RSA_size((RSA CK_PTR)session_data->verify_state);
+	if(sign_len != ulSignatureLen)
+	  {
+	    rv = CKR_SIGNATURE_LEN_RANGE;
+	    goto md5_rsa_pkcs1_err;
+	  };
+	
+	tmp_buf = CI_ByteStream_new(sign_len);
+	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto md5_rsa_pkcs1_err; }
+	
+	MD5_Final(tmp_buf,(MD5_CTX CK_PTR)session_data->digest_state);
+	
+	ret = RSA_verify(NID_md5,tmp_buf,MD5_DIGEST_LENGTH,pSignature,ulSignatureLen,
+			 session_data->verify_state);
+	
+	if(ret == 0)
+	  rv = CKR_SIGNATURE_INVALID;
+	if(ret == -1)
+	  rv = CKR_GENERAL_ERROR; 
+	
+      md5_rsa_pkcs1_err:
+	if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
+	if(session_data->digest_state != NULL_PTR)
+	  TC_free(session_data->digest_state);
+	session_data->digest_state = NULL_PTR;
+	if(session_data->verify_state != NULL_PTR)
+	  RSA_free(session_data->verify_state);
 	session_data->verify_state = NULL_PTR;
       }
       break;
@@ -3511,11 +4229,10 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_VerifyFinal)(
     case CKM_SHA1_RSA_PKCS:
       {
 	CK_BYTE_PTR tmp_buf = NULL_PTR;
-	CK_BYTE_PTR tmp_buf1 = NULL_PTR;
-	CK_ULONG sign_len;
-	long processed; /* number of bytes processed by the crypto routine */
+	int sign_len;
+	int ret;
 	
-	sign_len = CI_Ceay_RSA_size((RSA CK_PTR)session_data->verify_state);
+	sign_len = RSA_size((RSA CK_PTR)session_data->verify_state);
 	if(sign_len != ulSignatureLen)
 	  {
 	    rv = CKR_SIGNATURE_LEN_RANGE;
@@ -3525,33 +4242,23 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_VerifyFinal)(
 	tmp_buf = CI_ByteStream_new(sign_len);
 	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto sha1_rsa_pkcs1_err; }
 	
-	CI_Ceay_SHA1_Final(tmp_buf,(SHA_CTX CK_PTR)session_data->digest_state);
-	session_data->digest_state = NULL_PTR;
+	SHA1_Final(tmp_buf,(SHA_CTX CK_PTR)session_data->digest_state);
 	
-	tmp_buf1 = CI_ByteStream_new(sign_len);
-	if(tmp_buf1 == NULL_PTR) { rv = CKR_HOST_MEMORY; goto sha1_rsa_pkcs1_err; }
+	ret = RSA_verify(NID_sha1,tmp_buf,SHA_DIGEST_LENGTH,pSignature,ulSignatureLen,
+			 session_data->verify_state);
 	
-	processed = CI_Ceay_RSA_public_decrypt(ulSignatureLen,pSignature,tmp_buf1,
-				       session_data->verify_state,
-				       RSA_PKCS1_PADDING);
-	if(processed == -1)
-	  { rv = CKR_GENERAL_ERROR; goto sha1_rsa_pkcs1_err; }
-	
-	if(SHA_DIGEST_LENGTH  != processed)
-	  {
-	    rv = CKR_DATA_LEN_RANGE;
-	    goto sha1_rsa_pkcs1_err;
-	  };
-	
-	if(memcmp(tmp_buf1,tmp_buf,processed)!= 0)
+	if(ret == 0)
 	  rv = CKR_SIGNATURE_INVALID;
+	if(ret == -1)
+	  rv = CKR_GENERAL_ERROR; 
 	
       sha1_rsa_pkcs1_err:
-	TC_free(session_data->digest_state);
 	if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
-	if(tmp_buf1 != NULL_PTR) TC_free(tmp_buf1);
+	if(session_data->digest_state != NULL_PTR)
+	  TC_free(session_data->digest_state);
+	session_data->digest_state = NULL_PTR;
 	if(session_data->verify_state != NULL_PTR)
-	  CI_Ceay_RSA_free(session_data->verify_state);
+	  RSA_free(session_data->verify_state);
 	session_data->verify_state = NULL_PTR;
       }
       break;
@@ -3617,11 +4324,11 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_VerifyFinal)(
 
 
 	/* wrap up the digesting of the data */
-	CI_Ceay_SHA1_Final(internal_hash,mac_state->inner_CTX);
+	SHA1_Final(internal_hash,mac_state->inner_CTX);
 	
 	/* perform outer hash */
-	CI_Ceay_SHA1_Update(mac_state->outer_CTX,internal_hash,SHA_DIGEST_LENGTH);
-	CI_Ceay_SHA1_Final(internal_hash,mac_state->outer_CTX);
+	SHA1_Update(mac_state->outer_CTX,internal_hash,SHA_DIGEST_LENGTH);
+	SHA1_Final(internal_hash,mac_state->outer_CTX);
 
 	if(memcmp(pSignature,internal_hash,digestLen) != 0)
 	  {
@@ -3732,8 +4439,8 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_VerifyRecover)(
     {
       /* {{{ CKM_RSA_PKCS */
       /* 
-       * TODO: liegt das nur am RSA_PKCS oder ist 
-       * hier niemals CKR_SIGNATURE_INVALID zu melden? 
+       * TODO: is it just RSA_PKCS, or is there never CKR_SIGNATURE_INVALID
+       * to report? 
        */
     case CKM_RSA_PKCS:
       {
@@ -3742,7 +4449,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_VerifyRecover)(
 
 	CI_LogEntry("CI_Ceay_VerifyRecover", "doing CKM_RSA_PKCS", rv, 2);
 
-	sign_len = CI_Ceay_RSA_size((RSA CK_PTR)session_data->verify_state);
+	sign_len = RSA_size((RSA CK_PTR)session_data->verify_state);
 
 	CI_LogEntry("CI_Ceay_VerifyRecover", "done computing sign_len", rv, 2);
 
@@ -3767,7 +4474,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_VerifyRecover)(
 	    return CKR_BUFFER_TOO_SMALL; /* keep operation active for another try */
 	  }
 
-	processed = CI_Ceay_RSA_public_decrypt(ulSignatureLen,pSignature,pData,
+	processed = RSA_public_decrypt(ulSignatureLen,pSignature,pData,
 					session_data->verify_state,
 					RSA_PKCS1_PADDING);
 	if(processed == -1)
@@ -3778,7 +4485,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_VerifyRecover)(
       rsa_pkcs1_err:
 	if(session_data->verify_state != NULL_PTR)
 	  { 
-	    CI_Ceay_RSA_free(session_data->verify_state); 
+	    RSA_free(session_data->verify_state); 
 	    session_data->verify_state = NULL_PTR;
 	  }
       }      
@@ -3786,8 +4493,8 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_VerifyRecover)(
       /* }}} */
       /* {{{ CKM_RSA_X_509 */
       /* 
-       * TODO: is it only PSA_X_509 or is there never the case of CKR_SIGNATURE_INVALID to
-       * report? 
+       * TODO: is it just RSA_X_509, or is there never CKR_SIGNATURE_INVALID
+       * to report? 
        */
     case CKM_RSA_X_509:
       {
@@ -3796,7 +4503,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_VerifyRecover)(
 
 	CI_LogEntry("CI_Ceay_VerifyRecover", "doing CKM_RSA_PKCS", rv, 2);
 
-	sign_len = CI_Ceay_RSA_size((RSA CK_PTR)session_data->verify_state);
+	sign_len = RSA_size((RSA CK_PTR)session_data->verify_state);
 
 	CI_LogEntry("CI_Ceay_VerifyRecover", "done computing sign_len", rv, 2);
 
@@ -3821,19 +4528,19 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_VerifyRecover)(
 	    return CKR_BUFFER_TOO_SMALL; /* keep operation active for another try */
 	  }
 
-	processed = CI_Ceay_RSA_public_decrypt(ulSignatureLen,pSignature,pData,
+	processed = RSA_public_decrypt(ulSignatureLen,pSignature,pData,
 					session_data->verify_state,
 					RSA_NO_PADDING);
 	if(processed == -1)
 	  { rv = CKR_GENERAL_ERROR; goto rsa_x509_err; }
 
+	/* *pulDataLen set, as buffer may be originaly larger than key size */ 
 	*pulDataLen = processed;
 
-	
       rsa_x509_err:
 	if(session_data->verify_state != NULL_PTR)
 	  { 
-	    CI_Ceay_RSA_free(session_data->verify_state); 
+	    RSA_free(session_data->verify_state); 
 	    session_data->verify_state = NULL_PTR;
 	  }
       }      
@@ -4187,17 +4894,16 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_GenerateKey)(
 	if((value= CI_ByteStream_new(sizeof(des_cblock))) == NULL_PTR)
 	  return CKR_HOST_MEMORY;
 	
-      /* maximale Qualität der Schlüssel erzwingen */
+      /* enforce maximum quality of key material. */
 	while(!key_correct)
 	  {
-	    /* der random number generator ist ja schon im Wrapper mit Zufall gefüllt worden */
-	    /* gleich daten holen */
-	    /* TODO: wir wissen eigentlich nicht genau ob dieses Token ge-Seeded wurde. Wir sollten
-	     * über die Bibliotheks function gehen. 
+	    /* immediately get data, as generator has been filled with randomness in wrapper */
+	    /* TODO: wee don't really know how this token was seeded. we should go via the
+	     * library function.
 	     */
 	    CI_Ceay_GenerateRandom(session_data,value,sizeof(des_cblock));
 
-	    /* Erzwingen von odd-parity im Key */
+	    /* enforce odd parity in key */
 	    des_set_odd_parity((des_cblock*)value);
 	    key_correct = !des_is_weak_key((des_cblock*)value);
 	  }
@@ -4230,16 +4936,15 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_GenerateKey)(
 	/* maximale Qualität der Schlüssel erzwingen */
 	while(key_correct<3)
 	  {
-	    /* der random number generator ist ja schon im Wrapper mit Zufall gefüllt worden */
-	    /* gleich daten holen */
-	    /* TODO: wir wissen eigentlich nicht genau ob dieses Token ge-Seeded wurde. Wir sollten
-	     * über die Bibliotheks function gehen. 
+	    /* immediately get data, as generator has been filled with randomness in wrapper */
+	    /* TODO: wee don't really know how this token was seeded. we should go via the
+	     * library function.
 	     */
 	    CI_Ceay_GenerateRandom(session_data, 
 				   keys[key_correct], 
 				   sizeof(des_cblock));
 
-	    /* Erzwingen von odd-parity im Key */
+	    /* enforce odd parity in key */
 	    des_set_odd_parity(&(keys[key_correct]));
 	    if( !des_is_weak_key(&(keys[key_correct])) )
 	       key_correct++;
@@ -4249,7 +4954,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_GenerateKey)(
 	rv = CI_ObjSetIntAttributeValue(key_obj,CK_IA_VALUE,value,sizeof(des_cblock)*3);
 	if(rv != CKR_OK)
 	  {
-	    /* key_obj wird in der Außenfunktion zerstört */
+	    /* key_obj will be destroyed in the outer function */
 	    TC_free(value);
 	    return rv;
 	  }
@@ -4532,7 +5237,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_GenerateKeyPair)(
 	    return rv;
 	  }	
 
-	pub_exp = CI_Ceay_BN_bin2bn(CI_ObjLookup(public_key_obj,CK_IA_PUBLIC_EXPONENT)->pValue,
+	pub_exp = BN_bin2bn(CI_ObjLookup(public_key_obj,CK_IA_PUBLIC_EXPONENT)->pValue,
 			    CI_ObjLookup(public_key_obj,CK_IA_PUBLIC_EXPONENT)->ulValueLen, 
 			    NULL_PTR); /* don't forget to free pub_exp at the end! */
 	if(pub_exp == NULL_PTR)
@@ -4559,7 +5264,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_GenerateKeyPair)(
 					       &CI_Ceay_RSA_Callback, 
 					       (CK_CHAR_PTR)session_data);
 #else /* no strong primes (use the standard function) */
-        common_key=CI_Ceay_RSA_generate_key(key_len,BN_get_word(pub_exp),
+        common_key=RSA_generate_key(key_len,BN_get_word(pub_exp),
 				    &CI_Ceay_RSA_Callback, 
 				    (CK_CHAR_PTR)session_data);
 #endif
@@ -4650,7 +5355,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_GenerateKeyPair)(
 	  }
 	      
 	/* free rsa specific data */
-	CI_Ceay_RSA_free(common_key);
+	RSA_free(common_key);
       }
       break;
       /* }}} */
@@ -4789,8 +5494,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_WrapKey)(
 	    PKCS8_PRIV_KEY_INFO *p8;
 	    RSA *rsa= NULL;
 	    EVP_PKEY *pkey = NULL;	
-	    unsigned char *in, *p;
-	    int inlen;
+	    unsigned char *p;
 	    
 	    /* code provided by Felix Baessler <Felix.Baessler@swisscom.com> */
 	    
@@ -4822,6 +5526,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_WrapKey)(
 	  /* we don't cater for that set of objects and key types */
 	  return CKR_FUNCTION_NOT_SUPPORTED;
 	}
+      break;
     case CKO_PUBLIC_KEY:
       /* DER-encode the Stream */
       
@@ -4868,6 +5573,13 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_WrapKey)(
     {
       if(pData != NULL_PTR)
 	TC_free(pData);
+    }
+
+  if (!pWrappedKey)
+    {
+	if(session_data->encrypt_state != NULL_PTR)
+	  TC_free(session_data->encrypt_state);
+	session_data->encrypt_state = NULL_PTR;
     }
 
   CI_LogEntry("CI_Ceay_WrapKey", "...complete", rv, 2);
@@ -5262,7 +5974,15 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DeriveKey)(
 	    CI_LogEntry("CI_Ceay_DeriveKey", "setting VALUE in Key", rv ,0);
 	    goto ssl3_mkd_error;
 	  }
-	
+
+	/* Define the attribute CKA_CLASS and CKA_KEY_TYPE */
+	rv=CI_ObjSetAttributeValue(key_obj, CKA_CLASS, &CK_I_secret_key_class, sizeof(CK_I_secret_key_class));
+	if(rv != CKR_OK)
+	  {
+	    CI_LogEntry("CI_Ceay_DeriveKey", "setting CLASS in Key", rv ,0);
+	    goto ssl3_mkd_error;
+	  }
+
 	rv=CI_ObjSetAttributeValue(key_obj,CKA_VALUE_LEN,&key_len,sizeof(key_len));
 	if(rv != CKR_OK)
 	  {
@@ -5270,13 +5990,16 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DeriveKey)(
 	    goto ssl3_mkd_error;
 	  }
 
-	/* ist der Schlüssel mit dieser PKCS11 erstellt worden? */
+	/* has the key been created with this PKCS#11 module? */
+/*         afchine: No need of the specific parameter CK_IA_SSL_VERSION
+           The SSL version would be at the begginning of the base_key CKA_VALUE
 	if(CI_ObjLookup(base_key,CK_IA_SSL_VERSION) == NULL_PTR)
 	  {
 	    rv = CKR_TEMPLATE_INCOMPLETE;
 	    goto ssl3_mkd_error;
 	  }
-	/*  Setze SSL Versionsnummer aus dem template des original Keys */
+*/
+	/*  set SSL version number from the template of the original key */
 	if(param->pVersion == NULL_PTR)
 	  {
 	    param->pVersion = CI_VERSION_new();
@@ -5288,11 +6011,17 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DeriveKey)(
 	  }
 	CI_LogEntry("CI_Ceay_DeriveKey", "got here5", rv ,2);
 
+/*
 	memcpy(param->pVersion, 
 	       CI_ObjLookup(base_key,CK_IA_SSL_VERSION)->pValue, 
+	       sizeof(CK_VERSION)); 
+*/
+/*  The SSL version would be at the begginning of the base_key CK_IA_VALUE */
+	memcpy(param->pVersion, 
+	       p, 
 	       sizeof(CK_VERSION));
 
-	/* Erzeugen der drei abgeleiteten Objekte */
+	/* generating the three derived objects */
 	CI_LogEntry("CI_Ceay_DeriveKey", "got here6", rv ,2);
 
       ssl3_mkd_error:
@@ -5645,7 +6374,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_SeedRandom)(
   CK_ULONG          ulSeedLen  /* length of seed material */
 )
 {
-  CI_Ceay_RAND_seed(pSeed,ulSeedLen);
+  RAND_seed(pSeed,ulSeedLen);
   return CKR_OK;
 }
 /* }}} */
@@ -5657,7 +6386,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_GenerateRandom)(
 )
 {
 #if !defined(NO_REAL_RANDOM)
-  CI_Ceay_RAND_bytes(pRandomData,ulRandomLen);
+  RAND_bytes(pRandomData,ulRandomLen);
 #else
   CK_ULONG i;
   for(i=0; i<ulRandomLen ; i++)
@@ -5966,6 +6695,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_TokenObjAdd)(
   CK_I_SESSION_DATA_PTR val;
   CK_I_CRYPT_DB_PTR cryptdb;
   CK_CHAR_PTR db_file;
+  CK_I_OBJ_PTR tmpObj = NULL_PTR;
 
   CI_LogEntry("CI_Ceay_TokenObjAdd","starting...", rv ,2);
 
@@ -5986,6 +6716,36 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_TokenObjAdd)(
       CI_VarLogEntry("CI_Ceay_TokenObjAdd","cache already loaded (IMPL_DATA(persistent_cache): %p", 
 		  rv ,3, IMPL_DATA(persistent_cache));
     }
+
+  if((CI_ObjLookup(pNewObject,CK_IA_CLASS) != NULL_PTR) &&
+     (*((CK_OBJECT_CLASS CK_PTR)CI_ObjLookup(pNewObject,CK_IA_CLASS)->pValue) == CKO_PRIVATE_KEY) &&
+     (CI_ObjLookup(pNewObject,CK_IA_KEY_TYPE) != NULL_PTR) &&
+     (*((CK_KEY_TYPE CK_PTR)CI_ObjLookup(pNewObject,CK_IA_KEY_TYPE)->pValue) == CKK_RSA)
+     )
+  {
+    rv = CI_ObjCreateObj(&tmpObj);
+    if(rv != CKR_OK) 
+    {
+      CI_LogEntry("CI_Ceay_TokenObjAdd", "creating temporary object", rv, 0);
+      return rv;
+    }
+      
+    rv = CI_ObjReadTemplate(tmpObj, CK_I_rsa_empty_private_key, CK_I_rsa_empty_private_key_count);
+    if(rv != CKR_OK) 
+    {
+      CI_LogEntry("CI_Ceay_TokenObjAdd", "reading rsa empty private key template", rv, 0);
+      return rv;
+    }
+
+    CI_ObjMergeObj(pNewObject, tmpObj, FALSE); /* copy only attribs not already set */
+
+    rv = CI_ObjDestroyObj(tmpObj);
+    if(rv != CKR_OK) 
+    {
+      CI_LogEntry("CI_Ceay_TokenObjAdd","destroy temporary object",rv,0);
+      return rv;
+    }
+  }
 
   /* add the object to the table */
   rv = CI_ContainerAddObj(IMPL_DATA(persistent_cache),phObject,pNewObject);
@@ -6367,6 +7127,8 @@ CK_DEFINE_FUNCTION(CK_RV, ceayToken_init)(
   Ceay_slot_data.slot_info = &Ceay_slot_info;
   Ceay_slot_data.token_data = &Ceay_token_data;
 
+  rv = CI_CeaySymbolTable_init(token_name);
+  
   CI_LogEntry("ceayToken_init", "...complete", rv, 2);
   return rv;
 }
@@ -6390,7 +7152,7 @@ CK_DEFINE_FUNCTION(RSA_PTR, CI_Ceay_Obj2RSA)(
   BIGNUM CK_PTR r1=NULL_PTR, CK_PTR r2=NULL_PTR;
   CK_RV rv = CKR_OK;
   
-  RSA_PTR internal_key_obj = CI_Ceay_RSA_new();
+  RSA_PTR internal_key_obj = RSA_new();
   if(internal_key_obj == NULL_PTR)
     return NULL_PTR;
   
@@ -6694,7 +7456,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_MakeKeyString)(
 	
       rsa_err:
 	if(internal_key != NULL_PTR)
-	  CI_Ceay_RSA_free(internal_key);
+	  RSA_free(internal_key);
 	  
 	}
     break;
@@ -6866,7 +7628,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_BN2ObjEntry)(
   temp_attrib.pValue = CI_ByteStream_new(temp_attrib.ulValueLen);
   if(temp_attrib.pValue == NULL_PTR)
     return CKR_HOST_MEMORY;
-  CI_Ceay_BN_bn2bin(number,temp_attrib.pValue);
+  BN_bn2bin(number,temp_attrib.pValue);
   if(pPublicObj) CI_ObjSetAttribute(pPublicObj, &temp_attrib);
   if(pPrivateObj) CI_ObjSetAttribute(pPrivateObj, &temp_attrib);
   TC_free(temp_attrib.pValue); /* has been copied by the CI_Obj* fkt */
@@ -6889,7 +7651,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_ObjEntry2BN)(
       if(*number == NULL_PTR) return CKR_HOST_MEMORY;
     }
 
-  CI_Ceay_BN_bin2bn(Attrib->pValue,Attrib->ulValueLen,*number);
+  BN_bin2bn(Attrib->pValue,Attrib->ulValueLen,*number);
 
   return CKR_OK;
 }

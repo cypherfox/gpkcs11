@@ -1,7 +1,7 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999,2000 TC TrustCenter for Security in DataNetworks GmbH 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
  * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,98 +28,7 @@
  * FILES:       -
  * SEE/ALSO:    -
  * AUTHOR:      lbe
- * BUGS: *      -
- * HISTORY:     $Log$
- * HISTORY:     Revision 1.16  2000/06/23 17:32:17  lbe
- * HISTORY:     release to secude, lockdown for 0_6_2
- * HISTORY:
- * HISTORY:     Revision 1.15  2000/06/05 12:13:12  lbe
- * HISTORY:     put in some little patches from others
- * HISTORY:
- * HISTORY:     Revision 1.14  2000/03/08 09:59:07  lbe
- * HISTORY:     fix SIGBUS in cryptdb, improve readeability for C_FindObject log output
- * HISTORY:
- * HISTORY:     Revision 1.13  2000/01/31 18:09:02  lbe
- * HISTORY:     lockdown prior to win_gdbm change
- * HISTORY:
- * HISTORY:     Revision 1.12  2000/01/12 15:01:55  lbe
- * HISTORY:     changes for clean CoMMi on linux
- * HISTORY:
- * HISTORY:     Revision 1.11  2000/01/07 10:24:44  lbe
- * HISTORY:     introduce changes for release
- * HISTORY:
- * HISTORY:     Revision 1.10  1999/12/08 16:06:28  lbe
- * HISTORY:     clean up of token prior to creation of new gen-data token
- * HISTORY:
- * HISTORY:     Revision 1.9  1999/12/03 09:35:44  jzu
- * HISTORY:     logging-bug fixed
- * HISTORY:
- * HISTORY:     Revision 1.8  1999/12/02 13:52:37  jzu
- * HISTORY:     personal log-files
- * HISTORY:
- * HISTORY:     Revision 1.7  1999/11/25 19:14:07  lbe
- * HISTORY:     lockdown after windows compile
- * HISTORY:
- * HISTORY:     Revision 1.6  1999/11/25 16:46:51  lbe
- * HISTORY:     moved all lib version defines into the conf.h
- * HISTORY:
- * HISTORY:     Revision 1.5  1999/11/02 13:47:18  lbe
- * HISTORY:     change of structures and bug fix in slot.c, add more files for tcsc_token: emptyfuncs and general_data
- * HISTORY:
- * HISTORY:     Revision 1.4  1999/10/08 13:00:12  lbe
- * HISTORY:     release version 0.5.5
- * HISTORY:
- * HISTORY:     Revision 1.3  1999/10/06 07:57:22  lbe
- * HISTORY:     solved netscape symbol clash problem
- * HISTORY:
- * HISTORY:     Revision 1.2  1999/07/20 17:40:01  lbe
- * HISTORY:     fix bug in gdbm Makefile: there is not allways an 'install' around
- * HISTORY:
- * HISTORY:     Revision 1.15  1999/06/04 14:58:35  lbe
- * HISTORY:     change to libtool/automake complete (except for __umoddi prob)
- * HISTORY:
- * HISTORY:     Revision 1.14  1999/03/01 14:36:44  lbe
- * HISTORY:     merged changes from the weekend
- * HISTORY:
- * HISTORY:     Revision 1.13  1999/01/19 12:19:41  lbe
- * HISTORY:     first release lockdown
- * HISTORY:
- * HISTORY:     Revision 1.12  1998/12/07 13:20:08  lbe
- * HISTORY:     TC_free von parametern für Zeile und Datei befreit.
- * HISTORY:
- * HISTORY:     Revision 1.11  1998/12/01 15:10:08  lbe
- * HISTORY:     code clean up, purify entfernt.
- * HISTORY:
- * HISTORY:     Revision 1.10  1998/11/17 15:52:38  lbe
- * HISTORY:     corrected name of field 'LoggingLevel'
- * HISTORY:
- * HISTORY:     Revision 1.9  1998/11/11 18:24:07  lbe
- * HISTORY:     doppelte static variable mit configuration filename entfernt.
- * HISTORY:
- * HISTORY:     Revision 1.8  1998/11/10 09:43:19  lbe
- * HISTORY:     hash iter geaendert: hashtabelle braucht nicht mehr an fkts uebergeben werden.
- * HISTORY:
- * HISTORY:     Revision 1.7  1998/11/04 17:12:30  lbe
- * HISTORY:     debug-lockdown
- * HISTORY:
- * HISTORY:     Revision 1.6  1998/11/03 15:59:31  lbe
- * HISTORY:     auto-lockdown
- * HISTORY:
- * HISTORY:     Revision 1.5  1998/10/12 10:00:07  lbe
- * HISTORY:     clampdown
- * HISTORY:
- * HISTORY:     Revision 1.4  1998/08/05 08:53:53  lbe
- * HISTORY:     added better dll loading
- * HISTORY:
- * HISTORY:     Revision 1.3  1998/07/30 15:29:32  lbe
- * HISTORY:     Win32 Port
- * HISTORY:
- * HISTORY:     Revision 1.2  1998/07/23 15:18:10  lbe
- * HISTORY:     working
- * HISTORY:
- * HISTORY:     Revision 1.1  1998/07/02 17:14:56  lbe
- * HISTORY:     Initial revision
- * HISTORY:
+ * BUGS:        -
  */
 static char RCSID[]="$Id$";
 const char* Version_init_c(){return RCSID;}

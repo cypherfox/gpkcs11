@@ -1,7 +1,7 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999,2000 TC TrustCenter for Security in DataNetworks GmbH 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
  * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,68 +28,7 @@
  * FILES:       -
  * SEE/ALSO:    -
  * AUTHOR:      lbe
- * BUGS: *      -
- * HISTORY:     $Log$
- * HISTORY:     Revision 1.7  2000/01/31 18:09:02  lbe
- * HISTORY:     lockdown prior to win_gdbm change
- * HISTORY:
- * HISTORY:     Revision 1.6  1999/12/01 11:37:22  lbe
- * HISTORY:     write back changes by afchine
- * HISTORY:
- * HISTORY:     Revision 1.5  1999/11/25 19:14:07  lbe
- * HISTORY:     lockdown after windows compile
- * HISTORY:
- * HISTORY:     Revision 1.4  1999/11/02 13:47:18  lbe
- * HISTORY:     change of structures and bug fix in slot.c, add more files for tcsc_token: emptyfuncs and general_data
- * HISTORY:
- * HISTORY:     Revision 1.3  1999/10/08 13:00:13  lbe
- * HISTORY:     release version 0.5.5
- * HISTORY:
- * HISTORY:     Revision 1.2  1999/10/06 07:57:22  lbe
- * HISTORY:     solved netscape symbol clash problem
- * HISTORY:
- * HISTORY:     Revision 1.1  1999/06/16 09:46:08  lbe
- * HISTORY:     reorder files
- * HISTORY:
- * HISTORY:     Revision 1.13  1999/01/22 08:35:32  lbe
- * HISTORY:     full build with new perisistant storage complete
- * HISTORY:
- * HISTORY:     Revision 1.12  1999/01/19 12:19:42  lbe
- * HISTORY:     first release lockdown
- * HISTORY:
- * HISTORY:     Revision 1.11  1998/12/07 13:20:10  lbe
- * HISTORY:     TC_free von parametern für Zeile und Datei befreit.
- * HISTORY:
- * HISTORY:     Revision 1.10  1998/11/26 10:14:49  lbe
- * HISTORY:     added persistent storage
- * HISTORY:
- * HISTORY:     Revision 1.9  1998/11/13 10:10:15  lbe
- * HISTORY:     added persistent storage.
- * HISTORY:
- * HISTORY:     Revision 1.8  1998/11/03 15:59:37  lbe
- * HISTORY:     auto-lockdown
- * HISTORY:
- * HISTORY:     Revision 1.7  1998/10/12 10:00:11  lbe
- * HISTORY:     clampdown
- * HISTORY:
- * HISTORY:     Revision 1.6  1998/08/05 08:57:24  lbe
- * HISTORY:     *** empty log message ***
- * HISTORY:
- * HISTORY:     Revision 1.5  1998/07/23 15:18:11  lbe
- * HISTORY:     working
- * HISTORY:
- * HISTORY:     Revision 1.4  1998/07/13 15:35:21  lbe
- * HISTORY:     Object-System redesigned
- * HISTORY:
- * HISTORY:     Revision 1.3  1998/07/08 09:55:30  lbe
- * HISTORY:     Weitere Regeln zur überprüfung des Templates eingefügt.
- * HISTORY:
- * HISTORY:     Revision 1.2  1998/07/07 10:26:29  lbe
- * HISTORY:     Extractable Regel in WrapKey() eingefügt
- * HISTORY:
- * HISTORY:     Revision 1.1  1998/07/02 17:17:00  lbe
- * HISTORY:     Initial revision
- * HISTORY:
+ * BUGS:        -
  */
  
 static char RCSID[]="$Id$";

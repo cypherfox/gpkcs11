@@ -1,20 +1,20 @@
 /* -*- c -*- */
 /*
- * This file is part of TC-PKCS11. 
- * (c) 1999 TC TrustCenter for Security in DataNetworks GmbH 
+ * This file is part of GPKCS11. 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
- * TC-PKCS11 is free software; you can redistribute it and/or modify
+ * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
  *  
- * TC-PKCS11 is distributed in the hope that it will be useful,
+ * GPKCS11 is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *  
  * You should have received a copy of the GNU General Public License
- * along with TC-PKCS11; see the file COPYING.  If not, write to the Free
+ * along with GPKCS11; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place - Suite 330, Boston, MA 02111, USA.  
  */
 /*
@@ -24,54 +24,11 @@
  * State:	$State$ $Locker$
  * NAME:	pkcs11_guile.c
  * SYNOPSIS:	-
- * DESCRIPTION: -
+ * DESCRIPTION: main cryptsh code, implements the additional scheme functions
  * FILES:	-
  * SEE/ALSO:	-
  * AUTHOR:	lbe
- * BUGS: *	-
- * HISTORY:	$Log$
- * HISTORY:	Revision 1.9  2000/01/31 18:09:00  lbe
- * HISTORY:	lockdown prior to win_gdbm change
- * HISTORY:	
- * HISTORY:	Revision 1.8  2000/01/12 15:01:53  lbe
- * HISTORY:	changes for clean CoMMi on linux
- * HISTORY:	
- * HISTORY:	Revision 1.7  1999/12/02 14:16:26  lbe
- * HISTORY:	tons of small bug fixes and bullet proofing of libgpkcs11 and cryptsh
- * HISTORY:	
- * HISTORY:	Revision 1.6  1999/12/01 13:44:46  lbe
- * HISTORY:	debug build system for missing central lib directory and debug afchine changes
- * HISTORY:	
- * HISTORY:	Revision 1.5  1999/11/25 16:46:50  lbe
- * HISTORY:	moved all lib version defines into the conf.h
- * HISTORY:	
- * HISTORY:	Revision 1.4  1999/10/06 07:57:20  lbe
- * HISTORY:	solved netscape symbol clash problem
- * HISTORY:	
- * HISTORY:	Revision 1.3  1999/08/02 09:04:45  lbe
- * HISTORY:	all the little fixes for a new release
- * HISTORY:	
- * HISTORY:	Revision 1.2  1999/07/20 17:39:58  lbe
- * HISTORY:	fix bug in gdbm Makefile: there is not allways an 'install' around
- * HISTORY:	
- * HISTORY:	Revision 1.1  1999/06/16 09:46:05  lbe
- * HISTORY:	reorder files
- * HISTORY:	
- * HISTORY:	Revision 1.5  1999/06/04 14:58:35  lbe
- * HISTORY:	change to libtool/automake complete (except for __umoddi prob)
- * HISTORY:	
- * HISTORY:	Revision 1.4  1999/01/26 08:11:33  lbe
- * HISTORY:	test system in first form
- * HISTORY:
- * HISTORY:	Revision 1.3  1999/01/19 12:19:44  lbe
- * HISTORY:	first release lockdown
- * HISTORY:
- * HISTORY:	Revision 1.2  1998/11/03 16:00:23  lbe
- * HISTORY:	auto-lockdown
- * HISTORY:
- * HISTORY:	Revision 1.1  1998/10/12 11:12:14  lbe
- * HISTORY:	Initial revision
- * HISTORY:
+ * BUGS:  	-
  */
 
 static char RCSID[]="$Id$";

@@ -1,7 +1,7 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999,2000 TC TrustCenter for Security in DataNetworks GmbH 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
  * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,20 +22,13 @@
  * Source:      $Source$
  * Last Delta:  $Date$ $Revision$ $Author$
  * State:       $State$ $Locker$
- * NAME:        sessions.c
+ * NAME:        test_decrypt.c
  * SYNOPSIS:    -
  * DESCRIPTION: -
  * FILES:       -
  * SEE/ALSO:    -
  * AUTHOR:      lbe
- * BUGS: *      -
- * HISTORY:     $Log$
- * HISTORY:     Revision 1.1  2000/03/15 19:37:08  lbe
- * HISTORY:     adding missing files
- * HISTORY:
- * HISTORY:     Revision 1.1  2000/01/31 18:09:07  lbe
- * HISTORY:     lockdown prior to win_gdbm change
- * HISTORY:
+ * BUGS:        -
  */
 /*
  * check that the private key functions work correctly.
@@ -47,7 +40,7 @@
  */ 
 
 static char RCSID[]="$Id$";
-const char* Version_C_SetPin_c(){return RCSID;}
+const char* Version_test_decrypt_c(){return RCSID;}
 
 #include "cryptoki.h"
 #include <stdio.h>

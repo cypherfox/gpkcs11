@@ -1,7 +1,7 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999,2000 TC TrustCenter for Security in DataNetworks GmbH 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
  * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,9 @@
  * AUTHOR:      lbe
  * BUGS: *      -
  * HISTORY:     $Log$
+ * HISTORY:     Revision 1.1.1.1  2000/10/15 16:48:15  cypherfox
+ * HISTORY:     import of gpkcs11-0.7.2, first version for SourceForge
+ * HISTORY:
  * HISTORY:     Revision 1.1  2000/02/07 14:04:08  lbe
  * HISTORY:     release 0.6 and clean up of files
  * HISTORY:

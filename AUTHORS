@@ -1,24 +1,33 @@
+
 GPKCS#11 was designed and written by Lutz Behnke <behnke@trustcenter.de> 
 while being employed at TC TrustCenter GmbH
 
 The following people contributed to the development with bug fixes:
-Ron Ramsay <Ron.Ramsay@OpenDirectory.com.au>
-Paul Augustyn <gustaw@cryptotech.com.pl>
-Jean-Marc Desperrier <jean-marc.desperrier@certplus.com>
+ Ron Ramsay <Ron.Ramsay@OpenDirectory.com.au>
+ Paul Augustyn <gustaw@cryptotech.com.pl>
+ Jean-Marc Desperrier <jean-marc.desperrier@certplus.com>
+ Sparkal.Sharma <Sparkal.Sharma@nokia.com>
 
 The following people contributed major improvements in design and
-implementation:
+implementation, as well patches to add features:
 
-Change to dynamically loaded slot structures
-  Régis Gaschy <gaschy@stud.fh-frankfurt.de>
-  Greg Robert <robert@stud.fh-frankfurt.de>
+ Régis Gaschy <gaschy@stud.fh-frankfurt.de>
+ Greg Robert <robert@stud.fh-frankfurt.de>
+    - Change to dynamically load slot structures
 
-DSA Support for ceay_token and numerous other bug-fixes including
-getting the ceay_token object db to work at all and on Win32 as well
-  Afchine Madjlessi <Afchine.Madjlessi@bull.net>
+ Afchine Madjlessi <Afchine.Madjlessi@bull.net>
+    - DSA Support for ceay_token and numerous other bug-fixes including
+      getting the ceay_token object db to work at all and on Win32 as well
+    - More Mechanisms: MD5_RSA_PKCS, MD2_RSA_PKCS, DES_CBC_PAD
 
-Fixing the ceay_token object storage to allow a pin change
-  Piling Chen <piling@nst.com.tw>
+ Piling Chen <piling@nst.com.tw>
+    - Fixing the ceay_token object storage to allow a pin change
 
-Fixing a wrong lenght of buffers to be encrypted.
-  Sparkal.Sharma <Sparkal.Sharma@nokia.com>
+ Felix Baessler <Felix.Baessler@swisscom.com> 
+    - RSA key wrapping
+
+ Rolf Lindemann <lindemann@trustcenter.de>
+    - proper _SENSITIVE handling of object attributes 
+
+Everybody is named in (hopefully) chronological order of first submission
+to the project.

@@ -1,7 +1,7 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999,2000 TC TrustCenter for Security in DataNetworks GmbH 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
  * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,74 +28,7 @@
  * FILES:       -
  * SEE/ALSO:    -
  * AUTHOR:      lbe
- * BUGS: *      -
- * HISTORY:     $Log$
- * HISTORY:     Revision 1.1.1.1  2000/10/15 16:49:06  cypherfox
- * HISTORY:     import of gpkcs11-0.7.2, first version for SourceForge
- * HISTORY:
- * HISTORY:     Revision 1.14  2000/09/19 09:14:49  lbe
- * HISTORY:     write flag for pin change onto SC, support Auth Pin path
- * HISTORY:
- * HISTORY:     Revision 1.13  2000/07/31 17:40:57  lbe
- * HISTORY:     lockdown for release of protected auth path
- * HISTORY:
- * HISTORY:     Revision 1.12  2000/03/08 09:59:06  lbe
- * HISTORY:     fix SIGBUS in cryptdb, improve readeability for C_FindObject log output
- * HISTORY:
- * HISTORY:     Revision 1.11  2000/02/08 16:12:45  lbe
- * HISTORY:     last changes from beta testers
- * HISTORY:
- * HISTORY:     Revision 1.10  2000/01/31 18:09:00  lbe
- * HISTORY:     lockdown prior to win_gdbm change
- * HISTORY:
- * HISTORY:     Revision 1.9  2000/01/07 10:24:42  lbe
- * HISTORY:     introduce changes for release
- * HISTORY:
- * HISTORY:     Revision 1.8  1999/12/10 16:58:40  jzu
- * HISTORY:     new data-token (2)
- * HISTORY:
- * HISTORY:     Revision 1.7  1999/12/02 16:41:50  lbe
- * HISTORY:     small changes, cosmetics
- * HISTORY:
- * HISTORY:     Revision 1.6  1999/12/01 13:44:45  lbe
- * HISTORY:     debug build system for missing central lib directory and debug afchine changes
- * HISTORY:
- * HISTORY:     Revision 1.5  1999/12/01 11:37:22  lbe
- * HISTORY:     write back changes by afchine
- * HISTORY:
- * HISTORY:     Revision 1.4  1999/11/02 13:47:15  lbe
- * HISTORY:     change of structures and bug fix in slot.c, add more files for tcsc_token: emptyfuncs and general_data
- * HISTORY:
- * HISTORY:     Revision 1.3  1999/10/06 07:57:19  lbe
- * HISTORY:     solved netscape symbol clash problem
- * HISTORY:
- * HISTORY:     Revision 1.2  1999/07/20 17:39:58  lbe
- * HISTORY:     fix bug in gdbm Makefile: there is not allways an 'install' around
- * HISTORY:
- * HISTORY:     Revision 1.1  1999/06/04 14:58:37  lbe
- * HISTORY:     change to libtool/automake complete (except for __umoddi prob)
- * HISTORY:
- * HISTORY:     Revision 1.7  1999/03/18 14:10:21  lbe
- * HISTORY:     entered patches from externals
- * HISTORY:
- * HISTORY:     Revision 1.6  1999/03/01 14:36:44  lbe
- * HISTORY:     merged changes from the weekend
- * HISTORY:
- * HISTORY:     Revision 1.5  1999/01/22 08:35:32  lbe
- * HISTORY:     full build with new perisistant storage complete
- * HISTORY:
- * HISTORY:     Revision 1.4  1999/01/19 12:19:37  lbe
- * HISTORY:     first release lockdown
- * HISTORY:
- * HISTORY:     Revision 1.3  1999/01/19 10:10:19  lbe
- * HISTORY:     pre package clampdown
- * HISTORY:
- * HISTORY:     Revision 1.2  1999/01/18 13:02:33  lbe
- * HISTORY:     swapped Berkeley DB for gdbm
- * HISTORY:
- * HISTORY:     Revision 1.1  1999/01/13 16:15:21  lbe
- * HISTORY:     Initial revision
- * HISTORY:
+ * BUGS:        -
  */
  
 static char RCSID[]="$Id$";

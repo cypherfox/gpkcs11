@@ -1,10 +1,10 @@
 This is Info file gpkcs11.info, produced by Makeinfo version 1.68 from
 the input file gpkcs11.texi.
 
-   This file documents the TrustCenter library implementing the PKCS-11
-standard.
+   This file documents the TC TrustCenter library implementing the
+PKCS-11 standard.
 
-   Copyright (C) 1999 TC TrustCenter for Security in DataNetworks GmbH.
+   Copyright (C) 1999-2001 TC TrustCenter GmbH.
 
    Permission is granted to make and distribute verbatim copies of this
 manual provided the copyright notice and this permission notice are
@@ -28,7 +28,7 @@ File: gpkcs11.info,  Node: Top,  Next: Copying,  Prev: (dir),  Up: (dir)
 cryptographic tokens. In this context a token is a piece of hard- or
 software that is able to perform one or more cryptographics operations
 defined in the PKCS-11 standards document. This document is published by
-the RSA Laboritories. This manual documents `gpkcs1' Version 0.6.1. The
+the RSA Laboritories. This manual documents `gpkcs1' Version 0.8.0. The
 software and the manual where written by Lutz Behnke.
 
 * Menu:
@@ -87,7 +87,7 @@ considerations the licensing for the whole package is rather complex and
 please make sure that you understand them before distributing code or
 use/build derivative products. This somewhat messy solution is a attempt
 to get the most out of the free software concept without undermining its
-useability by blocking the support of smartcard that are not availiable
+useability by blocking the support of smartcards that are not availiable
 as free software. The maintainer and his supporting company are
 dedicated to choosing and developing free solutions over proprietary
 ones, but not to a point of making the use of the software impossible
@@ -101,20 +101,16 @@ free software without commercial constraints, please continue to
 maintain from this codebase.
 
    As of Version 0.5.5 and later, different components of the package
-are released under different licenses. The code falls under four basic
-categories: free code, lesser free code, OpenSSL Group code and
-proprietary code.
+are released under different licenses. The code falls under three basic
+categories: free code, lesser free code, and proprietary code.
 
-   the basic interface library `libgpkcs11' is release under the *GNU
-Lesser General Public License*. This basically allows you to statically
-link it or dynamically link it at *compile time* to your application,
-regardless wether it is proprietary or free. This is an example of
-lesser free code.
-
-   the `ceay-token' is released under the BSD style code used by the
-Crypto Algorithm implementation of the OpenSSL Group, based on code by
-Eric A Young. Since it copies code from those packages it must be
-released under the same code. This is an example of OpenSSL Group Code.
+   the basic interface library `libgpkcs11' as well as the
+`ceay_token', a wrapper to `libcrypto', which is part of the software
+put out by the OpenSSL project (http://www.openssl.org), is released
+under the *GNU Lesser General Public License*. This basically allows
+you to statically link it or dynamically link it at *compile time* to
+your application, regardless wether it is proprietary or free. This is
+an example of lesser free code.
 
    `cryptsh' and all scheme scripts that acompany it, are released
 under the *GNU General Public License*. Not only is this needed due to
@@ -122,17 +118,24 @@ the use of `guile', but it is the only component that does not suffer
 from the license dependencies of the other components. It is as free as
 can and should be.
 
+   Part of the developmen effort is also the `tcsc_token' (for
+TrustCenter Smart Card), which is not included in the publicly released
+code, but must be licensed from TC TrustCenter GmbH. The reason for this
+is commercial, but also based on the fact that some smart card vendors
+do not allow disclosure of the command set of their products. This bars
+release of source code in principle.
+
 
 File: gpkcs11.info,  Node: Intro,  Next: Configuration,  Prev: Copying,  Up: Top
 
 Introduction to `gpkcs11'.
 **************************
 
-   GPKCS-11 is an implementation of PKCS#11: Cryptographic Token
+   gpkcs11 is an implementation of PKCS#11: Cryptographic Token
 Interface Standard GPKCS#11 is still in development and may lead to
-loss of data and has potential security holes. FSF, the GNU Project or
-TC TrustCenter are not liable to any damages, direct or indirect, that
-arise through the use of the software.
+loss of data and has potential security holes. the Free Software
+Foundation, the GNU Project or TC TrustCenter are not liable to any
+damages, direct or indirect, that arise through the use of the software.
 
    PKCS#11 defines an interface for the communication of arbitrary
 applications with systems that perform cryptographic operations, like
@@ -145,7 +148,7 @@ using multiple cryptographics systems within a single application.
 support for new tokens easier and contains a complete software token,
 as well as an automated testing environment. In a later version this
 software token will be usable as complete and secure tool for
-cryptographic applications. In this phase GPKCS#11 may serve as a
+cryptographic applications. In this phase gpkcs11 may serve as a
 testing tool in the development of new applications that contain
 cryptographic support.
 
@@ -154,17 +157,14 @@ Solaris 2.5.1/SPARC. It should be able to run on other UNIX platforms.
 Only the creation of shared libraries will create problems. The use of
 libtool to solve this problem is on the top of our list of further
 developments. The development was done on Windows NT in parallel, and
-should be able to run on it as well. But the distribution does not
-contain our project files, as this would have made it too bloated. Due
-to this is the  creation of an automatic build for NT one of the
-features planed for future releases.
+should be able to run on it as well.
 
    To create all parts of *gpkcs11* you also need the following:
 
-*OpenSSL-0.9.4*
+*OpenSSL 0.9.x (tested to run with 0.9.4 through 0.9.6)*
      to provide the cryptographic backend to the software token.
 
-*GUILE-1.3*
+*guile 1.4*
      for the interactive test and administration tool `cryptsh'
 
 *DejaGNU-1.3*
@@ -173,8 +173,8 @@ features planed for future releases.
      also be used to test other PKCS#11 implementations.
 
 *JDK 1.1*
-     is needed to install the library in Netscape Communicator. For
-     other uses the package is not required.
+     is needed to install the library automaticall in Netscape
+     Communicator. For other uses the package is not required.
 
 * Menu:
 
@@ -187,7 +187,7 @@ Confguring the library at run time.
 ***********************************
 
    A number of functions in the library read from a configuration file.
-This file is searched for in `/etc/gpkcs11.rc', `$HOME/.gpkcs11.rc' and
+This file is searched for in `/etc/gpkcs11rc', `$HOME/gpkcs11.rc' and
 `gpkcs11.rc' in the current directory in this order. If any of file
 later in this list found than a prior one it takes precedence over the
 formar one.
@@ -200,9 +200,9 @@ continues until the end of the file or the start of a new section.
 
    Each configuration line is made up of a name and value of a variable
 seperated by an equal sign ('`=''). The name may not contain any white
-space and is case sensitive. White space sourrounding the seperator is
-ignored and striped from the value as a string. The value contains all
-characters after leading white space to the end of the line.
+space and is case insensitive. White space sourrounding the seperator
+is ignored and striped from the value as a string. The value contains
+all characters after leading white space to the end of the line.
 
    Empty lines are ignored. Lines that begin with a hash mark ('`#'')
 are taken as comments and ignored as well.
@@ -218,7 +218,7 @@ are taken as comments and ignored as well.
      TokenDLL = /path/to/your/libceay_tok.so.1.0.1
      InitSym = ceayToken_init
      PersistentDataFile = /home/lbe/.gpkcs_data
-     cryptoDll = /path/to/your/libcrypto.so.0.9.4
+     cryptoDll = /path/to/your/libcrypto.so.0.9.x
 
 TOKENLIST
      Lists the section names of the individual tokens. For each token
@@ -1752,43 +1752,43 @@ List of all files
 
 
 Tag Table:
-Node: Top828
-Node: Copying1563
-Node: Intro5698
-Node: Configuration8173
-Node: New Token12094
-Node: Token Internal Functions13361
-Node: Token Internal Structures24609
-Node: CK_I_SLOT_DATA Structure24898
-Node: CK_I_TOKEN_DATA Structure25596
-Node: CK_I_SESSION_DATA Structure26245
-Node: Object Management API28356
-Node: Configuration Functions36818
-Node: Logging Functions37371
-Node: Dynamyic Library Management39869
-Node: Event Handler40426
-Node: Software Token43514
-Node: ceay_token Internal Functions44677
-Node: ceay_token Internal Structures44881
-Node: CK_I_CEAY_IMPL_DATA Structure45379
-Node: CK_I_CEAY_SESS_IMPL_DATA Structure46127
-Node: Cryptsh46704
-Node: General-Purpose47907
-Node: Slot and Token Management48899
-Node: Session Management53763
-Node: Object Management54377
-Node: Encryption55500
-Node: Decryption55889
-Node: Message Digesting56278
-Node: Signing and MACing56715
-Node: Verifying Signatures and MACs57252
-Node: Dual-function Cryptographics57863
-Node: Key Management58298
-Node: Random Number Generation59871
-Node: Parallel functions Management60180
-Node: Helper60464
-Node: Planed60928
-Node: Bugs61498
-Node: File List63031
+Node: Top807
+Node: Copying1542
+Node: Intro5913
+Node: Configuration8262
+Node: New Token12183
+Node: Token Internal Functions13450
+Node: Token Internal Structures24698
+Node: CK_I_SLOT_DATA Structure24987
+Node: CK_I_TOKEN_DATA Structure25685
+Node: CK_I_SESSION_DATA Structure26334
+Node: Object Management API28445
+Node: Configuration Functions36907
+Node: Logging Functions37460
+Node: Dynamyic Library Management39958
+Node: Event Handler40515
+Node: Software Token43603
+Node: ceay_token Internal Functions44766
+Node: ceay_token Internal Structures44970
+Node: CK_I_CEAY_IMPL_DATA Structure45468
+Node: CK_I_CEAY_SESS_IMPL_DATA Structure46216
+Node: Cryptsh46793
+Node: General-Purpose47996
+Node: Slot and Token Management48988
+Node: Session Management53852
+Node: Object Management54466
+Node: Encryption55589
+Node: Decryption55978
+Node: Message Digesting56367
+Node: Signing and MACing56804
+Node: Verifying Signatures and MACs57341
+Node: Dual-function Cryptographics57952
+Node: Key Management58387
+Node: Random Number Generation59960
+Node: Parallel functions Management60269
+Node: Helper60553
+Node: Planed61017
+Node: Bugs61587
+Node: File List63120
 
 End Tag Table

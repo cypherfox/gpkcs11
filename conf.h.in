@@ -96,9 +96,6 @@
 /* activate and set level of debugging */
 #undef USE_ASSERT
 
-/* version of OpenSSL which libcrypto is used */
-#undef CRYPTO_LIB_VERSION
-
 /* major version number of cryptoki that this implements */
 #undef CRYPTOKI_VERSION_MAJOR
 

@@ -1,7 +1,7 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999,2000 TC TrustCenter for Security in DataNetworks GmbH 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
  * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,47 +28,7 @@
  * FILES:       -
  * SEE/ALSO:    -
  * AUTHOR:      lbe
- * BUGS: *      -
- * HISTORY:     $Log$
- * HISTORY:     Revision 1.4  2000/01/31 18:09:02  lbe
- * HISTORY:     lockdown prior to win_gdbm change
- * HISTORY:
- * HISTORY:     Revision 1.3  1999/11/02 13:47:18  lbe
- * HISTORY:     change of structures and bug fix in slot.c, add more files for tcsc_token: emptyfuncs and general_data
- * HISTORY:
- * HISTORY:     Revision 1.2  1999/10/06 07:57:22  lbe
- * HISTORY:     solved netscape symbol clash problem
- * HISTORY:
- * HISTORY:     Revision 1.1  1999/06/16 09:46:08  lbe
- * HISTORY:     reorder files
- * HISTORY:
- * HISTORY:     Revision 1.9  1999/01/19 12:19:40  lbe
- * HISTORY:     first release lockdown
- * HISTORY:
- * HISTORY:     Revision 1.8  1998/12/07 13:20:05  lbe
- * HISTORY:     TC_free von parametern für Zeile und Datei befreit.
- * HISTORY:
- * HISTORY:     Revision 1.7  1998/11/20 12:40:20  lbe
- * HISTORY:     fehlerhaftes eintragen des tabellen endes in CI_HashIterInc
- * HISTORY:
- * HISTORY:     Revision 1.6  1998/11/10 09:43:16  lbe
- * HISTORY:     hash iter geaendert: hashtabelle braucht nicht mehr an fkts uebergeben werden.
- * HISTORY:
- * HISTORY:     Revision 1.5  1998/11/03 15:59:36  lbe
- * HISTORY:     auto-lockdown
- * HISTORY:
- * HISTORY:     Revision 1.4  1998/10/12 10:00:09  lbe
- * HISTORY:     clampdown
- * HISTORY:
- * HISTORY:     Revision 1.3  1998/08/05 08:59:02  lbe
- * HISTORY:     added function for hash of string
- * HISTORY:
- * HISTORY:     Revision 1.2  1998/07/23 15:18:10  lbe
- * HISTORY:     working
- * HISTORY:
- * HISTORY:     Revision 1.1  1998/07/02 17:14:19  lbe
- * HISTORY:     Initial revision
- * HISTORY:
+ * BUGS:        -
  */
  
 static char RCSID[]="$Id$";

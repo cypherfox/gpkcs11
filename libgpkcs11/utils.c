@@ -1,7 +1,7 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999,2000 TC TrustCenter for Security in DataNetworks GmbH 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
  * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,35 +28,7 @@
  * FILES:	-
  * SEE/ALSO:	-
  * AUTHOR:	lin
- * BUGS: *	-
- * HISTORY:	$Log$
- * HISTORY:	Revision 1.5  2000/01/31 18:09:03  lbe
- * HISTORY:	lockdown prior to win_gdbm change
- * HISTORY:	
- * HISTORY:	Revision 1.4  1999/12/02 14:16:27  lbe
- * HISTORY:	tons of small bug fixes and bullet proofing of libgpkcs11 and cryptsh
- * HISTORY:	
- * HISTORY:	Revision 1.3  1999/11/02 13:47:19  lbe
- * HISTORY:	change of structures and bug fix in slot.c, add more files for tcsc_token: emptyfuncs and general_data
- * HISTORY:	
- * HISTORY:	Revision 1.2  1999/10/06 07:57:23  lbe
- * HISTORY:	solved netscape symbol clash problem
- * HISTORY:	
- * HISTORY:	Revision 1.1  1999/06/16 09:46:11  lbe
- * HISTORY:	reorder files
- * HISTORY:	
- * HISTORY:	Revision 1.4  1999/06/04 14:58:36  lbe
- * HISTORY:	change to libtool/automake complete (except for __umoddi prob)
- * HISTORY:	
- * HISTORY:	Revision 1.3  1999/01/19 12:19:47  lbe
- * HISTORY:	first release lockdown
- * HISTORY:
- * HISTORY:	Revision 1.2  1999/01/18 16:30:09  lbe
- * HISTORY:	util cleanup and package build
- * HISTORY:
- * HISTORY:	Revision 1.1  1999/01/18 13:02:34  lbe
- * HISTORY:	swapped Berkeley DB for gdbm
- * HISTORY:
+ * BUGS: 	-
  */
 
 static char RCSID[]="$Id$";

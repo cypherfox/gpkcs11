@@ -1,7 +1,7 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999,2000 TC TrustCenter for Security in DataNetworks GmbH 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
  * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,47 +28,7 @@
  * FILES:       -
  * SEE/ALSO:    -
  * AUTHOR:      lbe
- * BUGS: *      -
- * HISTORY:     $Log$
- * HISTORY:     Revision 1.6  2000/06/23 17:32:17  lbe
- * HISTORY:     release to secude, lockdown for 0_6_2
- * HISTORY:
- * HISTORY:     Revision 1.5  2000/01/31 18:09:02  lbe
- * HISTORY:     lockdown prior to win_gdbm change
- * HISTORY:
- * HISTORY:     Revision 1.4  1999/12/03 09:35:44  jzu
- * HISTORY:     logging-bug fixed
- * HISTORY:
- * HISTORY:     Revision 1.3  1999/12/02 16:41:50  lbe
- * HISTORY:     small changes, cosmetics
- * HISTORY:
- * HISTORY:     Revision 1.2  1999/12/02 13:52:37  jzu
- * HISTORY:     personal log-files
- * HISTORY:
- * HISTORY:     Revision 1.1  1999/06/16 09:46:07  lbe
- * HISTORY:     reorder files
- * HISTORY:
- * HISTORY:     Revision 1.7  1999/01/19 12:19:39  lbe
- * HISTORY:     first release lockdown
- * HISTORY:
- * HISTORY:     Revision 1.6  1998/12/07 13:20:01  lbe
- * HISTORY:     TC_free von parametern für Zeile und Datei befreit.
- * HISTORY:
- * HISTORY:     Revision 1.5  1998/11/13 10:10:20  lbe
- * HISTORY:     added persistent storage.
- * HISTORY:
- * HISTORY:     Revision 1.4  1998/11/10 09:43:21  lbe
- * HISTORY:     hash iter geaendert: hashtabelle braucht nicht mehr an fkts uebergeben werden.
- * HISTORY:
- * HISTORY:     Revision 1.3  1998/11/04 17:12:25  lbe
- * HISTORY:     debug-lockdown
- * HISTORY:
- * HISTORY:     Revision 1.2  1998/10/12 10:08:21  lbe
- * HISTORY:     clampdown
- * HISTORY:
- * HISTORY:     Revision 1.1  1998/07/23 15:19:47  lbe
- * HISTORY:     working
- * HISTORY:
+ * BUGS:        -
  */
 
 #ifndef ERROR_H

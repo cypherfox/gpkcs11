@@ -1,3 +1,8 @@
+#
+# This is an example gpkcs11 configuration file, copy it either
+# to /etc/gpkcs11.rc or $HOME/.gpkcs11.rc
+#
+
 [PKCS11-DLL]
 TokenList = CEAY-TOKEN TCSC-TOKEN1
 ExtraLibraryPath = /path/to/additional/libaries/needed/by/other/libs/

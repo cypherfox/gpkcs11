@@ -1,7 +1,7 @@
 # This directory contains the files that are different for the windows
 # gdbm from the UNIX gdbm library. 
 #
-# In order to use the simply copy all files from gdbm-1.8.0 in this directory
+# In order to use it simply copy all files from gdbm-1.8.0 into this directory,
 # as long as there is not a file of the same name allready in this directory.
 # 
 # If you are accessing your files from a UNIX based Samba server the best way

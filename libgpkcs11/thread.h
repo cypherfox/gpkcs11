@@ -1,5 +1,23 @@
+/* -*- c -*- */
 /*
- * Copyright (c) TC TrustCenter - Projekt TC-PKCS11 - all rights reserved
+ * This file is part of GPKCS11. 
+ * (c) 1999-2001 TC TrustCenter GmbH 
+ *
+ * GPKCS11 is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *  
+ * GPKCS11 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *  
+ * You should have received a copy of the GNU General Public License
+ * along with GPKCS11; see the file COPYING.  If not, write to the Free
+ * Software Foundation, 59 Temple Place - Suite 330, Boston, MA 02111, USA.  
+ */
+/*
  * RCSID:       $Id$
  * Source:      $Source$
  * Last Delta:  $Date$ $Revision$ $Author$
@@ -10,18 +28,7 @@
  * FILES:       -
  * SEE/ALSO:    -
  * AUTHOR:      ben
- * BUGS: *      -
- * HISTORY:     $Log$
- * HISTORY:     Revision 1.3  2000/06/23 17:32:18  lbe
- * HISTORY:     release to secude, lockdown for 0_6_2
- * HISTORY:
- * HISTORY:     Revision 1.2  2000/06/05 11:43:43  lbe
- * HISTORY:     tcsc token breakup, return pSlotCount in SlotList, code for event handling deactivated
- * HISTORY:
- * HISTORY:     Revision 1.1  2000/05/16 15:14:08  lbe
- * HISTORY:     new files for thread handling needed for events
- * HISTORY:
- * HISTORY:
+ * BUGS:       -
  */
 
 #ifndef TCTHREAD_H

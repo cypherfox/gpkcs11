@@ -3,7 +3,20 @@
 #                   Change log for GPKCS-11                    #
 ################################################################
 
-changes between 0.6.1 and 0.7.2
+changes between 0.7.2 and 0.8.0
+
+Wed Apr 18 15:37:23 2001 Lutz Behnke <behnke@trustcenter.de>
+	* merge the additional mechanisms provided as patch by
+	Afchine: DES_CBC_PAD, MD5_RSA_PKCS, MD2_RSA_PKCS
+	(ceay_token/ceay_token.c, ceay_token/ctok_encrypt,
+	ceay_token/ctok_decrypt.c, ceay_token/ceay_token.h)
+
+Wed Feb 7 11:13:27 2001 Rolf Lindemann <lindemann@trustcenter.de>
+	* add code for proper handling of SENSITIVE flag in accessing
+	object attributes (libgpkcs11/object.c)
+
+
+changes between 0.7.1 and 0.7.2
 
 Mon Aug 14 17:34:26 2000 Sparkal.Sharma <Sparkal.Sharma@nokia.com>
         * fix lenght of buffer to en/decrypted, remove '/8'

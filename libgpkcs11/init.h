@@ -1,7 +1,7 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999,2000 TC TrustCenter for Security in DataNetworks GmbH 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
  * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,38 +28,7 @@
  * FILES:       -
  * SEE/ALSO:    -
  * AUTHOR:      lbe
- * BUGS: *      -
- * HISTORY:     $Log$
- * HISTORY:     Revision 1.5  2000/01/31 18:09:02  lbe
- * HISTORY:     lockdown prior to win_gdbm change
- * HISTORY:
- * HISTORY:     Revision 1.4  1999/11/02 13:47:18  lbe
- * HISTORY:     change of structures and bug fix in slot.c, add more files for tcsc_token: emptyfuncs and general_data
- * HISTORY:
- * HISTORY:     Revision 1.3  1999/10/08 13:00:13  lbe
- * HISTORY:     release version 0.5.5
- * HISTORY:
- * HISTORY:     Revision 1.2  1999/10/06 07:57:22  lbe
- * HISTORY:     solved netscape symbol clash problem
- * HISTORY:
- * HISTORY:     Revision 1.1  1999/06/16 09:46:08  lbe
- * HISTORY:     reorder files
- * HISTORY:
- * HISTORY:     Revision 1.5  1999/06/04 14:58:35  lbe
- * HISTORY:     change to libtool/automake complete (except for __umoddi prob)
- * HISTORY:
- * HISTORY:     Revision 1.4  1999/01/19 12:19:41  lbe
- * HISTORY:     first release lockdown
- * HISTORY:
- * HISTORY:     Revision 1.3  1998/11/04 17:12:28  lbe
- * HISTORY:     debug-lockdown
- * HISTORY:
- * HISTORY:     Revision 1.2  1998/10/12 11:16:54  lbe
- * HISTORY:     clampdown
- * HISTORY:
- * HISTORY:     Revision 1.1  1998/08/05 08:57:50  lbe
- * HISTORY:     Initial revision
- * HISTORY:
+ * BUGS:        -
  */
 
 #ifndef _INIT_H
@@ -69,8 +38,8 @@
 
 /** Locate the config file.
  * The config file may be in one of the following places:
- *  NT: <windows directory>\gpkcs11.cnf ( ususally this is
- *      "c:\WinNT\system32\gpkcs11.cnf" )
+ *  NT: <windows directory>\gpkcs11.ini ( ususally this is
+ *      "c:\WinNT\system32\gpkcs11.ini" )
  *  Solaris/Linux: either "/etc/gpkcs11rc" or "$HOME/.gpkcs11rc"
  * 
  * On all systems setting the environment variable "GPKCS11_CONF"

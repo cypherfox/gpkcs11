@@ -10,6 +10,19 @@
 # even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.
 
+# RCSID:       $Id$
+# Source:      $Source$
+# Last Delta:  $Date$ $Revision$ $Author$
+# State:       $State$ $Locker$
+# NAME:        Makefile.am
+# SYNOPSIS:    -
+# DESCRIPTION: -
+# FILES:       -
+# SEE/ALSO:    -
+# AUTHOR:      lbe
+# BUGS:        -
+# 
+
 #global options to the workings of automake
 
 
@@ -86,7 +99,7 @@ LN_S = @LN_S@
 MAKEINFO = @MAKEINFO@
 NM = @NM@
 OBJDUMP = @OBJDUMP@
-OPENSSL_SRC_DIR = @OPENSSL_SRC_DIR@
+OPENSSL_INCLUDES = @OPENSSL_INCLUDES@
 PACKAGE = @PACKAGE@
 PREFIX_ACLOCAL = @PREFIX_ACLOCAL@
 PURIFY_DIR = @PURIFY_DIR@

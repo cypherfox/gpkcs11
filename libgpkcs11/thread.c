@@ -1,29 +1,34 @@
+/* -*- c -*- */
 /*
- * Copyright (c) TC TrustCenter - Projekt TC-PKCS11 - all rights reserved
+ * This file is part of GPKCS11. 
+ * (c) 1999-2001 TC TrustCenter GmbH 
+ *
+ * GPKCS11 is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *  
+ * GPKCS11 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *  
+ * You should have received a copy of the GNU General Public License
+ * along with GPKCS11; see the file COPYING.  If not, write to the Free
+ * Software Foundation, 59 Temple Place - Suite 330, Boston, MA 02111, USA.  
+ */
+/*
  * RCSID:       $Id$
  * Source:      $Source$
  * Last Delta:  $Date$ $Revision$ $Author$
  * State:       $State$ $Locker$
  * NAME:        thread.c
  * SYNOPSIS:    -
- * DESCRIPTION: A library to simplify the calls to thread functions under Windows or Unix.
+ * DESCRIPTION: functions to simplify the calls to thread functions under Windows or Unix.
  * FILES:       -
  * SEE/ALSO:    -
  * AUTHOR:      ben
- * BUGS: *      -
- * HISTORY:     $Log$
- * HISTORY:     Revision 1.4  2000/09/19 09:14:55  lbe
- * HISTORY:     write flag for pin change onto SC, support Auth Pin path
- * HISTORY:
- * HISTORY:     Revision 1.3  2000/07/24 15:44:11  lbe
- * HISTORY:     added the files for snacc usage
- * HISTORY:
- * HISTORY:     Revision 1.2  2000/06/05 11:43:43  lbe
- * HISTORY:     tcsc token breakup, return pSlotCount in SlotList, code for event handling deactivated
- * HISTORY:
- * HISTORY:     Revision 1.1  2000/05/16 15:14:08  lbe
- * HISTORY:     new files for thread handling needed for events
- * HISTORY:
+ * BUGS:        -
  */
  
 static char RCSID[]="$Id$";
@@ -41,12 +46,10 @@ const char* Version_TCThread_c(){return RCSID;}
 #include "stdlib.h"
 
 #ifndef HAVE_MACHDEP_SYS_SENDMSG
-/* ACHTUNG: linkage problem, LINUX does not implement the sendmsg and
+/* Warning: linkage problem, LINUX does not implement the sendmsg and
      recvmsg functions, so we do it, but returns always an error,
      hoping that these functions are called only in a certain case
      while using threads. 
-     LBE: Ich kann die Dinger auf Solaris auch nicht finden. 
-          Deswegen werden sie von autoconf auch nicht erkannt.
 */
 int machdep_sys_sendmsg(int a, char *b, int c){return -1;}
 int machdep_sys_recvmsg(int a, char *b, int c){return -1;}

@@ -1,7 +1,7 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999,2000 TC TrustCenter for Security in DataNetworks GmbH 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
  * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,39 +22,20 @@
  * Source:      $Source$
  * Last Delta:  $Date$ $Revision$ $Author$
  * State:       $State$ $Locker$
- * NAME:        sessions.c
+ * NAME:        test_sign.c
  * SYNOPSIS:    -
- * DESCRIPTION: -
+ * DESCRIPTION: check that the private key signing functions work correctly.
+ *                - find a token that promises to handle RSA_PKCS
+ *                - find a RSA key on that token that can sign (private 
+ *                  encrypt) and then try the sign
  * FILES:       -
  * SEE/ALSO:    -
  * AUTHOR:      lbe
- * BUGS: *      -
- * HISTORY:     $Log$
- * HISTORY:     Revision 1.1.1.1  2000/10/15 16:49:11  cypherfox
- * HISTORY:     import of gpkcs11-0.7.2, first version for SourceForge
- * HISTORY:
- * HISTORY:     Revision 1.3  2000/09/19 09:15:05  lbe
- * HISTORY:     write flag for pin change onto SC, support Auth Pin path
- * HISTORY:
- * HISTORY:     Revision 1.2  2000/06/23 17:32:27  lbe
- * HISTORY:     release to secude, lockdown for 0_6_2
- * HISTORY:
- * HISTORY:     Revision 1.1  2000/03/15 19:37:08  lbe
- * HISTORY:     adding missing files
- * HISTORY:
- * HISTORY:     Revision 1.1  2000/01/31 18:09:07  lbe
- * HISTORY:     lockdown prior to win_gdbm change
- * HISTORY:
+ * BUGS:        -
  */
-/*
- * check that the private key signing functions work correctly.
- * - find a token that promises to handle RSA_PKCS
- * - find a RSA key on that token that can sign (private encrypt) and then 
- *   try the sign
- */ 
 
 static char RCSID[]="$Id$";
-const char* Version_C_SetPin_c(){return RCSID;}
+const char* Version_test_sign_c(){return RCSID;}
 
 #include "cryptoki.h"
 #include <stdio.h>

@@ -1,7 +1,7 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999,2000 TC TrustCenter for Security in DataNetworks GmbH 
+ * (c) 1999-2001 TC TrustCenter for Security in DataNetworks GmbH 
  *
  * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,42 +29,12 @@
  * FILES:       -
  * SEE/ALSO:    -
  * AUTHOR:      lbe
- * BUGS: *      -
- * HISTORY:     $Log$
- * HISTORY:     Revision 1.7  2000/03/08 09:59:07  lbe
- * HISTORY:     fix SIGBUS in cryptdb, improve readeability for C_FindObject log output
- * HISTORY:
- * HISTORY:     Revision 1.6  2000/01/31 18:09:02  lbe
- * HISTORY:     lockdown prior to win_gdbm change
- * HISTORY:
- * HISTORY:     Revision 1.5  1999/11/25 19:14:07  lbe
- * HISTORY:     lockdown after windows compile
- * HISTORY:
- * HISTORY:     Revision 1.4  1999/11/25 16:46:51  lbe
- * HISTORY:     moved all lib version defines into the conf.h
- * HISTORY:
- * HISTORY:     Revision 1.3  1999/11/02 13:47:18  lbe
- * HISTORY:     change of structures and bug fix in slot.c, add more files for tcsc_token: emptyfuncs and general_data
- * HISTORY:
- * HISTORY:     Revision 1.2  1999/10/06 07:57:22  lbe
- * HISTORY:     solved netscape symbol clash problem
- * HISTORY:
- * HISTORY:     Revision 1.1  1999/06/16 09:46:07  lbe
- * HISTORY:     reorder files
- * HISTORY:
- * HISTORY:     Revision 1.3  1999/01/19 12:19:40  lbe
- * HISTORY:     first release lockdown
- * HISTORY:
- * HISTORY:     Revision 1.2  1998/12/07 13:20:03  lbe
- * HISTORY:     TC_free von parametern für Zeile und Datei befreit.
- * HISTORY:
- * HISTORY:     Revision 1.1  1998/11/03 15:59:41  lbe
- * HISTORY:     auto-lockdown
- * HISTORY:
+ * BUGS:        -
  */
-/* Diese Liste stellt nicht die Funktion C_GetFunctionList zu Verfügung, da diese Fkts. nur
- * bei anderen Gruppen zum einsatz kommen und nicht als eigenständige Bibliothek arbeiten. 
- */
+/*
+ * This list does not provide the function C_GetFunctionList, as this is not a complete
+ * library, but only those functions that may not be provided by an implementation.
+ */ 
 
 static char RCSID[]="$Id$";
 const char* Version_fkt_dummy_c(){return RCSID;}

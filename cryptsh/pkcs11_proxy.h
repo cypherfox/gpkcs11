@@ -1,7 +1,7 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999,2000 TC TrustCenter for Security in DataNetworks GmbH 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
  * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,23 +28,7 @@
  * FILES:	-
  * SEE/ALSO:	-
  * AUTHOR:	lbe
- * BUGS: *	-
- * HISTORY:	$Log$
- * HISTORY:	Revision 1.1  2000/02/07 14:04:09  lbe
- * HISTORY:	release 0.6 and clean up of files
- * HISTORY:	
- * HISTORY:	Revision 1.2  2000/01/31 18:09:03  lbe
- * HISTORY:	lockdown prior to win_gdbm change
- * HISTORY:	
- * HISTORY:	Revision 1.1  1999/06/16 09:46:10  lbe
- * HISTORY:	reorder files
- * HISTORY:	
- * HISTORY:	Revision 1.2  1999/01/19 12:19:45  lbe
- * HISTORY:	first release lockdown
- * HISTORY:
- * HISTORY:	Revision 1.1  1998/11/04 17:45:46  lbe
- * HISTORY:	Initial revision
- * HISTORY:
+ * BUGS:  	-
  */
 
 #ifndef PKCS11_PROXY_H

@@ -10,6 +10,8 @@
 # even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.
 
+# create libraries with libtool 
+
 
 SHELL = @SHELL@
 
@@ -84,7 +86,7 @@ LN_S = @LN_S@
 MAKEINFO = @MAKEINFO@
 NM = @NM@
 OBJDUMP = @OBJDUMP@
-OPENSSL_SRC_DIR = @OPENSSL_SRC_DIR@
+OPENSSL_INCLUDES = @OPENSSL_INCLUDES@
 PACKAGE = @PACKAGE@
 PREFIX_ACLOCAL = @PREFIX_ACLOCAL@
 PURIFY_DIR = @PURIFY_DIR@
@@ -97,26 +99,18 @@ TOKEN_LIBS = @TOKEN_LIBS@
 TOKEN_TARGETS = @TOKEN_TARGETS@
 VERSION = @VERSION@
 
-LCRYPT_VERSION = 0.9.6
-LCRYPT_MINOR = 9
-LCRYPT_MAJOR = 0
-
-# create libraries with libtool 
 lib_LTLIBRARIES = libceay_tok.la
 
 libceay_tok_la_SOURCES = ceay_token.c ctok_encrypt.c ctok_decrypt.c ctok_mem.c TCCGenKey.c cryptdb.c
 
 libceay_tok_la_LDFLAGS = -module -version-info 1:1 -L./
 
-libceay_tok_la_LIBADD = -L${top_builddir}/gdbm-1.8.0/.libs -lgdbm                         -L${top_builddir}/libgpkcs11/.libs -lgpkcs11 -lcrypto                         @LIBS@
+libceay_tok_la_LIBADD = -L${top_builddir}/gdbm-1.8.0/.libs -lgdbm                         -L${top_builddir}/libgpkcs11/.libs -lgpkcs11                         @LIBS@
 
-libceay_tok_la_DEPENDENCIES = libcrypto.so
 
 noinst_HEADERS = ceay_token.h ctok_mem.h cryptdb.h TCCGenKey.h
 
-INCLUDES = -I. -I.. -I$(srcdir) -I$(srcdir)/openssl/include -I$(top_srcdir)/gdbm-1.8.0 -I$(top_builddir)/gdbm-1.8.0 -I$(top_srcdir)/libgpkcs11 @INCLUDES@
-
-INSTALL_PACK_DIR := $(top_builddir)/@PACKAGE@/@TARGET_ARCH@
+INCLUDES = -I. -I.. -I$(srcdir) -I@OPENSSL_INCLUDES@ -I$(top_srcdir)/gdbm-1.8.0 -I$(top_builddir)/gdbm-1.8.0 -I$(top_srcdir)/libgpkcs11 @INCLUDES@
 
 EXTRA_DIST = shared_openssl-0.9.4.diff symbol_transform.pl symbol_list.txt 
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -128,6 +122,7 @@ LTLIBRARIES =  $(lib_LTLIBRARIES)
 DEFS = @DEFS@ -I. -I$(srcdir) -I..
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
+libceay_tok_la_DEPENDENCIES = 
 libceay_tok_la_OBJECTS =  ceay_token.lo ctok_encrypt.lo ctok_decrypt.lo \
 ctok_mem.lo TCCGenKey.lo cryptdb.lo
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -275,7 +270,7 @@ check-am: all-am
 check: check-am
 installcheck-am:
 installcheck: installcheck-am
-install-exec-am: install-libLTLIBRARIES install-exec-local
+install-exec-am: install-libLTLIBRARIES
 install-exec: install-exec-am
 
 install-data-am:
@@ -310,7 +305,7 @@ mostlyclean-am:  mostlyclean-libLTLIBRARIES mostlyclean-compile \
 mostlyclean: mostlyclean-am
 
 clean-am:  clean-libLTLIBRARIES clean-compile clean-libtool clean-tags \
-		clean-generic mostlyclean-am clean-local
+		clean-generic mostlyclean-am
 
 clean: clean-am
 
@@ -337,38 +332,12 @@ distclean-compile clean-compile maintainer-clean-compile \
 mostlyclean-libtool distclean-libtool clean-libtool \
 maintainer-clean-libtool tags mostlyclean-tags distclean-tags \
 clean-tags maintainer-clean-tags distdir info-am info dvi-am dvi check \
-check-am installcheck-am installcheck install-exec-local \
-install-exec-am install-exec install-data-am install-data install-am \
-install uninstall-am uninstall all-redirect all-am all installdirs \
-mostlyclean-generic distclean-generic clean-generic \
-maintainer-clean-generic clean mostlyclean distclean maintainer-clean
+check-am installcheck-am installcheck install-exec-am install-exec \
+install-data-am install-data install-am install uninstall-am uninstall \
+all-redirect all-am all installdirs mostlyclean-generic \
+distclean-generic clean-generic maintainer-clean-generic clean \
+mostlyclean distclean maintainer-clean
 
-
-install-exec-local: 
-	$(INSTALL_PROGRAM) -m 755 libcrypto.so.$(LCRYPT_VERSION) $(libdir)/libcrypto.so.$(LCRYPT_VERSION)
-	rm -f $(libdir)/libcrypto.so.$(LCRYPT_MAJOR).$(LCRYPT_MINOR)
-	ln -s libcrypto.so.$(LCRYPT_VERSION) $(libdir)/libcrypto.so.$(LCRYPT_MAJOR).$(LCRYPT_MINOR)
-	rm -f $(libdir)/libcrypto.so.$(LCRYPT_MAJOR)
-	ln -s libcrypto.so.$(LCRYPT_VERSION) $(libdir)/libcrypto.so.$(LCRYPT_MAJOR)
-	rm -f $(libdir)/libcrypto.so
-	ln -s libcrypto.so.$(LCRYPT_VERSION) $(libdir)/libcrypto.so
-
-libcrypto.so: libcrypto.so.$(LCRYPT_VERSION)
-	rm -f libcrypto.so
-	ln -s libcrypto.so.$(LCRYPT_VERSION) libcrypto.so
-
-dll-set: libcrypto.so $(LTLIBRARIES) 
-	cp libcrypto.so $(INSTALL_PACK_DIR)
-	cp .libs/libceay_tok.so $(INSTALL_PACK_DIR)
-
-libcrypto.so.$(LCRYPT_VERSION):
-	cd $(srcdir)/openssl && make clean && sh ./config -shared --prefix=$(prefix) \
-            --openssldir=$(prefix)/ssl && make shlib && \
-            cp shlib_dir/libcrypto.so* ../ && make clean 
-
-clean-local:
-	rm -f libcrypto.*
-	make -C openssl clean	
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

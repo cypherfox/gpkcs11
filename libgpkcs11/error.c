@@ -1,7 +1,7 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999,2000 TC TrustCenter for Security in DataNetworks GmbH 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
  * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,83 +28,7 @@
  * FILES:       -
  * SEE/ALSO:    -
  * AUTHOR:      lbe
- * BUGS: *      -
- * HISTORY:     $Log$
- * HISTORY:     Revision 1.1.1.1  2000/10/15 16:48:03  cypherfox
- * HISTORY:     import of gpkcs11-0.7.2, first version for SourceForge
- * HISTORY:
- * HISTORY:     Revision 1.11  2000/06/05 11:43:43  lbe
- * HISTORY:     tcsc token breakup, return pSlotCount in SlotList, code for event handling deactivated
- * HISTORY:
- * HISTORY:     Revision 1.10  2000/03/15 19:21:59  lbe
- * HISTORY:     first try for tc-pkcs11 0.6.1: now works multi-app clean with tc_scard and can handle private decrypt in tcsc_token
- * HISTORY:
- * HISTORY:     Revision 1.9  2000/01/31 18:09:02  lbe
- * HISTORY:     lockdown prior to win_gdbm change
- * HISTORY:
- * HISTORY:     Revision 1.8  2000/01/07 10:24:44  lbe
- * HISTORY:     introduce changes for release
- * HISTORY:
- * HISTORY:     Revision 1.7  1999/12/03 09:35:44  jzu
- * HISTORY:     logging-bug fixed
- * HISTORY:
- * HISTORY:     Revision 1.6  1999/12/02 16:41:50  lbe
- * HISTORY:     small changes, cosmetics
- * HISTORY:
- * HISTORY:     Revision 1.5  1999/12/02 14:16:27  lbe
- * HISTORY:     tons of small bug fixes and bullet proofing of libgpkcs11 and cryptsh
- * HISTORY:
- * HISTORY:     Revision 1.4  1999/12/02 13:52:37  jzu
- * HISTORY:     personal log-files
- * HISTORY:
- * HISTORY:     Revision 1.3  1999/11/02 13:47:18  lbe
- * HISTORY:     change of structures and bug fix in slot.c, add more files for tcsc_token: emptyfuncs and general_data
- * HISTORY:
- * HISTORY:     Revision 1.2  1999/10/06 07:57:22  lbe
- * HISTORY:     solved netscape symbol clash problem
- * HISTORY:
- * HISTORY:     Revision 1.1  1999/06/16 09:46:07  lbe
- * HISTORY:     reorder files
- * HISTORY:
- * HISTORY:     Revision 1.13  1999/06/04 14:58:35  lbe
- * HISTORY:     change to libtool/automake complete (except for __umoddi prob)
- * HISTORY:
- * HISTORY:     Revision 1.12  1999/03/01 14:36:44  lbe
- * HISTORY:     merged changes from the weekend
- * HISTORY:
- * HISTORY:     Revision 1.11  1999/01/19 12:19:39  lbe
- * HISTORY:     first release lockdown
- * HISTORY:
- * HISTORY:     Revision 1.10  1998/12/07 13:19:59  lbe
- * HISTORY:     TC_free von parametern für Zeile und Datei befreit.
- * HISTORY:
- * HISTORY:     Revision 1.9  1998/11/26 10:14:12  lbe
- * HISTORY:     added persistent storage
- * HISTORY:
- * HISTORY:     Revision 1.8  1998/11/13 10:10:19  lbe
- * HISTORY:     added persistent storage.
- * HISTORY:
- * HISTORY:     Revision 1.7  1998/11/10 09:43:24  lbe
- * HISTORY:     hash iter geaendert: hashtabelle braucht nicht mehr an fkts uebergeben werden.
- * HISTORY:
- * HISTORY:     Revision 1.6  1998/11/04 17:12:35  lbe
- * HISTORY:     debug-lockdown
- * HISTORY:
- * HISTORY:     Revision 1.5  1998/11/03 15:59:38  lbe
- * HISTORY:     auto-lockdown
- * HISTORY:
- * HISTORY:     Revision 1.4  1998/10/12 10:00:13  lbe
- * HISTORY:     clampdown
- * HISTORY:
- * HISTORY:     Revision 1.3  1998/07/30 15:31:42  lbe
- * HISTORY:     Win32 Port
- * HISTORY:
- * HISTORY:     Revision 1.2  1998/07/23 15:18:07  lbe
- * HISTORY:     working
- * HISTORY:
- * HISTORY:     Revision 1.1  1998/07/02 17:13:25  lbe
- * HISTORY:     Initial revision
- * HISTORY:
+ * BUGS:        -
  */
  
 static char RCSID[]="$Id$";

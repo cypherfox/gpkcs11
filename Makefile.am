@@ -1,75 +1,33 @@
 ## Process this file with automake to create a Makefile.in
 ##
-## Copyright (c) TC TrustCenter for Security in Data Networks GmbH - all rights reserved
+## This file is part of GPKCS11. 
+## (c) 1999-2001 TC TrustCenter GmbH 
+##
+## GPKCS11 is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2, or (at your option)
+## any later version.
+##  
+## GPKCS11 is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##  
+## You should have received a copy of the GNU General Public License
+## along with GPKCS11; see the file COPYING.  If not, write to the Free
+## Software Foundation, 59 Temple Place - Suite 330, Boston, MA 02111, USA.  
+## 
 ## RCSID:       $Id$
 ## Source:      $Source$
 ## Last Delta:  $Date$ $Revision$ $Author$
 ## State:       $State$ $Locker$
 ## NAME:        Makefile.am
 ## SYNOPSIS:    -
-## DESCRIPTION: -
+## DESCRIPTION: Inputfile for automake, process to generate Makefile.in
 ## FILES:       -
 ## SEE/ALSO:    -
 ## AUTHOR:      lbe
-## BUGS: *      -
-## HISTORY:     $Log$
-## HISTORY:     Revision 1.19  2000/03/15 19:21:58  lbe
-## HISTORY:     first try for tc-pkcs11 0.6.1: now works multi-app clean with tc_scard and can handle private decrypt in tcsc_token
-## HISTORY:
-## HISTORY:     Revision 1.18  2000/03/08 12:54:53  lbe
-## HISTORY:     some small changes for the distribution
-## HISTORY:
-## HISTORY:     Revision 1.17  2000/03/08 09:59:04  lbe
-## HISTORY:     fix SIGBUS in cryptdb, improve readeability for C_FindObject log output
-## HISTORY:
-## HISTORY:     Revision 1.16  2000/02/07 14:04:07  lbe
-## HISTORY:     release 0.6 and clean up of files
-## HISTORY:
-## HISTORY:     Revision 1.15  2000/01/31 18:08:58  lbe
-## HISTORY:     lockdown prior to win_gdbm change
-## HISTORY:
-## HISTORY:     Revision 1.14  2000/01/12 23:06:44  lbe
-## HISTORY:     changes for 0.5.7: detect missing card
-## HISTORY:
-## HISTORY:     Revision 1.13  2000/01/12 15:01:52  lbe
-## HISTORY:     changes for clean CoMMi on linux
-## HISTORY:
-## HISTORY:     Revision 1.12  2000/01/07 10:24:41  lbe
-## HISTORY:     introduce changes for release
-## HISTORY:
-## HISTORY:     Revision 1.11  1999/12/10 16:58:39  jzu
-## HISTORY:     new data-token (2)
-## HISTORY:
-## HISTORY:     Revision 1.10  1999/12/08 16:06:27  lbe
-## HISTORY:     clean up of token prior to creation of new gen-data token
-## HISTORY:
-## HISTORY:     Revision 1.9  1999/11/25 16:46:49  lbe
-## HISTORY:     moved all lib version defines into the conf.h
-## HISTORY:
-## HISTORY:     Revision 1.8  1999/11/10 20:38:10  lbe
-## HISTORY:     another try to fix the tcpu.config problem
-## HISTORY:
-## HISTORY:     Revision 1.7  1999/11/02 13:47:14  lbe
-## HISTORY:     change of structures and bug fix in slot.c, add more files for tcsc_token: emptyfuncs and general_data
-## HISTORY:
-## HISTORY:     Revision 1.6  1999/10/08 13:00:09  lbe
-## HISTORY:     release version 0.5.5
-## HISTORY:
-## HISTORY:     Revision 1.5  1999/10/06 07:57:16  lbe
-## HISTORY:     solved netscape symbol clash problem
-## HISTORY:
-## HISTORY:     Revision 1.4  1999/06/16 09:45:46  lbe
-## HISTORY:     reorder files
-## HISTORY:
-## HISTORY:     Revision 1.3  1999/06/10 08:30:16  lbe
-## HISTORY:     clean up INCLUDES handling
-## HISTORY:
-## HISTORY:     Revision 1.2  1999/06/04 14:58:31  lbe
-## HISTORY:     change to libtool/automake complete (except for __umoddi prob)
-## HISTORY:
-## HISTORY:     Revision 1.1  1998/10/12 11:30:37  lbe
-## HISTORY:     clampdown
-## HISTORY:
+## BUGS:        -
 ## 
 
 if USE_OWN_GDBM

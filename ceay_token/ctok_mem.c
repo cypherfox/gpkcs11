@@ -1,20 +1,20 @@
 /* -*- c -*- */
 /*
- * This file is part of TC-PKCS11. 
- * (c) 1999 TC TrustCenter for Security in DataNetworks GmbH 
+ * This file is part of GPKCS11. 
+ * (c) 1999-2001 TC TrustCenter GmbH 
  *
- * TC-PKCS11 is free software; you can redistribute it and/or modify
+ * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
  *  
- * TC-PKCS11 is distributed in the hope that it will be useful,
+ * GPKCS11 is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *  
  * You should have received a copy of the GNU General Public License
- * along with TC-PKCS11; see the file COPYING.  If not, write to the Free
+ * along with GPKCS11; see the file COPYING.  If not, write to the Free
  * Software Foundation, 59 Temple Place - Suite 330, Boston, MA 02111, USA.  
  */
 /*
@@ -24,36 +24,11 @@
  * State:	$State$ $Locker$
  * NAME:	ctok_mem.c
  * SYNOPSIS:	-
- * DESCRIPTION: -
+ * DESCRIPTION: functions to allocate, initialize and destroy structures
  * FILES:	-
  * SEE/ALSO:	-
  * AUTHOR:	lbe
- * BUGS: *	-
- * HISTORY:	$Log$
- * HISTORY:	Revision 1.3  2000/06/26 16:01:35  lbe
- * HISTORY:	update changes for pl 0.7.1
- * HISTORY:	
- * HISTORY:	Revision 1.2  1999/10/06 07:57:19  lbe
- * HISTORY:	solved netscape symbol clash problem
- * HISTORY:	
- * HISTORY:	Revision 1.1  1999/06/04 14:58:37  lbe
- * HISTORY:	change to libtool/automake complete (except for __umoddi prob)
- * HISTORY:	
- * HISTORY:	Revision 1.5  1999/01/19 12:19:38  lbe
- * HISTORY:	first release lockdown
- * HISTORY:
- * HISTORY:	Revision 1.4  1998/12/07 13:19:42  lbe
- * HISTORY:	TC_free von parametern für Zeile und Datei befreit.
- * HISTORY:
- * HISTORY:	Revision 1.3  1998/11/13 10:10:25  lbe
- * HISTORY:	added persistent storage.
- * HISTORY:
- * HISTORY:	Revision 1.2  1998/11/03 16:00:22  lbe
- * HISTORY:	auto-lockdown
- * HISTORY:
- * HISTORY:	Revision 1.1  1998/10/12 10:00:31  lbe
- * HISTORY:	clampdown
- * HISTORY:
+ * BUGS: 	-
  */
 
 static char RCSID[]="$Id$";
@@ -67,6 +42,7 @@ const char* ctok_mem_c_version(){return RCSID;}
 #include "objects.h"
 #include "ctok_mem.h"
 #include "error.h"
+#include "ceay_symbols.h"
 
 #include <stdlib.h>
 
@@ -292,8 +268,8 @@ CK_I_MD5_MAC_STATE_PTR CI_MD5_MAC_STATE_new()
       return NULL_PTR;
     }
 
-  MD5_Init(retval->inner_CTX);
-  MD5_Init(retval->outer_CTX);
+  CI_Ceay_MD5_Init(retval->inner_CTX);
+  CI_Ceay_MD5_Init(retval->outer_CTX);
 
   return retval;
 }
