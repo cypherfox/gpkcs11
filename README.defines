@@ -1,0 +1,22 @@
+			    README.defines
+                            --------------
+
+This is a listing of the defines in the code to activate certain
+features, which are not accessible through configure Options. 
+
+
+PRINT_PINS      libgpkcs11/sessions.c    Print PIN in clear to log
+                libgpkcs11/slot.c
+                tcsc_token/tcsc_token.c
+
+NO_MEM_LOGGING  libgpkcs11/error.c       Disable logging of Mem data
+                libgpkcs11/error.h
+
+NO_LOGGING      libgpkcs11/error.c       Disable logging
+                libgpkcs11/error.h
+
+DUMP_CERTS      tcsc_token/tcsc_token.c  write certificates read from
+                                         card into a file.
+
+EBUG            libgpkcs11/objects.c     '-DEBUG' get it? B-)
+                libgpkcs11/sessions.c

@@ -1,0 +1,3 @@
+These are the files of the automatic test system. It may be a bit crude
+in some respects. This is due to the fact that this is the first DejaGNU
+system I have ever set up and tcl/Expect aren't my strongest languages.

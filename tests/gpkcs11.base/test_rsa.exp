@@ -1,0 +1,62 @@
+#
+# expectations that clean up in case of error. Note that `$test' is
+# a purely local variable.
+#
+# The first of these is used to match any bad responses, and resynchronise
+# things by finding a prompt. The second is a timeout error, and shouldn't
+# ever be triggered.
+#
+#expect_after {
+#    -re "\[^\n\r\]*$prompt$" {
+#	fail "$test (bad match)"
+#	if { $verbose > 0 } {
+#	    regexp ".*\r\n(\[^\r\n\]+)(\[\r\n\])+$prompt$" \
+#		    $expect_out(buffer) "" output
+#	    send_user "\tUnmatched output: \"$output\"\n"
+#	}
+#    }
+#}
+
+
+# creating an RSA key may take a while
+set timeout 120
+
+# Test the generation of Key Pairs on the tokens
+# Slots that do not have token are not touched and neither
+# are token that do not support CKM_RSA_PKCS_GENERATE_KEY_PAIR.
+
+set test rsa_key_gen
+
+spawn gpkcs11.base/test_rsa
+
+expect {
+
+    -re "could not get function pointer list" { 
+	fail "$test OUT: $expect_out(buffer)" 
+        exp_continue
+    }
+
+    -re "FAIL" { 
+	fail "$test: OUT: $expect_out(buffer)" 
+        exp_continue
+    }
+    
+    timeout {
+	fail "$test (timeout)"
+        exp_continue
+    }
+    eof { 
+	pass "$test: Program ended"
+    }
+}
+
+
+#
+# empty test
+#
+#set test 
+#send "(C-)\n"
+#expect {
+#	-re ".*$prompt$"		{ pass "$test" }
+#}
+    

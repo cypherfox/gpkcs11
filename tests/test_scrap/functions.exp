@@ -1,0 +1,86 @@
+set timeout 3
+#
+# expectations that clean up in case of error. Note that `$test' is
+# a purely local variable.
+#
+# The first of these is used to match any bad responses, and resynchronise
+# things by finding a prompt. The second is a timeout error, and shouldn't
+# ever be triggered.
+#
+expect_after {
+	-re "\[^\n\r\]*$prompt$" {
+		fail "$test (bad match)"
+		if { $verbose > 0 } {
+			regexp ".*\r\n(\[^\r\n\]+)(\[\r\n\])+$prompt$" \
+						$expect_out(buffer) "" output
+			send_user "\tUnmatched output: \"$output\"\n"
+		}
+	}
+	timeout {
+		fail "$test (timeout)"
+	}
+}
+
+#
+# Here are the tests
+#
+set inited 0
+
+set test version
+if { $inited == 0 } { init_pkcs11 $test ; incr inited }
+send "(C-GetInfo)\n"
+expect {
+	-re "\\(0 \\(2 \\. 1\\).*$prompt$"	{ pass "version" }
+}
+
+set test get_slot_list
+send "(C-GetSlotList #t)\n"
+expect {
+	-re "\\(0 .*$prompt$"		{ pass "$test" }
+}
+
+# TODO: get the number of the first slot from the last call, 
+#       maybe loop over all
+set test get_slot_info
+send "(C-GetSlotInfo 0)\n"
+expect {
+	-re "\\(0 .*$prompt$" { pass "$test" }
+}
+
+set test get_token_info
+send "(C-GetTokenInfo 0)\n"
+expect {
+	-re "\\(0 .*$prompt$"		{ pass "$test" }
+}
+
+set test C_GetMechanismList
+# this should fail as there is only No 0 slot
+send "(C-GetMechanismList 1)
+expect {
+	-re "C_GetMechanismList failed.*$prompt$" {
+	-re ".*$prompt$" { fail "$test 1" }
+       }
+
+send "(let ( (ret-pair (C-GetMechanismList 0)) )(cons (car ret-pair)(on-all ckm-2-mech (cdr ret-pair))))"
+expect {
+	-re "\\(0 .*$prompt$"		{ pass "$test" }
+}
+
+set test find_objects
+send "(define sess-handle1 (cdr (C-OpenSession 0 4)))\n"
+send "(C-(C-FindObjectsInit 2 (list (list (attr-2-cka "CKA_CLASS") "00:00:00:01:" 4))))\n"
+send "(C-(C-FindObjects 2))\n"
+send "(C-(C-FindObjectsFinal 2))\n"
+expect { -re ".*$prompt$"		{ pass "$test" }
+}
+
+
+#
+# empty test
+#
+#set test 
+#send "(C-)\n"
+#expect {
+#	-re ".*$prompt$"		{ pass "$test" }
+#}
+

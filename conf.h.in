@@ -1,0 +1,128 @@
+/* conf.h.in.  Generated automatically from configure.in by autoheader.  */
+
+/* Define to empty if the keyword does not work.  */
+#undef const
+
+/* Define if you don't have vprintf but do have _doprnt.  */
+#undef HAVE_DOPRNT
+
+/* Define if you have the vprintf function.  */
+#undef HAVE_VPRINTF
+
+/* Define as __inline if that's what the C compiler calls it.  */
+#undef inline
+
+/* Define as the return type of signal handlers (int or void).  */
+#undef RETSIGTYPE
+
+/* Define if you have the ANSI C header files.  */
+#undef STDC_HEADERS
+
+/* Define if your <sys/time.h> declares struct tm.  */
+#undef TM_IN_SYS_TIME
+
+/* define if the code is compiled on a UNIX machine */
+#undef CK_GENERIC
+
+/* define if the code is compiled on a Win32 machine */
+#undef CK_Win32
+
+/* Define if you have the <fcntl.h> header file.  */
+#undef HAVE_FCNTL_H
+
+/* Define if you have the <limits.h> header file.  */
+#undef HAVE_LIMITS_H
+
+/* Define if you have the <pthread.h> header file.  */
+#undef HAVE_PTHREAD_H
+
+/* Define if you have the <sgtty.h> header file.  */
+#undef HAVE_SGTTY_H
+
+/* Define if you have the <sys/file.h> header file.  */
+#undef HAVE_SYS_FILE_H
+
+/* Define if you have the <sys/ioctl.h> header file.  */
+#undef HAVE_SYS_IOCTL_H
+
+/* Define if you have the <sys/time.h> header file.  */
+#undef HAVE_SYS_TIME_H
+
+/* Define if you have the <termio.h> header file.  */
+#undef HAVE_TERMIO_H
+
+/* Define if you have the <unistd.h> header file.  */
+#undef HAVE_UNISTD_H
+
+/* Define if you have the curses library (-lcurses).  */
+#undef HAVE_LIBCURSES
+
+/* Define if you have the dl library (-ldl).  */
+#undef HAVE_LIBDL
+
+/* Define if you have the guile library (-lguile).  */
+#undef HAVE_LIBGUILE
+
+/* Define if you have the nsl library (-lnsl).  */
+#undef HAVE_LIBNSL
+
+/* Define if you have the posix4 library (-lposix4).  */
+#undef HAVE_LIBPOSIX4
+
+/* Define if you have the pthread library (-lpthread).  */
+#undef HAVE_LIBPTHREAD
+
+/* Define if you have the readline library (-lreadline).  */
+#undef HAVE_LIBREADLINE
+
+/* Define if you have the socket library (-lsocket).  */
+#undef HAVE_LIBSOCKET
+
+/* Define if you have the tc_scard library (-ltc_scard).  */
+#undef HAVE_LIBTC_SCARD
+
+/* Name of package */
+#undef PACKAGE
+
+/* Version number of package */
+#undef VERSION
+
+/* activate and set level of debugging */
+#undef DEBUG
+
+/* turn of system assertions */
+#undef NDEBUG
+
+/* activate and set level of debugging */
+#undef USE_ASSERT
+
+/* version of OpenSSL which libcrypto is used */
+#undef CRYPTO_LIB_VERSION
+
+/* major version number of cryptoki that this implements */
+#undef CRYPTOKI_VERSION_MAJOR
+
+/* minor version number of cryptoki that this implements */
+#undef CRYPTOKI_VERSION_MINOR
+
+/* major version number of gpkcs11 */
+#undef LIBRARY_VERSION_MAJOR
+
+/* minor version number of gpkcs11 */
+#undef LIBRARY_VERSION_MINOR
+
+/* patch level of gpkcs11 */
+#undef TC_LIB_VERSION
+
+/*  the maximum number of signals  */
+#undef MAX_SIG_NUM
+
+/* Threads are activated, C_WaitForSlotEvent will work. */
+#undef HAVE_THREADING
+
+/* Threads are activated, C_WaitForSlotEvent will work. */
+#undef HAVE_THREADING
+
+/* use an pkcs-11 extension in the OpenSSL lib */
+#undef HAVE_SC_OPENSSL
+

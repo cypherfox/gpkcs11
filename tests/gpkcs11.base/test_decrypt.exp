@@ -1,0 +1,55 @@
+
+set timeout 3
+
+#
+# Here are the tests
+#
+# Test the setting of Pins on all token of a library.
+# Slots that do not have token are not touched.
+
+#
+# TODO: write a TK dialog to query the particular pins
+#
+set test get_modulus
+
+
+#
+# first get the modulus of the certificate
+#
+#spawn openssl x509 -inform DER -in cert_01.der -modulus -out /dev/null
+#expect {
+#    -re "" { pass "$test: OUT: $expect_out(2)" }
+#}
+
+set test test_decrypt
+spawn gpkcs11.base/test_decrypt
+expect {
+    -re "foo" {
+        exp_continue
+    }
+    
+    -re "could not get function pointer list" { fail "$test: OUT: $expect_out(buffer)" }
+
+    eof { 
+	# test wether these token require login at all
+	if {$no_login_reqd > 0 } {
+	    pass "$test: no token requires login"   
+        } else {
+	    if {$invalid_pin_set == 0} {
+		fail "$test: setting invalid PIN does not fail"
+	    }
+	    pass "$test: OUT: $expect_out(buffer)"
+        }
+    }
+}
+
+
+#
+# empty test
+#
+#set test 
+#send "(C-)\n"
+#expect {
+#	-re ".*$prompt$"		{ pass "$test" }
+#}
+    

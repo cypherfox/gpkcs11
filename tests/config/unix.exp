@@ -1,0 +1,46 @@
+if ![info exists prompt] then {
+    set prompt "pkcs11> "
+}
+proc init_pkcs11 { test } {
+	#
+}
+
+
+#
+# pkcs11_version -- extract and print the version number of calc
+#
+# TODO: turn this into a working fragment
+proc pkcs11_version {} {
+	global CSHELL
+	global PKCS_LIB
+	global prompt
+	set version "0.6.0"
+#	set tmp [exec echo "version" | $PROG]
+#	regexp "$prompt *(\[^\n\]*)\n.*" $tmp tmp version
+#	clone_output "[which $CSHELL] version $version\n"
+	clone_output "$CSHELL version $version\n"
+}
+#
+# pkcs11_load -- loads the program
+#
+proc pkcs11_load { arg } {
+	#
+}
+
+#
+# pkcs11_exit -- quit and cleanup
+#
+proc pkcs11_exit {} {
+   	#
+}
+
+#
+# pkcs11_start -- get pkcs11 running
+#
+proc pkcs11_start {} {
+        #
+}
+
+pkcs11_start
+
+

@@ -1,0 +1,49 @@
+set timeout 3
+#
+# expectations that clean up in case of error. Note that `$test' is
+# a purely local variable.
+#
+# The first of these is used to match any bad responses, and resynchronise
+# things by finding a prompt. The second is a timeout error, and shouldn't
+# ever be triggered.
+#
+expect_after {
+	-re "\[^\n\r\]*$prompt$" {
+		fail "$test (bad match)"
+		if { $verbose > 0 } {
+			regexp ".*\r\n(\[^\r\n\]+)(\[\r\n\])+$prompt$" \
+						$expect_out(buffer) "" output
+			send_user "\tUnmatched output: \"$output\"\n"
+		}
+	}
+	timeout {
+		fail "$test (timeout)"
+	}
+}
+
+#
+# Here are the tests
+#
+set inited 0
+
+
+#
+# TODO: test the proper return values as defined in 
+# the standard for this function.
+#
+set test get_attribute_value
+send "(load \"C_GetAttributeValue.scm\")\n"
+send "(C-GetAttributeValue sess-handle1 test-template1 1))\n"
+expect { -re ".*$prompt$"		{ pass "$test" }
+}
+
+
+#
+# empty test
+#
+#set test 
+#send "(C-)\n"
+#expect {
+#	-re ".*$prompt$"		{ pass "$test" }
+#}
+

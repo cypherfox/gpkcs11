@@ -1,0 +1,50 @@
+diff -r -c openssl-0.9.4/Makefile.org openssl-0.9.4_shared/Makefile.org
+*** openssl-0.9.4/Makefile.org	Sun Aug  8 12:29:52 1999
+--- openssl-0.9.4_shared/Makefile.org	Fri Sep  3 17:30:49 1999
+***************
+*** 348,351 ****
+--- 348,358 ----
+  		chmod 644 $(INSTALL_PREFIX)$(INSTALLTOP)/lib/$$i ); \
+  	done
+  
++ shlib: all
++ 	if [ ! -d shlib_dir ] ; then mkdir shlib_dir ; else rm -f shlib_dir/* ; fi
++ 	cd shlib_dir ; ar -x ../libcrypto.a && $(CC) -shared ./*.o -Wl,-soname -Wl,libcrypto.so.0.9 \
++             -o ./libcrypto.so.0.9.4 && rm *.o
++ 	cd shlib_dir ; ar -x ../libssl.a && $(CC) -shared ./*.o -Wl,-soname -Wl,libssl.so.0.9 \
++             -o ./libssl.so.0.9.4 && rm *.o
++ 
+  # DO NOT DELETE THIS LINE -- make depend depends on it.
+diff -r -c openssl-0.9.4/config openssl-0.9.4_shared/config
+*** openssl-0.9.4/config	Mon Aug  9 12:16:51 1999
+--- openssl-0.9.4_shared/config	Fri Sep  3 17:08:16 1999
+***************
+*** 280,285 ****
+--- 280,287 ----
+  for i
+  do
+  case "$i" in 
++ # shared library support (behnke@trustcenter.de)
++ -shared) SHARED=true;;
+  -d*) PREFIX="debug-";;
+  -t*) TEST="true";;
+  -h*) TEST="true"; cat <<EOF
+***************
+*** 438,443 ****
+--- 440,455 ----
+    sleep 5
+    OUT=linux-sparcv8
+  fi
++ 
++ #get some basic shared lib support (behnke@trustcenter.de)
++ case "$OUT" in
++    solaris-*-gcc)
++ 	if  [ "$SHARED" = "true" ] 
++ 	 then
++ 	  options="$options -DPIC -fPIC"
++         fi
++      ;;
++ esac
+  
+  case "$GUESSOS" in
+    i386-*) options="$options 386" ;;

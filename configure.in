@@ -1,0 +1,502 @@
+dnl Copyright (c) TC TrustCenter for Security in Data Networks GmbH - all rights reserved
+dnl RCSID:       $Id$
+dnl Source:      $Source$
+dnl Last Delta:  $Date$ $Revision$ $Author$
+dnl State:       $State$ $Locker$
+dnl NAME:        configure.in
+dnl SYNOPSIS:    -
+dnl DESCRIPTION: -
+dnl FILES:       -
+dnl SEE/ALSO:    -
+dnl AUTHOR:      lbe
+dnl BUGS: *      -
+dnl HISTORY:     $Log$
+dnl HISTORY:     Revision 1.33  2000/07/24 15:43:51  lbe
+dnl HISTORY:     added the files for snacc usage
+dnl HISTORY:
+dnl HISTORY:     Revision 1.32  2000/06/26 16:01:33  lbe
+dnl HISTORY:     update changes for pl 0.7.1
+dnl HISTORY:
+dnl HISTORY:     Revision 1.31  2000/06/05 11:43:25  lbe
+dnl HISTORY:     tcsc token breakup, return pSlotCount in SlotList, code for event handling deactivated
+dnl HISTORY:
+dnl HISTORY:     Revision 1.30  2000/05/12 13:13:12  lbe
+dnl HISTORY:     zwischen durchmal B-)
+dnl HISTORY:
+dnl HISTORY:     Revision 1.29  2000/03/15 19:21:58  lbe
+dnl HISTORY:     first try for tc-pkcs11 0.6.1: now works multi-app clean with tc_scard and can handle private decrypt in tcsc_token
+dnl HISTORY:
+dnl HISTORY:     Revision 1.28  2000/03/08 12:54:53  lbe
+dnl HISTORY:     some small changes for the distribution
+dnl HISTORY:
+dnl HISTORY:     Revision 1.27  2000/03/08 09:59:05  lbe
+dnl HISTORY:     fix SIGBUS in cryptdb, improve readeability for C_FindObject log output
+dnl HISTORY:
+dnl HISTORY:     Revision 1.26  2000/02/07 14:04:08  lbe
+dnl HISTORY:     release 0.6 and clean up of files
+dnl HISTORY:
+dnl HISTORY:     Revision 1.25  2000/01/31 18:08:59  lbe
+dnl HISTORY:     lockdown prior to win_gdbm change
+dnl HISTORY:
+dnl HISTORY:     Revision 1.24  2000/01/12 15:01:52  lbe
+dnl HISTORY:     changes for clean CoMMi on linux
+dnl HISTORY:
+dnl HISTORY:     Revision 1.23  2000/01/07 10:24:41  lbe
+dnl HISTORY:     introduce changes for release
+dnl HISTORY:
+dnl HISTORY:     Revision 1.22  1999/12/10 16:58:39  jzu
+dnl HISTORY:     new data-token (2)
+dnl HISTORY:
+dnl HISTORY:     Revision 1.21  1999/11/25 16:46:49  lbe
+dnl HISTORY:     moved all lib version defines into the conf.h
+dnl HISTORY:
+dnl HISTORY:     Revision 1.20  1999/11/02 13:47:14  lbe
+dnl HISTORY:     change of structures and bug fix in slot.c, add more files for tcsc_token: emptyfuncs and general_data
+dnl HISTORY:
+dnl HISTORY:     Revision 1.19  1999/10/08 13:00:09  lbe
+dnl HISTORY:     release version 0.5.5
+dnl HISTORY:
+dnl HISTORY:     Revision 1.18  1999/10/06 07:57:16  lbe
+dnl HISTORY:     solved netscape symbol clash problem
+dnl HISTORY:
+dnl HISTORY:     Revision 1.17  1999/08/02 12:40:19  lbe
+dnl HISTORY:     more CVS cleanup
+dnl HISTORY:
+dnl HISTORY:     Revision 1.16  1999/07/20 17:39:57  lbe
+dnl HISTORY:     fix bug in gdbm Makefile: there is not allways an 'install' around
+dnl HISTORY:
+dnl HISTORY:     Revision 1.15  1999/06/16 09:45:46  lbe
+dnl HISTORY:     reorder files
+dnl HISTORY:
+dnl HISTORY:     Revision 1.14  1999/06/08 10:17:51  lbe
+dnl HISTORY:     change from gdbm-1.7.3 to gdbm-1.8.0
+dnl HISTORY:
+dnl HISTORY:     Revision 1.13  1999/06/04 14:58:34  lbe
+dnl HISTORY:     change to libtool/automake complete (except for __umoddi prob)
+dnl HISTORY:
+dnl HISTORY:     Revision 1.12  1999/03/01 14:36:44  lbe
+dnl HISTORY:     merged changes from the weekend
+dnl HISTORY:
+dnl HISTORY:     Revision 1.11  1999/01/26 08:11:33  lbe
+dnl HISTORY:     test system in first form
+dnl HISTORY:
+dnl HISTORY:     Revision 1.10  1999/01/19 12:19:36  lbe
+dnl HISTORY:     first release lockdown
+dnl HISTORY:
+dnl HISTORY:     Revision 1.9  1999/01/19 10:10:19  lbe
+dnl HISTORY:     pre package clampdown
+dnl HISTORY:
+dnl HISTORY:     Revision 1.8  1999/01/18 09:24:49  lbe
+dnl HISTORY:     unpacked the uuencoded files
+dnl HISTORY:     .
+dnl HISTORY:
+dnl HISTORY:     Revision 1.7  1999/01/15 15:09:05  lbe
+dnl HISTORY:     *** empty log message ***
+dnl HISTORY:
+dnl HISTORY:     Revision 1.6  1998/11/03 15:59:29  lbe
+dnl HISTORY:     auto-lockdown
+dnl HISTORY:
+dnl HISTORY:     Revision 1.5  1998/10/12 11:36:24  lbe
+dnl HISTORY:     clampdown
+dnl HISTORY:
+dnl HISTORY:     Revision 1.4  1998/07/31 10:23:13  lbe
+dnl HISTORY:     Wechsel to AC_ARG_ENABLE
+dnl HISTORY:
+dnl HISTORY:     Revision 1.3  1998/07/23 15:22:17  lbe
+dnl HISTORY:     Änderungen zum einbinden beliebiger Token interfaces
+dnl HISTORY:
+dnl HISTORY:     Revision 1.2  1998/07/03 09:22:47  lbe
+dnl HISTORY:     RCS Substitution eingefügt
+dnl HISTORY:
+dnl HISTORY:     Revision 1.1  1998/07/02 17:07:44  lbe
+dnl HISTORY:     Initial revision
+dnl HISTORY:
+dnl
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(gpkcs11_install.js)
+AM_CONFIG_HEADER(conf.h)
+
+AC_CANONICAL_SYSTEM
+AM_INIT_AUTOMAKE(gpkcs11, 0.7.2)
+
+TC_INIT(gpkcs11)
+
+dnl global package information
+PACKAGE=gpkcs11
+
+AC_DEFINE(CRYPTO_LIB_VERSION,0.9.4,[version of OpenSSL which libcrypto is used])
+
+AC_DEFINE(CRYPTOKI_VERSION_MAJOR,2,[major version number of cryptoki that this implements])
+AC_DEFINE(CRYPTOKI_VERSION_MINOR,01,[minor version number of cryptoki that this implements])
+
+dnl too bad that the automake version is a string 
+dnl maybe we can split it appart to make the below settings automagically.
+AC_DEFINE(LIBRARY_VERSION_MAJOR,0,[major version number of gpkcs11])
+AC_DEFINE(LIBRARY_VERSION_MINOR,7,[minor version number of gpkcs11])
+AC_DEFINE(TC_LIB_VERSION,2,[patch level of gpkcs11])
+
+
+dnl configure architecture support in cryptoki.h
+
+if test $host_os = "cygwin32" ; then
+ AC_DEFINE(CK_Win32, 1)
+else
+ AC_DEFINE(CK_GENERIC, 1)
+fi
+
+ARCH_TYPE=$target_os  
+AC_SUBST(ARCH_TYPE)
+
+TARGET_ARCH=$target
+AC_SUBST(TARGET_ARCH)
+
+dnl Checks for programs.
+AC_PROG_CC
+dnl AC_PROG_CXX
+AC_PROG_CPP
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PROG_MAKE_SET
+AC_PROG_RANLIB
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS(fcntl.h limits.h sgtty.h sys/file.h sys/ioctl.h sys/time.h termio.h unistd.h)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_C_INLINE
+AC_STRUCT_TM
+
+dnl Checks for library functions.
+AC_FUNC_MEMCMP
+AC_TYPE_SIGNAL
+AC_FUNC_VPRINTF
+
+dnl use pthread functions for mutexes?
+AC_CHECK_HEADERS(pthread.h)
+
+dnl check the existence of a upper limit to the number of signals
+dnl this only works for linux and solaris
+TC_CHECK_DEFINE(MAXSIG,signal.h,[
+ tc_max_sig_num="MAXSIG"
+], [
+ TC_CHECK_DEFINE(_NSIG,signal.h,[
+ tc_max_sig_num="_NSIG"
+ ], [
+ dnl this should be large enough for the important signals
+ tc_max_sig_num="99"
+ ])
+])
+AC_DEFINE_UNQUOTED(MAX_SIG_NUM, $tc_max_sig_num , [ the maximum number of signals ])
+
+AC_ARG_WITH(openssl_src,[\
+  --with-openssl-src=DIR set the directory of the OpenSSL source to DIR.
+                         (default is ceay_token/openssl) ],
+[ 
+OPENSSL_SRC_DIR=$with_openssl_src
+] , [
+OPENSSL_SRC_DIR="$PWD/ceay_token/openssl"
+])
+AC_SUBST(OPENSSL_SRC_DIR)
+
+dnl ### configure the libtool ###
+
+dnl some stuff is loaded dynamically at run-time
+AC_LIBTOOL_DLOPEN
+
+AM_PROG_LIBTOOL
+
+dnl   #### check for functions in seperate libraries ####
+dnl on linux socket() and all it relies on is in the libc
+AC_CHECK_FUNC(socket, [
+dnl just use the function from libc
+], [
+dnl use the separate libraries
+AC_CHECK_LIB(posix4,_nanosleep)
+AC_CHECK_LIB(nsl,gethostbyname)
+AC_CHECK_LIB(socket,socket)
+])
+
+dnl ################### check where to find guile #################
+
+AC_MSG_CHECKING([guile base])
+AC_ARG_WITH(guile,[\
+  --with-guile[=DIR]      set the base directory of the guile files to DIR
+                          (default is no, if used DIR=/usr/local) ],
+[ 
+ case "${withval}" in
+  yes) 
+    use_guile=false
+    GUILE_BASE=/usr/local
+    ;;
+  no)  
+    use_guile=false
+    ;;
+  *)
+    use_guile=true
+    GUILE_BASE="${withval}"
+    ;;
+ esac
+ ],[
+ use_guile=false
+])
+
+AM_CONDITIONAL(USE_GUILE, test x$use_guile = xtrue)
+
+if test x$use_guile = xtrue
+ then
+  dnl only the libs that are relevant to all libraries and binaries
+  dnl are written into LIBS, the extra stuff is put into GUILE_LIBS
+
+  dnl save the LIBS for later
+  tc_all_libs="$LIBS"
+
+  AC_MSG_RESULT([$GUILE_BASE])
+  INCLUDES="$INCLUDES -I$GUILE_BASE/include"
+  AC_CHECK_LIB(curses,initscr)
+  AC_CHECK_LIB(readline,readline)
+  AC_CHECK_LIB(guile,gh_enter)
+  AC_CHECK_LIB(dl,dlopen)
+  
+  GUILE_LIBS="$LIBS"
+  LIBS="$tc_all_libs"
+  AC_SUBST(GUILE_LIBS)
+fi
+
+dnl ##################### check for a system gdbm library ############
+
+AC_ARG_WITH(system-gdbm,
+[  --with-system-gdbm    Use an allready installed gdbm library],
+[
+ case "${withval}" in
+  yes) 
+    use_own_gdbm=false
+    ;;
+  no)  
+    use_own_gdbm=true
+    ;;
+  *) AC_MSG_ERROR(bad value ${withval} for --with-system-gdbm) 
+    ;;
+ esac
+ ],[
+ use_own_gdbm=true
+ ])
+
+AM_CONDITIONAL(USE_OWN_GDBM, test x$use_own_gdbm = xtrue)
+
+if test x$use_own_gdbm = xtrue
+ then
+  AC_CONFIG_SUBDIRS(gdbm-1.8.0)
+fi
+
+dnl #################### figure out what threading to use ##############
+
+dnl allways compile this stuff prepared for threading
+CFLAGS="${CFLAGS} -D_REENTRANT"
+
+AC_ARG_WITH(thread,
+[  --with-thread=TYPE    which threading library to use. Default is off, 
+                           yes equals pthread. Currently supported are: none, 
+                           pthread.],
+[
+ case "${withval}" in
+  yes | pthread) 
+    AC_CHECK_LIB(pthread,pthread_create)
+    AC_DEFINE(HAVE_THREADING,1, [Threads are activated, C_WaitForSlotEvent will work.])
+    ;;
+  no | none)  
+    ;;
+  *) AC_MSG_ERROR(bad value ${withval} for --with-thread) 
+    ;;
+ esac
+ ],[
+  AC_MSG_RESULT(threading deactivated)
+ ])
+
+AC_SUBST(THREADOBJS)
+
+dnl ################  determine which token to use #############
+echo "Selecting Token:"
+
+dnl ceay-token
+AC_ARG_ENABLE(ceay-token, [\
+  --enable-ceay-token     Use the Software-Token based on the Crypto-Library 
+                          by the OpenSSL Group ], 
+[
+ case "${enableval}" in
+  yes) 
+    use_ceay_token=true
+    AC_MSG_RESULT([   ceay-token used]) 
+    TOKEN_LIST="ceay $TOKEN_LIST"
+    ;;
+  no)  
+    use_ceay_token=false
+    AC_MSG_RESULT([   ceay-token not used]) 
+    ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-ceay-token) 
+    ;;
+ esac
+], [ 
+ use_ceay_token=false
+ AC_MSG_RESULT([   ceay-token not used]) 
+])
+
+dnl tcsc-token
+AC_ARG_ENABLE(tcsc-token, [\
+  --enable-tcsc-token     Use the TC SCard Library to access different
+                           SmartCards by various vendors. This requires thread support], 
+[
+ case "${enableval}" in
+  yes) 
+    use_tcsc_token=true
+    AC_CHECK_LIB(tc_scard,SCard_GetContext)
+    AC_MSG_RESULT([   tcsc-token used]) 
+    TOKEN_LIST="tcsc $TOKEN_LIST"
+    ;;
+  no)  
+    use_tcsc_token=false
+    AC_MSG_RESULT([   tcsc-token not used]) 
+    ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-tcsc-token) 
+    ;;
+ esac
+], [ 
+ use_tcsc_token=false
+ AC_MSG_RESULT([   tcsc-token not used]) 
+])
+
+dnl data-token
+AC_ARG_ENABLE(data-token, [\
+  --enable-data-token     Use the TC SCard Library to access different
+                           SmartCards by various vendors ], 
+[
+ case "${enableval}" in
+  yes) 
+    use_data_token=true
+    AC_MSG_RESULT([   data-token used]) 
+    TOKEN_LIST="data $TOKEN_LIST"
+
+    # We need threads
+    AC_CHECK_LIB(pthread,pthread_create)
+    LIBOBJS="$LIBOBJS thread.o"
+    AC_DEFINE(HAVE_THREADING,1, [Threads are activated, C_WaitForSlotEvent will work.])
+    INCLUDES="-D_REENTRANT $INCLUDES"
+    ;;
+  no)  
+    use_data_token=false
+    AC_MSG_RESULT([   data-token not used]) 
+    ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-data-token) 
+    ;;
+ esac
+], [ 
+ use_data_token=false
+ AC_MSG_RESULT([   data-token not used]) 
+])
+
+AM_CONDITIONAL(USE_CEAY_TOKEN, test x$use_ceay_token = xtrue)
+AM_CONDITIONAL(USE_TCSC_TOKEN, test x$use_tcsc_token = xtrue)
+AM_CONDITIONAL(USE_DATA_TOKEN, test x$use_data_token = xtrue)
+ 
+dnl generate Token configuration
+if test -z "$TOKEN_LIST" ; then
+echo "   *** No Token Selected! *** " ;
+else
+ dnl generate the text for the token initialisation 
+ for i in $TOKEN_LIST; 
+  do
+   TOKEN_LIBS="$TOKEN_LIBS -l${i}_tok" 
+  done
+fi
+
+dnl ###################### enable use openssl+pkcs11 code ###########
+
+AC_MSG_CHECKING([PKCS-11 extension in OpenSSL])
+AC_ARG_ENABLE(sc-openssl, [\
+    --enable-sc-openssl  enable the use of an PKCS-11 extension in
+                         OpenSSL library (default is off) ],
+[
+AC_MSG_RESULT([   enable_sc_openssl is '$enable_sc_openssl'])
+if test "$enable_sc_openssl" = "yes"
+ then
+  AC_DEFINE(HAVE_SC_OPENSSL,1,use an pkcs-11 extension in the OpenSSL lib)
+  AC_MSG_RESULT([enabled])
+  EXTRA_CRYPTSH_SOURCES="utils.c request.c"
+  EXTRA_CRYPTSH_OBJECTS="utils.o request.o"
+ else
+  AC_MSG_RESULT([disabled])
+  EXTRA_CRYPTSH_SOURCES=""
+  EXTRA_CRYPTSH_OBJECTS=""
+ fi
+],[
+  AC_MSG_RESULT([disabled])
+])
+AC_SUBST(EXTRA_CRYPTSH_SOURCES)
+AC_SUBST(EXTRA_CRYPTSH_OBJECTS)
+
+dnl ###################### enable use of purify ###################
+
+dnl TC_GET_PURIFY
+
+dnl ##################### check for the JAVA path ###############
+
+AC_ARG_WITH(java_bin, [\
+   --with-java-bin=DIR   set the bin directory where to look for the java 
+                           compiler and virtual machine. 
+                           (default is '/usr/local/java/bin') ],
+[ 
+JAVA_BIN_DIR=$with_java_bin
+] , [
+JAVA_BIN_DIR=/usr/local/java/bin
+])
+
+AC_ARG_WITH(classpath, [\
+   --with-classpath=DIR  set the CLASSPATH variable.
+                           (default is current environment Variable) ],
+[
+CLASSPATH_COMMAND="-classpath $with_classpath"
+] , [
+CLASSPATH_COMMAND=""
+])
+AC_SUBST(CLASSPATH_COMMAND)
+
+dnl check for the existence of the needed java tools and classes
+AC_CHECK_TOOL(JAVAC, javac, /bin/true, "$PATH:$JAVA_BIN_DIR")
+
+dnl #### perform substitutions ####
+AC_SUBST(PACKAGE)
+AC_SUBST(SSLEAY_DIR)
+AC_SUBST(GUILE_BASE)
+AC_SUBST(PURIFY_DIR)
+
+AC_SUBST(TOKEN_TARGETS)
+AC_SUBST(TOKEN_LIBS)
+
+AC_SUBST(INCLUDES)
+
+dnl DLOPEN="-dlopen"
+AC_SUBST(DLOPEN)
+AC_SUBST(DLPREOPEN)
+
+AC_SUBST(LIBS)
+AC_SUBST(CFLAGS)
+
+dnl the things that are commented out below are only used by TC inhouse
+
+dnl AC_CONFIG_SUBDIRS(tools)
+
+dnl AC_OUTPUT(./etc/Makefile ./docs/Makefile ./ceay_token/Makefile      \
+dnl          ./cryptsh/Makefile ./libgpkcs11/Makefile ./Makefile       \
+dnl          ./tests/Makefile ./tests/config/Makefile                  \
+dnl          ./tests/gpkcs11.base/Makefile                             \
+dnl          ./tcsc_token/Makefile ./data_token/Makefile)
+
+AC_OUTPUT(./etc/Makefile ./docs/Makefile ./ceay_token/Makefile      \
+          ./cryptsh/Makefile ./libgpkcs11/Makefile ./Makefile       \
+          ./tests/Makefile ./tests/config/Makefile                  \
+          ./tests/gpkcs11.base/Makefile )
+
+
+
+

@@ -1,0 +1,2015 @@
+\input texinfo	@c -*- Texinfo -*-
+@comment %**start of header (This is for running Texinfo on a region.)
+@setfilename gpkcs11.info
+@settitle GPKCS11
+@c @setchapternewpage odd
+@comment %**end of header (This is for running Texinfo on a region.)
+
+@include version.texi
+
+@contents
+
+@c {{{ front pages }}}
+@iftex
+@finalout
+@end iftex
+
+@ifinfo
+This file documents the TrustCenter library implementing the PKCS-11
+standard. 
+
+Copyright (C) 1999 TC TrustCenter for Security in DataNetworks GmbH.
+
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+@ignore
+Permission is granted to process this file through Tex and print the
+results, provided the printed document carries copying permission
+notice identical to this one except for the removal of this paragraph
+(this paragraph not being relevant to the printed manual).
+
+@end ignore
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided also that
+the entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions.
+@end ifinfo
+
+@titlepage
+@null
+@sp 6
+@center @titlefont{GPKCS-11}
+@sp 2
+@center A Cryptographic Token Interface Standard Implementation
+@sp 2
+@center by Lutz Behnke
+@sp 4
+@center Manual by Lutz Behnke
+@sp 1
+@center Edition 0.4
+@sp 1
+@center for @code{gpkcs11}, Version 0.6.1
+@page
+@null
+@vskip 0pt plus 1filll
+Copyright @copyright{} 1999 TC TrustCenter
+@sp 2
+
+This is Edition 0.4 of the @cite{GPKCS-11 Manual}, for @code{gpkcs11}
+Version 0.6.1 @*
+Last updated Jan 19, 1999
+
+Published by TC TrustCenter @*
+Am Werder 1, @*
+21073 Hamburg, Germany @*
+
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided also that
+the entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that this permission notice may be stated in a translation approved
+by the Free Software Foundation or the TrustCenter.
+@end titlepage
+@page
+
+@node Top, Copying, (dir), (dir)
+@top
+@ifinfo
+@code{gpkcs11} is a library of functions implementing an interface to 
+cryptographic tokens. In this context a token is a piece of hard- or
+software that is able to perform one or more cryptographics operations
+defined in the PKCS-11 standards document. This document is published by
+the RSA Laboritories. This manual documents @code{gpkcs1} Version
+0.6.1. The software and the manual where written by Lutz Behnke.
+
+@end ifinfo
+
+@menu
+* Copying::                     Your rights.
+* Intro::                       Introduction to GPKCS.
+* Configuration::               
+* New Token::                   
+* Software Token::              
+* Cryptsh::                     
+* Planed::                      
+* Bugs::                        Problems and bugs.
+* File List::                   
+@end menu
+@c {{{endfold}}}
+
+@c {{{ Copying }}}
+@node Copying, Intro, Top, Top
+@chapter Copying Conditions.
+
+Parts of this library are @dfn{free}; this means that everyone is free
+to use it and free to redistribute it on a free basis.  @code{gpkcs11}
+is not in the public domain; it is copyrighted and there
+are restrictions on its distribution, but these restrictions are
+designed to permit everything that a good cooperating citizen would want
+to do.  What is not allowed is to try to prevent others from further
+sharing any version of @code{gpks11} that they might get from
+you.@refill
+
+  Specifically, we want to make sure that you have the right to give
+away copies @code{gpkcs11}, that you receive source code or else can get
+it if you want it, that you can change these functions or use pieces of
+them in new free programs, and that you know you can do these
+things.@refill 
+
+The fact that you must allow the recipient of the software to give it
+away, does not mean that you are not allowed to charged for software
+that is based on this library and its acompanying componentst. You are
+even encouraged to charge whatever the market will give you. But you are
+not allowed to take away the rights granted to you from your customer.
+Free in this context does not mean free beer but free speech
+instead. 
+
+  To make sure that everyone has such rights, we have to forbid you to
+deprive anyone else of these rights.  For example, if you distribute
+copies @code{gpkcs11}, you must give the recipients all
+the rights that you have.  You must make sure that they, too, receive or
+can get the source code.  And you must tell them their rights.@refill
+
+  Also, for our own protection, we must make certain that everyone finds
+out that there is no warranty for anything in the @code{gpkcs11} distribution.
+If these functions are modified by someone else and passed on, we want
+their recipients to know that what they have is not what we distributed,
+so that any problems introduced by others will not reflect on our
+reputation.@refill
+
+@emph{Warning}: due to a number of practical, political and commercial
+considerations the licensing for the whole package is rather complex and
+please make sure that you understand them before distributing code or
+use/build derivative products. This somewhat messy solution is a attempt
+to get the most out of the free software concept without undermining its
+useability by blocking the support of smartcard that are not availiable
+as free software. The maintainer and his supporting company are
+dedicated to choosing and developing free solutions over proprietary
+ones, but not to a point of making the use of the software impossible
+due to the lack of support for vital cards.@refill
+
+@code{gpkcs11} in Version 0.5.4 was distributed under the terms of the GNU General
+Public License, Version 2.  (@emph{NOT} under the GNU Lesser General
+Public License.)  A copy the GNU General Public License is included with
+the distribution of @code{gpkcs11}. If you are dedicated to free
+software without commercial constraints, please continue to maintain
+from this codebase.@refill
+
+As of Version 0.5.5 and later, different components of the package are
+released under different licenses. The code falls under four basic
+categories: free code, lesser free code, OpenSSL Group code and
+proprietary code.@refill 
+
+the basic interface library @code{libgpkcs11} is release under the
+@emph{GNU Lesser General Public License}. This basically allows you to
+statically link it or dynamically link it at @emph{compile time} to your
+application, regardless wether it is proprietary or free. This is an
+example of lesser free code.@refill
+
+the @code{ceay-token} is released under the BSD style code used by the
+Crypto Algorithm implementation of the OpenSSL Group, based on code by
+Eric A Young. Since it copies code from those packages it must be
+released under the same code. This is an example of OpenSSL Group
+Code.@refill 
+
+@code{cryptsh} and all scheme scripts that acompany it, are released
+under the @emph{GNU General Public License}. Not only is this needed due
+to the use of @code{guile}, but it is the only component that does not
+suffer from the license dependencies of the other components. It is as
+free as can and should be.
+
+@c {{{endfold}}}
+
+@c {{{ Intro }}}
+@node Intro, Configuration, Copying, Top
+@chapter Introduction to @code{gpkcs11}.
+
+GPKCS-11 is an implementation of PKCS#11: Cryptographic Token Interface
+Standard GPKCS#11 is still in development and may lead to loss of data
+and has potential security holes. FSF, the GNU Project or TC TrustCenter
+are not liable to any damages, direct or indirect, that arise through
+the use of the software. 
+
+PKCS#11 defines an interface for the communication of arbitrary
+applications with systems that perform cryptographic operations, like en-
+and decryption, signing and verifying. These systems, called token, may
+be Chipcards (with appropriate reader), discrete hardware systems or
+pure software implementations. The standard also defines mechasnism for
+using multiple cryptographics systems within a single application.
+
+@emph{gpkcs11} provides support functions to make the development of support
+for new tokens easier and contains a complete software token, as well as
+an automated testing environment. In a later version this software token
+will be usable as complete and secure tool for cryptographic
+applications. In this phase GPKCS#11 may serve as a testing tool in the
+development of new applications that contain cryptographic support. 
+
+This is code in work. It is currently only tested to run under Solaris
+2.5.1/SPARC. It should be able to run on other UNIX platforms. Only the
+creation of shared libraries will create problems. The use of libtool to
+solve this problem is on the top of our list of further
+developments. The development was done on Windows NT in parallel, and
+should be able to run on it as well. But the distribution does not
+contain our project files, as this would have made it too bloated. Due
+to this is the  creation of an automatic build for NT one of the
+features planed for future releases. 
+
+To create all parts of @emph{gpkcs11} you also need the following: 
+
+@table @emph
+@item OpenSSL-0.9.4
+ to provide the cryptographic backend to the software token.
+
+@item GUILE-1.3
+ for the interactive test and administration tool @code{cryptsh}
+
+@item DejaGNU-1.3
+are needed to run the automatic test environment. If you do not want to
+run the tests that you do not need this. But the tests may also be used
+to test other PKCS#11 implementations.
+
+@item JDK 1.1 
+is needed to install the library in Netscape Communicator. For other
+uses the package is not required. 
+
+@end table
+
+@c {{{endfold}}}
+
+@c {{{ Configuration }}}
+@menu
+* Configuration::               
+@end menu
+
+@node Configuration, New Token, Intro, Top
+@chapter Confguring the library at run time.
+
+A number of functions in the library read from a configuration
+file. This file is searched for in @code{/etc/gpkcs11.rc},
+@code{$HOME/.gpkcs11.rc} and @code{gpkcs11.rc} in the current directory
+in this order. If any of file later in this list found than a prior one
+it takes precedence over the formar one.
+
+The Format of this configuration file is similar to the windows ini file
+and is seperated into sections. The pkcs interface library uses one
+section, but third party tokens may define additional section to use. A
+section is defined by giving its name enclosed in brackets ('@code{[]}')
+and continues until the end of the file or the start of a new section.
+
+Each configuration line is made up of a name and value of a variable
+seperated by an equal sign ('@code{=}'). The name may not contain any
+white space and is case sensitive. White space sourrounding the
+seperator is ignored and striped from the value as a string. The value
+contains all characters after leading white space to the end of the
+line. 
+
+Empty lines are ignored. Lines that begin with a hash mark ('@code{#}')
+are taken as comments and ignored as well.
+
+@example
+[PKCS11-DLL]
+TokenList = CEAY-TOKEN
+#ExtraLibraryPath = /path/to/additional/libaries/needed/by/other/libs/
+LoggingFile = /path/to/log_file_name
+MemLoggingFile = /path/to/mem_log_file_name
+LoggingLevel = 3
+ 
+[CEAY-TOKEN]
+TokenDLL = /path/to/your/libceay_tok.so.1.0.1
+InitSym = ceayToken_init
+PersistentDataFile = /home/lbe/.gpkcs_data
+cryptoDll = /path/to/your/libcrypto.so.0.9.4
+@end example
+
+@table @var
+@item TokenList
+Lists the section names of the individual tokens. For each token name
+the appropriate section will searchted for the @code{TokenDLL} and
+@code{InitSym} fields and @emph{gpkcs11} tries to initialize the tokens
+in the order they are listed in this field.
+
+@item ExtraLibraryPath
+If libraries load extra libraries in turn or need to load other external
+files from the path, the relevant directories may be added here. The
+exact format of a correct path definition may vary between system
+architectures. Please consult you machines documentation.
+
+@item LoggingFile
+Name of the logging file, where all log-massages are stored in.
+The default file is: @code{/tmp/pkcs11.log} resp. @code{c:\\pkcs11.log}
+You can change the default by setting the environmet variable @code{GPKCS11_LOG}.
+
+@item MemLoggingFile
+Name of the logging file, where all memory-log-massages are stored in.
+The default file is: @code{/tmp/pkcs11.mem.log} resp. @code{c:\\pkcs11.mem.log}
+You can change the default by setting the environmet variable @code{GPKCS11_MEMLOG}.
+
+@item LoggingLevel
+Verbosity of the logging. Currently the values between 0 and 3 are
+valid. Any message that has a lower priority than the logging level will
+not be printed. Message indicating fatal errors have the level 0.
+
+@item TokenDLL
+This is the first of the two only required fields in each token
+configuration section. It defines the name or the path of the library
+that contains the function of the token implementation. The library
+selection rules of the operating system apply. Please check your systems
+documentation. 
+
+@item InitSym
+This is the start symbol of the library. It will be called by the
+functions in order to init the library and have it register itself with
+the gpkcs11 system.
+
+@item PersistentRootDir
+This is an field special to the ceay token and shows the use of
+arbitrary config fields by token implementations. This is the path into
+which the persistent storage file(s) will be written. 
+@end table
+
+each entry of the @var{DllSymbolicNameList} is repeated on an individual
+line in the config files that states the path to the library. These
+pathes need to be absolute.
+
+@c {{{endfold}}}
+
+@c {{{ New Token }}}
+@node New Token, Software Token, Configuration, Top
+@chapter Writing a new Token
+
+In order to create a new token you must implement the following functions
+that are defined in @code{internal.h} and link the to a library of
+their own.  They are all defined as callbacks and a structure containing
+the pointers to them is gather during initialisation of the token.
+
+A full featured software development kit (SDK) to aid in the development
+of new tokens has not been put together yet, but hopefully will grow out
+of gpkcs11 in the future.
+
+Most function are a simple counterpart to the functions defined in the
+standard, but have the nessecary table lookups done for them and given
+pointers to the actual structures rather than the handles as defined in
+the standard.
+
+Other than those functions in the standard a function in the internal
+slot needs not to be defined, since the wrapper will take care of the
+return of the proper value. The entry in the function pointer structure
+only needs to be set to @code{NULL}.
+
+@menu
+* Token Internal Functions::    
+* Token Internal Structures::   
+* Object Management API::       
+* Configuration Functions::     
+* Logging Functions::           
+* Dynamyic Library Management::  
+* Event Handler::               
+@end menu
+
+@c {{{ Token Internal Functions }}}
+@node Token Internal Functions, Token Internal Structures, New Token, New Token
+@section Token Internal Functions
+
+@deftypefun CK_RV <init-symbol> (CK_CHAR_PTR token_name, CK_I_SLOT_DATA_PTR CK_PTR ppSlotData)
+This is just a template for a function name that every token needs to
+implement. This function is not held in the funktion list, but will be
+looked up by named with the mechanism for shared objects native to the
+operating system. <init-symbol> is set by the @code{InitSym} directive
+in the section of the token.
+
+@code{token_name} contains the name of the token as it was read from the
+list of all tokens as given in the config file. This allows the function
+to read from the propper section of the config file.
+
+A pointer to the structure that contains the information about the slot
+and the token that is contained therein has to be set in
+@code{ppSlotData}. The exact format of @code{CK_I_SLOT_DATA} may be
+found in @code{internal_slot.h} 
+
+There is not seperate initialization function called for the slot. It
+has to be handled in this function. If any of the initialization fails
+or the slot and/or its token is disabled for some reason this function
+must return NULL_PTR, and the slot will be skipped when all slots are
+registered with the system. The slot will be disabled until the
+@code{C_Initialize} function is called again.
+@end deftypefun 
+
+All following functions are callbacks that are listed in the
+@code{CK_I_TOKEN_METHODS} structure defined in
+@file{internal_slot.h}. A full set of these functions must be defined
+and then listed in structure. If a function is not supported by a token
+it must be implemented regardless and simply return
+@code{CKR_FUNCTION_NOT_SUPPORTED}.
+
+@deftypefun CK_RV CIP_GetTokenInfo (CK_I_SLOT_DATA_PTR  slot_data, CK_TOKEN_INFO_PTR pInfo)
+get informations about the token.
+@end deftypefun 
+
+@deftypefun CK_RV CIP_GetMechanismList (CK_MECHANISM_TYPE_PTR pMechanismList,CK_ULONG_PTR pulCount)
+Get the List of mechanisms supported by the token. @code{pMechanismList}
+gets mechanism array. If set to NULL_PTR, the lenght of the buffer
+needed will be put into Address referenced by
+@code{pulCount}. @code{pulCount} holds the Address to the number of
+elements in the list provided. Address pointed to will be set to the
+number of entries in the list when function returns. 
+@end deftypefun 
+
+@deftypefun CK_RV CIP_GetMechanismInfo (CK_MECHANISM_TYPE type, CK_MECHANISM_INFO_PTR pInfo)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_InitToken (CK_CHAR_PTR pPin, CK_ULONG ulPinLen, CK_CHAR_PTR pLabel)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_FinalizeToken (CK_I_SLOT_DATA_PTR slot_data)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_InitPIN (CK_I_SESSION_DATA_PTR session_data, CK_CHAR_PTR pPin,
+CK_ULONG ulPinLen)
+@code{session_data} is the structure referenced by the handle given to
+the standard function
+@end deftypefun 
+
+@deftypefun CK_RV CIP_SetPIN (CK_I_SESSION_DATA_PTR session_data, CK_CHAR_PTR pOldPin, CK_ULONG ulOldLen, CK_CHAR_PTR pNewPin, CK_ULONG ulNewLen)
+@code{session_data} is the structure referenced by the handle given to
+the standard function
+@end deftypefun 
+
+@deftypefun CK_RV CIP_OpenSession (CK_I_SESSION_DATA_PTR session_data)
+perform token specific operations when opening a session.
+
+Token must implement this function if it holds some internal 
+representation of each session. The nessecary base operations are handled 
+by the outer library code. This function is called as a type of hook
+where a token may handle issues above and beyond those checks that are
+required in the standard.
+
+The @code{session_data} structure is allready allocated and some values
+are set. This function may simply set values pertaining to the internal
+working of the token. @xref{CK_I_SESSION_DATA Structure}, for more details.
+
+The @code{implement_data} field should be used for pointers to token
+implementation specific data structures. It is not used by the base
+library functions.
+@end deftypefun 
+
+
+@deftypefun CK_RV CIP_CloseSession (CK_I_SESSION_DATA_PTR session_data)
+perform token specific operations when closing a session.
+
+Token must implement this function if it holds some internal representation 
+of each session. It act as a expansion mechanism similar to the one
+described in CIP_OpenSession.
+@end deftypefun 
+
+@deftypefun CK_RV CIP_GetOperationState (CK_I_SESSION_DATA_PTR session_data,
+CK_BYTE_PTR pOperationState, CK_ULONG_PTR pulOperationStateLen)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_SetOperationState (CK_I_SESSION_DATA_PTR session_data,
+CK_BYTE_PTR pOperationState, CK_ULONG ulOperationStateLen, CK_I_OBJ_PTR
+encrypt_key_obj, CK_I_OBJ_PTR auth_key_obj)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_Login (CK_I_SESSION_DATA_PTR session_data,
+CK_USER_TYPE userType, CK_CHAR_PTR pPin, CK_ULONG ulPinLen) 
+@end deftypefun 
+
+@deftypefun CK_RV CIP_Logout (CK_I_SESSION_DATA_PTR session_data)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_EncryptInit (CK_I_SESSION_DATA_PTR session_data,
+CK_MECHANISM_PTR pMechanism, CK_I_OBJ_PTR key_obj) 
+@end deftypefun 
+
+@deftypefun CK_RV CIP_Encrypt (CK_I_SESSION_DATA_PTR session_data,
+CK_BYTE_PTR pData, CK_ULONG ulDataLen, CK_BYTE_PTR pEncryptedData,
+CK_ULONG_PTR pulEncryptedDataLen)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_EncryptUpdate (CK_I_SESSION_DATA_PTR session_data,
+CK_BYTE_PTR pPart, CK_ULONG ulPartLen, CK_BYTE_PTR pEncryptedPart,
+CK_ULONG_PTR pulEncryptedPartLen) 
+@end deftypefun 
+
+@deftypefun CK_RV CIP_EncryptFinal (CK_I_SESSION_DATA_PTR session_data,
+CK_BYTE_PTR pLastEncryptedPart, CK_ULONG_PTR pulLastEncryptedPartLen) 
+@end deftypefun 
+
+@deftypefun CK_RV CIP_DecryptInit (CK_I_SESSION_DATA_PTR session_data,
+CK_MECHANISM_PTR pMechanism, CK_I_OBJ_PTR key_obj)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_Decrypt (CK_I_SESSION_DATA_PTR session_data,
+CK_BYTE_PTR pEncryptedData, CK_ULONG ulEncryptedDataLen, CK_BYTE_PTR
+pData, CK_ULONG_PTR pulDataLen) 
+@end deftypefun 
+
+@deftypefun CK_RV CIP_DecryptUpdate (CK_I_SESSION_DATA_PTR session_data,
+CK_BYTE_PTR pEncryptedPart, CK_ULONG ulEncryptedPartLen, CK_BYTE_PTR
+pPart, CK_ULONG_PTR pulPartLen) 
+@end deftypefun 
+
+@deftypefun CK_RV CIP_DecryptFinal (CK_I_SESSION_DATA_PTR session_data,
+CK_BYTE_PTR pLastPart, CK_ULONG_PTR pulLastPartLen) 
+@end deftypefun 
+
+@deftypefun CK_RV CIP_DigestInit (CK_I_SESSION_DATA_PTR session_data,
+CK_MECHANISM_PTR pMechanism) 
+@end deftypefun 
+
+@deftypefun CK_RV CIP_Digest (CK_I_SESSION_DATA_PTR session_data,
+CK_BYTE_PTR pData, CK_ULONG ulDataLen, CK_BYTE_PTR pDigest, CK_ULONG_PTR
+pulDigestLen)  
+@end deftypefun 
+
+@deftypefun CK_RV CIP_DigestUpdate (CK_I_SESSION_DATA_PTR session_data,
+CK_C_BYTE_PTR pPart, CK_ULONG ulPartLen) 
+@end deftypefun 
+
+@deftypefun CK_RV CIP_DigestKey (CK_I_SESSION_DATA_PTR session_data,
+CK_I_OBJ_PTR key_obj) 
+@end deftypefun 
+
+@deftypefun CK_RV CIP_DigestFinal (CK_I_SESSION_DATA_PTR session_data,
+CK_BYTE_PTR pDigest, CK_ULONG_PTR pulDigestLen) 
+@end deftypefun 
+
+@deftypefun CK_RV CIP_SignInit (CK_I_SESSION_DATA_PTR  session_data,
+CK_MECHANISM_PTR pMechanism, CK_I_OBJ_PTR key_obj)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_Sign (CK_I_SESSION_DATA_PTR session_data,
+CK_BYTE_PTR pData, CK_ULONG ulDataLen, CK_BYTE_PTR pSignature,
+CK_ULONG_PTR pulSignatureLen)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_SignUpdate (CK_I_SESSION_DATA_PTR session_data,
+CK_BYTE_PTR pPart, CK_ULONG ulPartLen)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_SignFinal (CK_I_SESSION_DATA_PTR session_data,
+CK_BYTE_PTR pSignature, CK_ULONG_PTR pulSignatureLen) 
+@end deftypefun 
+
+@deftypefun CK_RV CIP_SignRecoverInit (CK_I_SESSION_DATA_PTR
+session_data, CK_MECHANISM_PTR pMechanism, CK_I_OBJ_PTR key_obj)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_SignRecover (CK_I_SESSION_DATA_PTR session_data,
+CK_BYTE_PTR pData, CK_ULONG ulDataLen, CK_BYTE_PTR pSignature,
+CK_ULONG_PTR pulSignatureLen) 
+@end deftypefun 
+
+@deftypefun CK_RV CIP_VerifyInit (CK_I_SESSION_DATA_PTR session_data,
+CK_MECHANISM_PTR pMechanism, CK_I_OBJ_PTR key_obj)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_Verify (CK_I_SESSION_DATA_PTR session_data,
+CK_BYTE_PTR pData, CK_ULONG ulDataLen, CK_BYTE_PTR pSignature, CK_ULONG
+ulSignatureLen)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_VerifyUpdate (CK_I_SESSION_DATA_PTR session_data,
+CK_BYTE_PTR pPart, CK_ULONG ulPartLen)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_VerifyFinal (CK_I_SESSION_DATA_PTR session_data,
+CK_BYTE_PTR pSignature, CK_ULONG ulSignatureLen)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_VerifyRecoverInit (CK_I_SESSION_DATA_PTR
+session_data, CK_MECHANISM_PTR pMechanism, CK_I_OBJ_PTR key_obj)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_VerifyRecover (CK_I_SESSION_DATA_PTR session_data,
+CK_BYTE_PTR pSignature, CK_ULONG ulSignatureLen, CK_BYTE_PTR pData,
+CK_ULONG_PTR pulDataLen) 
+@end deftypefun 
+
+@deftypefun CK_RV CIP_DigestEncryptUpdate (CK_I_SESSION_DATA_PTR
+session_data, CK_BYTE_PTR pPart, CK_ULONG ulPartLen, CK_BYTE_PTR
+pEncryptedPart, CK_ULONG_PTR pulEncryptedPartLen)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_DecryptDigestUpdate (CK_I_SESSION_DATA_PTR
+session_data, CK_BYTE_PTR pEncryptedPart, CK_ULONG ulEncryptedPartLen,
+CK_BYTE_PTR pPart, CK_ULONG_PTR pulPartLen)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_SignEncryptUpdate (CK_I_SESSION_DATA_PTR
+session_data, CK_BYTE_PTR pPart, CK_ULONG ulPartLen, CK_BYTE_PTR
+pEncryptedPart, CK_ULONG_PTR pulEncryptedPartLen)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_DecryptVerifyUpdate (CK_I_SESSION_DATA_PTR
+session_data, CK_BYTE_PTR pEncryptedPart, CK_ULONG ulEncryptedPartLen,
+CK_BYTE_PTR pPart, CK_ULONG_PTR pulPartLen) 
+@end deftypefun 
+
+@deftypefun CK_RV CIP_GenerateKey (CK_I_SESSION_DATA_PTR session_data,
+CK_MECHANISM_PTR pMechanism, CK_I_OBJ_PTR key)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_GenerateKeyPair (CK_I_SESSION_DATA_PTR
+session_data, CK_MECHANISM_PTR pMechanism, CK_I_OBJ_PTR public_key,
+CK_I_OBJ_PTR private_key) 
+@end deftypefun 
+
+@deftypefun CK_RV CIP_WrapKey (CK_I_SESSION_DATA_PTR session_data,
+CK_MECHANISM_PTR pMechanism, CK_I_OBJ_PTR wrap_key_obj, CK_I_OBJ_PTR
+key_obj, CK_BYTE_PTR pWrappedKey, CK_ULONG_PTR pulWrappedKeyLen)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_UnwrapKey (CK_I_SESSION_DATA_PTR session_data,
+CK_MECHANISM_PTR pMechanism, CK_I_OBJ_PTR unwrap_key_obj, CK_BYTE_PTR
+pWrappedKey, CK_ULONG ulWrappedKeyLen, CK_I_OBJ_PTR key_obj) 
+@end deftypefun 
+
+@deftypefun CK_RV CIP_DeriveKey (CK_I_SESSION_DATA_PTR session_data,
+CK_MECHANISM_PTR pMechanism, CK_I_OBJ_PTR base_key, CK_I_OBJ_PTR
+derived_ky) 
+@end deftypefun 
+
+@deftypefun CK_RV CIP_SeedRandom (CK_I_SESSION_DATA_PTR session_data,
+CK_BYTE_PTR pSeed, CK_ULONG ulSeedLen) 
+@end deftypefun 
+
+@deftypefun CK_RV CIP_GenerateRandom (CK_I_SESSION_DATA_PTR
+session_data, CK_BYTE_PTR pRandomData, CK_ULONG ulRandomLen) 
+@end deftypefun 
+
+@deftypefun CK_RV CIP_GetFunctionStatus (CK_I_SESSION_DATA_PTR
+session_data) 
+@end deftypefun 
+
+@deftypefun CK_RV CIP_CancelFunction (CK_I_SESSION_DATA_PTR
+session_data)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_WaitForSlotEvent (CK_FLAGS flags, CK_SLOT_ID_PTR
+pSlot, CK_VOID_PTR pRserved) 
+@end deftypefun 
+
+@deftypefun CK_RV CIP_TokenObjRetrieve (CK_I_SESSION_DATA_PTR
+session_data, CK_OBJECT_HANDLE phObject, CK_I_OBJ_PTR CK_PTR
+ppNewObject)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_TokenObjCommit (CK_I_SESSION_DATA_PTR
+session_data, CK_I_OBJ_PTR pObject)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_TokenObjAdd (CK_I_SESSION_DATA_PTR session_data,
+CK_OBJECT_HANDLE phObject, CK_I_OBJ_PTR pNewObject)
+@end deftypefun 
+
+@deftypefun CK_RV CIP_TokenObjDelete (CK_I_SESSION_DATA_PTR
+session_data, CK_OBJECT_HANDLE phObject)
+@end deftypefun 
+
+@c {{{endfold}}}
+
+@c {{{ Token Internal Structures }}}
+@node Token Internal Structures, Object Management API, Token Internal Functions, New Token
+@section Token Internal Structures
+
+@menu
+* CK_I_SLOT_DATA Structure::    
+* CK_I_TOKEN_DATA Structure::   
+* CK_I_SESSION_DATA Structure::  
+@end menu
+
+@c {{{ CK_I_SLOT_DATA Structure }}}
+@node CK_I_SLOT_DATA Structure, CK_I_TOKEN_DATA Structure, Token Internal Structures, Token Internal Structures
+@subsection @code{CK_I_SLOT_DATA}
+
+@example
+typedef struct CK_I_SLOT_DATA @{
+  CK_ULONG flags;
+  CK_CHAR_PTR config_section_name;
+  CK_SLOT_INFO_PTR slot_info;
+  CK_I_TOKEN_DATA_PTR token_data;
+@} CK_I_SLOT_DATA;
+@end example
+
+@table @code
+@item flags
+  @var{misssing info}
+@item config_section_name
+ section of the config file that containes information about this
+ slot/token  
+@item slot_info
+ standard defined information about the slot
+@item token_data
+ gpkcs11 internal data about the token. @xref{CK_I_TOKEN_DATA Structure}, for details.
+@end table
+@c {{{endfold}}}
+
+@c {{{ CK_I_TOKEN_DATA Structure }}}
+@node CK_I_TOKEN_DATA Structure, CK_I_SESSION_DATA Structure, CK_I_SLOT_DATA Structure, Token Internal Structures
+@subsection @code{CK_I_TOKEN_DATA}
+
+@example
+struct CK_I_TOKEN_DATA @{
+  CK_TOKEN_INFO_PTR token_info;
+  CK_I_TOKEN_METHODS_PTR methods;
+  CK_SLOT_ID slot;
+  CK_VOID_PTR impl_data;
+@};
+@end example
+
+@table @code
+@item token_info 
+ pointer to the structure defined in the PKCS11 Standard
+@item methods    
+ structure of function pointers containing of the functions provided by
+ the token. 
+@item slot
+ make the token aware of the slot it is holding
+@item impl_data
+ implementation specific data
+@end table
+@c {{{endfold}}}
+
+@c {{{ CK_I_SESSION_DATA Structure }}}
+@node CK_I_SESSION_DATA Structure,  , CK_I_TOKEN_DATA Structure, Token Internal Structures
+@subsection @code{CK_I_SESSION_DATA}
+
+@example
+struct CK_I_SESSION_DATA @{
+  CK_SESSION_HANDLE session_handle;
+  CK_USER_TYPE user_type;
+  CK_VOID_PTR pApplication;
+  CK_I_APP_DATA app_data;
+  CK_NOTIFY Notify;
+  CK_SESSION_INFO_PTR session_info;
+  CK_I_TOKEN_DATA_PTR token_data;
+  CK_I_HASHTABLE_PTR object_list;
+  CK_I_FIND_STATE_PTR find_state;
+  CK_VOID_PTR digest_state;
+  CK_MECHANISM_TYPE digest_mechanism;
+  CK_VOID_PTR encrypt_state;
+  CK_MECHANISM_TYPE encrypt_mechanism;
+  CK_VOID_PTR decrypt_state;           
+  CK_MECHANISM_TYPE decrypt_mechanism; 
+  CK_VOID_PTR sign_state;              
+  CK_MECHANISM_TYPE sign_mechanism;    
+  CK_VOID_PTR verify_state;            
+  CK_MECHANISM_TYPE verify_mechanism;  
+  CK_VOID_PTR implement_data;          
+@};
+@end example
+
+@table @code
+@item session_handle
+ The handle of this session
+
+@item user_type
+ Type of user that runs this session
+
+@item pApplication
+ Information to be returned when using a callback. This ia   pointer to
+ opaque application defined data. 
+
+@item app_data
+ Data about this application: holds pointers to the object list and
+ the list of open sessions for this application.
+
+@item Notify
+ callback to application.
+
+@item session_info
+ Session information required by the PKCS#11 Standard.
+
+@item token_data
+ Pointer to the structure representing the token of this session
+
+@item object_list
+ Objects of this session, deep copies of supplied templates
+
+@item find_state
+ internal state for the FindObject functions
+
+@item digest_state
+@itemx encrypt_state
+@itemx decrypt_state
+@itemx sign_state
+@itemx verify_state
+ Created by respective the @code{C_<operation>Init} function
+
+@item digest_mechanism
+@itemx encrypt_mechanism
+@itemx decrypt_mechanism
+@itemx sign_mechanism
+@itemx verify_mechanism
+ active mechanism type if the associated state is != NULL_PTR
+
+@item implement_data
+ Pointer to session specific data required by a given token implementation. See
+ the individual token implementations for details.
+@end table
+
+@c {{{endfold}}}
+
+@c {{{endfold}}}
+
+@c {{{ Object Management API }}}
+@node Object Management API, Configuration Functions, Token Internal Structures, New Token
+@section Object Management API
+
+@emph{gpkcs11} contains an internal API for handling objects of various
+kind. Its aims to ease to make handling the objects within the module
+easier. It also helps ensure that all the rules on object visibility,
+that are stated in the standard, are followed correctly. Furthermore
+does it help in memory management for the created objects and allows a
+quick lookup in the hashtables that are used as containers of the
+objects.
+
+Each object is identified by the handle that is also used to identify
+the object with the application.
+
+The functions are not to be confused with the external object functions
+and their internal helper. Therefore they all have @code{CI_Obj} prefix
+to their name.
+
+@deftypefun CK_RV CI_ObjCreateObj (CK_I_OBJ_PTR CK_PTR ppNewObj)
+Function sets the pointer to a newly created object into the address
+@code{ppNewObj} points to. The function will return one of @code{CKR_OK},
+@code{CKR_HOST_MEMORY}, @code{CKR_GENERAL_ERROR}.
+@end deftypefun 
+
+@deftypefun CK_RV CI_ObjSetAttributeValue (CK_I_OBJ_PTR pObject, CK_ATTRIBUTE_TYPE AttributeType, CK_VOID_PTR pValue, CK_ULONG ulValueLen)
+ Set an attribute of the object by stating attribute type, value and
+value lenght. The @code{AttributeType} must be one of the attribute
+types declare in the standard (defines with the @code{CKA_} prefix). The
+contents of @code{pValue} are copied and its memory my be freed
+overwritten afterwards. The function will return one of @code{CKR_OK},
+@code{CKR_HOST_MEMORY}, @code{CKR_GENERAL_ERROR}.  
+@end deftypefun 
+
+@deftypefun CK_RV CI_ObjSetIntAttributeValue (CK_I_OBJ_PTR pObject, CK_ATTRIBUTE_TYPE InternalAttributType, CK_VOID_PTR pValue, CK_ULONG ulValueLen)
+ Same as @code{CI_ObjSetAttributeValue}, but uses the internal
+attribute types (defines with the @code{CK_IA_} prefix).
+@end deftypefun 
+
+@deftypefun CK_RV CI_ObjSetAttribute (CK_I_OBJ_PTR pObject, CK_ATTRIBUTE_PTR pAttribute)
+Set an attribute of the object by providing a @code{CK_ATTRIBUTE}
+structure. The structure and its contents is copied by the function and
+may be freed after the function returns. The function will return one of
+@code{CKR_OK}, @code{CKR_HOST_MEMORY}, @code{CKR_GENERAL_ERROR}.
+@end deftypefun 
+
+@deftypefun CK_RV CI_ObjGetAttributeValue (CK_I_OBJ_PTR pObject, CK_ATTRIBUTE_TYPE AttributeType, CK_BYTE_PTR pValue, CK_ULONG_PTR pulValueLen)
+Retrieve the value of an object. The function uses the technique to
+determine the amount of memory as described in the PKCS#11 standard
+section 10.2. The @code{AttributeType} must be one of the attribute
+types declare in the standard (defines with the @code{CKA_} prefix). The
+function will return one of @code{CKR_OK}, @code{CKR_HOST_MEMORY},
+@code{CKR_GENERAL_ERROR}, @code{CKR_ATTRIBUTE_TYPE_INVALID},
+@code{CKR_BUFFER_TOO_SMALL}.   
+@end deftypefun 
+
+@deftypefun CK_RV CI_ObjGetIntAttributeValue (CK_I_OBJ_PTR pObject, CK_ATTRIBUTE_TYPE InternalAttributeType, CK_BYTE_PTR pValue, CK_ULONG_PTR pulValueLen)
+Same as @code{CI_ObjGetAttributeValue}, but uses the internal
+attribute types (defines with the @code{CK_IA_} prefix).
+@end deftypefun 
+
+@deftypefun CK_RV CI_ObjReadTemplate (CK_I_OBJ_PTR  pObject, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulTemplateLen)
+Convert a PKCS#11 style template into an object. The object needs have
+been allocated and initialized using the @code{CI_ObjCreateObj} function.
+@end deftypefun 
+
+@deftypefun CK_RV, CI_ObjCopyObject (CK_I_OBJ_PTR pTargetObject, CK_I_OBJ_PTR pSourceObject)
+Copy the data contained in @code{pSourceObject} into
+@code{pTargetObject}. The both object must have been previously
+allocated. All data that was contained in the target object will be
+removed. Any memory that was contained will be freed.
+@end deftypefun 
+
+@deftypefun CK_RV CI_ObjDestroyObj (CK_I_OBJ_PTR pObject)
+Destroy an object and recoursively free all memory that is allocated
+within.
+@end deftypefun 
+
+@deftypefun CK_RV CI_ObjMergeObj (CK_I_OBJ_PTR pTargetObject, CK_I_OBJ_PTR pSourceObject, CK_BBOOL overwrite)
+)
+Merge an object into another. All data from @code{pSourceObject} will be
+copied into @code{pTargetObject}, retaining Attributes that are not set
+within the source object. if @code{overwrite} is set to false, attributes
+that are allready set in the target object are also left
+unchanged. Otherwise they are overwritten with the data from the source
+object. 
+@end deftypefun 
+
+@deftypefun CK_RV CI_ObjDeleteAttribute (CK_I_OBJ_PTR pObject, CK_ATTRIBUTE_TYPE Attribute)
+Delete an Attribute from an object. The @code{AttributeType} must be one of the attribute
+types declare in the standard (defines with the @code{CKA_} prefix). The
+memory allocated by the value will be freed.
+@end deftypefun 
+
+@deftypefun CK_RV CI_ObjDeleteIntAttribute (CK_I_OBJ_PTR pObject, CK_ATTRIBUTE_TYPE InternalAttribute)
+Same as @code{CI_ObjDeleteIntAtrrbute}, but uses the internal
+attribute types (defines with the @code{CK_IA_} prefix).
+@end deftypefun 
+
+@deftypefun CK_RV CI_ObjDumpObj (CK_I_OBJ_PTR pObject, FILE CK_PTR pOut)
+Write the contents of the object into file that is pointed to by
+@code{pOut}. The Data is formated in a human readable format is to aid
+in debugging the use of the object system by giving insight to the
+contents of an object.
+@end deftypefun 
+
+@deftypefun CK_RV CI_ObjAttribCount (CK_I_OBJ_PTR pObject, CK_ULONG CK_PTR pCount)
+Put the number of attributes within the object into the memory pointed
+to by @code{pCount}
+@end deftypefun 
+
+@deftypefun CK_RV CI_ObjAttribIter (CK_I_OBJ_PTR pObject, CK_I_HASH_ITERATOR_PTR CK_PTR pIterator)
+Put an iterator over the attributes within the object into the memory
+pointed at by the @code{pIterator}.
+@end deftypefun 
+
+@deftypefun CK_RV CI_ObjAttribIterDeRef (CK_I_HASH_ITERATOR_PTR pIterator, CK_ATTRIBUTE_PTR CK_PTR ppAttrib)
+Dereference the attribute indicated by the iterator. The address of the
+attribute structure will be written into the memory pointed at by
+@code{ppAttrib}. 
+@end deftypefun 
+
+@deftypefun CK_RV CI_ContainerAddObj (CK_I_HASHTABLE_PTR container, CK_ULONG key, CK_I_OBJ_PTR pObject)
+Add an object to the container. The function will check if there is an
+already object of the key and remove it from the container. The object
+is stored as a reference and not a copy of the original obj. A reference
+counter within the object will be increased.
+@end deftypefun 
+
+@deftypefun CK_RV CI_ContainerDelObj (CK_I_HASHTABLE_PTR container, CK_ULONG key)
+Delete an object from the container. The function will free the mem of
+the object if this was the last reference to the function.
+@end deftypefun 
+
+@deftypefun CK_RV CI_AppListAddObj (CK_ULONG key, CK_I_OBJ_PTR val)
+Add Object to application list. To make dynamic loading possible we only
+export functions as some operating system have difficulties exporting
+variables. This function wraps direct manipulations of the application
+list outside the libgpkcs11. the function returns the value that the
+actual call to CI_ContainerAddObj returned. 
+@end deftypefun 
+
+@defmac CI_ObjLookup (obj, int_attrib)
+return attribute structure of an internal attribute (CK_IA_*) from an
+object. The returned value is NULL_PTR if the attribute is not set.
+@end defmac
+
+@deftypefun CK_RV CI_TokenObjAdd (CK_I_SESSION_DATA_PTR  session_data, CK_OBJECT_HANDLE phObject, CK_I_OBJ_PTR pNewObject)
+Add an object to the list of object on a token. In what form this is
+handled further is dependant upon the token that is addresssed at
+(determined via the @code{session_data} structure.)
+@end deftypefun 
+
+@deftypefun CK_RV CI_TokenObjDelete (CK_I_SESSION_DATA_PTR session_data, CK_OBJECT_HANDLE phObject)
+Delete an object from an token.
+@end deftypefun 
+
+@deftypefun CK_RV CI_TokenObjCommit (CK_I_SESSION_DATA_PTR session_data, CK_OBJECT_HANDLE phObject)
+order to token to execute token specific operations regarding the object
+that are defined upon it.
+@end deftypefun 
+
+@deftypefun CK_RV CI_AttributeValid (CK_ATTRIBUTE_TYPE Attribute, CK_OBJECT_CLASS  ObjClass, CK_BBOOL CK_PTR pValid)
+Check validity of attribute in a object type. The validity of the
+attribute for a given object class is returned by setting the memory
+pointed to by @code{pValid} to @code{TRUE} if the attribute is valid for
+the given object class. Will be set to  @code{FALSE} otherwise.
+@end deftypefun 
+
+@c {{{endfold}}}
+
+@c {{{ Configuration Functions }}}
+@node Configuration Functions, Logging Functions, Object Management API, New Token
+@section Configuration Functions 
+
+@deftypefun CK_RV CI_GetConfigString (CK_CHAR_PTR section, CK_CHAR_PTR field, CK_CHAR_PTR CK_PTR ppValue)
+Retrieve an entry from the configuration file that was selected during
+initialization. If the @code{section} is set to @code{NULL_PTR},
+"PKCS11-DLL" will be used. The section that a slot was loaded into will be
+set into the @code{CI_SLOT_DATA} structure.
+@end deftypefun
+
+@c {{{endfold}}}
+
+@c {{{ Logging Functions }}}
+@node Logging Functions, Dynamyic Library Management, Configuration Functions, New Token
+@section Logging Functions 
+
+@deftypefun CK_RV CI_ErrorStr (CK_RV rv)
+@end deftypefun
+
+@deftypefun CK_RV CI_MechanismStr (CK_MECHANISM_TYPE rv)
+@end deftypefun
+
+@deftypefun CK_RV CI_AttributeStr (CK_ATTRIBUTE_TYPE attrib)
+@end deftypefun
+
+@deftypefun CK_RV CI_AttributeNum (CK_CHAR_PTR pAttribName)
+@end deftypefun
+
+@deftypefun CK_RV CI_PrintableByteStream (CK_C_BYTE_PTR stream, CK_ULONG len)
+@end deftypefun
+
+@deftypefun CK_RV CI_ScanableByteStream (CK_C_BYTE_PTR stream, CK_ULONG len)
+@end deftypefun
+
+@deftypefun CK_RV CI_ScanableMechanism (CK_MECHANISM_PTR pMechanism)
+@end deftypefun
+
+@deftypefun CK_RV CI_PrintTemplate (CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount)
+@end deftypefun
+
+@deftypefun CK_RV CI_LogEntry (CK_C_CHAR_PTR FunctionName, CK_C_CHAR_PTR ProcessDesc, CK_RV rv, CK_ULONG level)
+/* Name of the current function */                       
+/* Description of the current process */                 
+/* return value in case of imediate abort of function */ 
+/* logging level at which message will be printed */     
+@end deftypefun
+
+@deftypefun CK_RV CI_VarLogEntry (CK_C_CHAR_PTR FunctionName, CK_C_CHAR_PTR ProcessDesc, CK_RV rv, CK_ULONG level, ...)
+/* Name of the current function */                      
+/* Description of the current process */                
+/* return value in case of imediate abort of function */
+/* logging level at which message will be printed */    
+@end deftypefun
+
+@deftypefun CK_RV CI_SetLogingLevel (CK_ULONG level)
+@end deftypefun
+
+@deftypefun CK_RV CI_SetLoggingFile (CK_CHAR_PTR logFileName)
+@end deftypefun
+
+@deftypefun CK_RV CI_EvalLogFileName (void)
+@end deftypefun
+
+@deftypefun CK_RV CI_CI_CodeFktEntry (CK_C_CHAR_PTR FunctionName, CK_C_CHAR_PTR ProcessDesc, ...)
+/* Name of the current function */      
+/* Description of the current process */
+@end deftypefun
+
+@deftypefun CK_RV TC_free (handle)
+Actually this is a macro wrapping the functions @code{_TC_free(handle,
+line, file)} or @code{free(3)}, depending on the preprocessor define @code{NO_MEM_LOGGING}
+@end deftypefun
+
+@deftypefun CK_RV TC_calloc (nelem, elsize)
+Actually this is a macro wrapping the functions
+@code{_TC_calloc(nelem,elsize, line, file)} or @code{calloc(3)}, depending
+on the preprocessor define @code{NO_MEM_LOGGING} 
+@end deftypefun
+
+@deftypefun CK_RV TC_malloc (size)
+Actually this is a macro wrapping the functions @code{_TC_malloc(size,
+line, file)} or @code{malloc(3)}, depending on the preprocessor define
+@code{NO_MEM_LOGGING} 
+@end deftypefun
+
+@deftypefun CK_RV CI_SetMemLoggingFile (CK_C_CHAR_PTR memLogFileName)
+@end deftypefun
+
+@deftypefun CK_RV CI_EvalMemLogFileName (void)
+@end deftypefun
+
+@c {{{endfold}}}
+
+@c {{{ Dynamyic Library Management }}}
+@node Dynamyic Library Management, Event Handler, Logging Functions, New Token
+@section Managing Dynamic Libraries
+
+To ensure the libraries that are loaded during runtime are closed
+properly a table of all open Dynamic Link Libraries (DLLs) exists. This
+Table is created during initialization and opened tokens are
+automatically registered. If a token opens a dll with
+@code{CI_GetDllHandle} the dll will be opened if nessecary and be
+registered for a clean closure when the library is shut down.
+
+@c {{{endfold}}}
+
+@c {{{ Event Handler }}}
+@node Event Handler, , Dynamyic Library Management, New Token
+@section Event Handler 
+
+Since the function @code{C_WaitForSlotEvent} collects the event arising
+from all tokens of an PKCS#11 module, there needs to exist a central event
+handler. The event handler servers to do two jobs: it sends events to the
+blocking @code{C_WaitForSlotEvent} function on all threads that watch
+this slot and it can call a callback in behalf of the token that
+registered the event to take care of cleanup or reinitialisation
+functions like changing a smartcard in a reader.
+
+In @emph{gpkcs11} this handler is dormant as long as there is no event
+source registered, returning @code{CKR_FUNCTION_NOT_IMPLEMENTED} upon
+calling @code{C_WaitForSlotEvent}. Only when one or more slots register 
+for the handler will the function block on request.
+
+@deftypefun CK_RV CI_RegisterEventSink (CK_SLOT_HANDLE slot, CK_I_EventActionCallback action, CK_VOID_PTR user_data, CK_I_EVENT_INFO_PTR CK_PTR pHandle)
+
+add the slot to the list of watched event sources and a sink for the
+slot events. When an event is signaled @code{action} is called with
+@code{user_data} if it is not equal to NULL or the signal call sets a
+new user_data. The address @code{pHandle} points to is set with the
+handle of this event. Multiple sinks and their actions may be defined
+for a given slot, the first will activate even watching for that slot.
+If the slot Handle is equal to @code{(-1)L}, the event will not be
+rejected for belonging to a invalid slot, but will never be called by
+@code{CI_SendSlotEvent}. This allows event sinks to be registered, but
+not bound to a slot.
+@end deftypefun
+
+@deftypefun CK_RV CI_RemoveEventSink (CK_I_EVENT_INFO_PTR event)
+Remove the event sink with the handle @code{event} from the sinks. If
+this was the last event for a slot, the event handling will be turned
+inactive. If there is still a thread waiting for the slot event via
+@code{C_WaitForSlotEvent}, the function will return with
+@code{CKR_FUNCTION_NOT_IMPLEMENTED} 
+@end deftypefun
+
+@deftypefun CK_RV CI_SendSlotEvent (CK_SLOT_HANDLE slot, CK_VOID_PTR user_data, CK_CHAR_PTR event_label)
+Trigger all events that are registered with a slot, setting
+@code{user_data} if it is not not NULL. If @code{event_label} is
+non-NULL it will be printed to the log. The order in which each event is
+triggered is not defined. If an component needs a certain order, this
+has to be handled by the component itself.
+@end deftypefun
+
+@deftypefun CK_RV CI_TriggerEvent (CK_I_EVENT_INFO_PTR event, CK_VOID_PTR user_data, CK_CHAR_PTR event_label)
+Trigger @code{event}, setting @code{user_data} if it is not not NULL. If
+@code{event_label} is non-NULL it will be printed to the log. This
+function is intendet for triggering seperate Events, possibly by other
+events. 
+@end deftypefun
+
+The two functions @code{CI_InitEventHandler} and
+@code{CI_FinalizeEventHandler} that are defined in slot.h are for
+internal use, to start and stop the handler and are of use neither to
+the user of the library, nor to the token developer.
+
+@c {{{endfold}}}
+
+@c #################################################
+@c  TCSC_token:
+@c 
+@c  1.) token_impl starts thread
+@c  2.) mw_thread calls SCard_WFSE(blocking)
+@c  3.) if SCard_WFSE returns error -> stop thread
+@c  4.) if SCard_WFSE returns with change callback -> note event
+@c 
+@c 
+@c  libgpkcs11
+@c 
+@c  1.) if none of the tokens have registered Support for Events returns
+@c CKR_FUNCTION_NOT_IMPLEMENTED 
+@c  2.) a call of the callback sets a flag in the list and raises the
+@c counting semaphore
+@c  3.) a non-blocking call gets the first event, decreases the semaphore;
+@c returns NO_EVENT if semaphore = 0
+@c  4.) a blocking event sleeps until semaphore > 0, returns ok with the
+@c slot#
+@c  Note: Semaphore blocks for n=0
+
+
+@c #################################################
+
+
+@c {{{endfold}}}
+
+
+@c {{{ Software Token }}}
+
+@node Software Token, Cryptsh, New Token, Top
+@chapter Software Token based on the OpenSSL.
+
+To make use of the library in a real product and to properly test
+functions a implementation of a token in pure software is included. It
+uses the OpenSSL crypto routines as a backend.
+
+Currently ist supports the following Mechanisms:
+
+@example
+  CKM_RSA_PKCS_KEY_PAIR_GEN
+  CKM_RSA_PKCS
+  CKM_RSA_X_509
+  CKM_SHA_1
+  CKM_MD5
+  CKM_MD2
+  CKM_DSA_KEY_PAIR_GEN
+  CKM_DSA
+  CKM_RC4_KEY_GEN
+  CKM_RC2_KEY_GEN
+  CKM_DES_KEY_GEN
+  CKM_DES3_KEY_GEN
+  CKM_IDEA_KEY_GEN
+  CKM_SSL3_PRE_MASTER_KEY_GEN
+  CKM_SSL3_MASTER_KEY_DERIVE
+  CKM_SSL3_KEY_AND_MAC_DERIVE
+  CKM_SSL3_MD5_MAC
+  CKM_SSL3_SHA1_MAC
+  CKM_RC2_ECB
+  CKM_RC2_CBC
+  CKM_RC4
+  CKM_DES_ECB
+  CKM_DES_CBC
+  CKM_IDEA_ECB
+  CKM_IDEA_CBC
+  CKM_DES3_ECB
+  CKM_DES3_CBC
+@end example
+
+It also contains a persistent storage to hold keys and certificates.
+
+@menu
+* ceay_token Internal Functions::  
+* ceay_token Internal Structures::  
+@end menu
+
+
+@c {{{ ceay_token Internal Functions }}}
+@node ceay_token Internal Functions, ceay_token Internal Structures, Software Token, Software Token
+@section ceay_token Internal Functions
+
+@c {{{endfold}}}
+
+@c {{{ ceay_token Internal Structures }}}
+@node ceay_token Internal Structures,  , ceay_token Internal Functions, Software Token
+@section ceay_token Internal Structures
+
+Only the central structures are listed here to aid in understanding how
+the whole gpkcs11 internal interface works. There are additional
+structrures to hold the state of cryptographic functions that are
+defined in ceay_token.h.
+
+@menu
+* CK_I_CEAY_IMPL_DATA Structure::  
+* CK_I_CEAY_SESS_IMPL_DATA Structure::  
+@end menu
+
+@c {{{ CK_I_CEAY_IMPL_DATA Structure }}}
+@node  CK_I_CEAY_IMPL_DATA Structure, CK_I_CEAY_SESS_IMPL_DATA Structure, ceay_token Internal Structures, ceay_token Internal Structures
+@subsection @code{CK_I_CEAY_IMPL_DATA} Structure
+
+@example
+typedef struct CK_I_CEAY_IMPL_DATA @{
+  CK_I_HASHTABLE_PTR persistent_cache;
+  CK_I_HASHTABLE_PTR session_list; 
+  CK_ULONG user_trial_count;
+  CK_ULONG so_trial_count;
+@} CK_I_CEAY_IMPL_DATA;
+@end example
+
+@table @code
+@item persistent_cache;
+ cache of persistent objects
+@item session_list; 
+ pointer to session_data as key @emph{and} val
+@item user_trial_count;
+ number of tries to enter correct user pin still availiable
+@item so_trial_count;
+ number of tries to enter correct SO pin still availiable
+@end table
+
+@c {{{endfold}}}
+
+@c {{{ CK_I_CEAY_SESS_IMPL_DATA Structure }}}
+@node  CK_I_CEAY_SESS_IMPL_DATA Structure,  , CK_I_CEAY_IMPL_DATA Structure, ceay_token Internal Structures
+@subsection @code{CK_I_CEAY_SESS_IMPL_DATA} Structure
+
+@example
+typedef struct CK_I_CEAY_SESS_IMPL_DATA
+@{
+  CK_CHAR_PTR so_pin;
+  CK_ULONG so_pin_len;
+  CK_CHAR_PTR user_pin;
+  CK_ULONG user_pin_len;
+@} CK_I_CEAY_SESS_IMPL_DATA;
+@end example
+
+@table @code
+@item so_pin
+ pointer to the SO PIN
+@item so_pin_len
+ length of the SO PIN
+@item user_pin
+  pointer to the user PIN
+@item user_pin_len
+ length of the user pin
+@end table
+
+@c {{{endfold}}}
+
+@c {{{endfold}}}
+
+@c {{{endfold}}}
+
+@c {{{ Cryptsh }}}
+@node Cryptsh, Planed, Software Token, Top
+@chapter Cryptsh
+
+The @code{cryptsh} programm offers the ability to access a PKCS#11
+implementation via an interactive programm. The Cryptsh is based on the
+@code{guile} scheme interpreter and all function pertaining the use of
+the PKCS#11 Module are implemented as scheme functions.
+
+All functions return a pair of the cryptoki return code and the output
+parameters relevant to the function. The later are detailed in the
+descriptions of each function. The former is not mentioned when
+decribing the return values of each function, rather outlining only the
+@code{cdr} of the pair.
+
+Currently the following functions return only the return code, which I
+consider a bug and will fix it asap: C-Initialize
+
+The version structures returned by some functions are mapped into a
+pair. 
+
+@menu
+* General-Purpose::             
+* Slot and Token Management::   
+* Session Management::          
+* Object Management::           
+* Encryption::                  
+* Decryption::                  
+* Message Digesting::           
+* Signing and MACing::          
+* Verifying Signatures and MACs::  
+* Dual-function Cryptographics::  
+* Key Management::              
+* Random Number Generation::    
+* Parallel functions Management::  
+* Helper::                      
+@end menu
+
+@c {{{ General-Purpose }}}
+@node General-Purpose, Slot and Token Management, Cryptsh, Cryptsh
+@section General-Purpose Functions
+
+The @code{GetFunctionList} funtion is not supported by the cryptsh as it
+is called internally when the cryptsh is started.
+
+@defun C-Initialize
+Initialize the PKCS#11 Module.
+
+Since the function pointers that are provided to the equivalent C
+function for setting the threading methods are not availiable in scheme,
+these cannot be set by the funcion. 
+@end defun
+
+@defun C-Finalize 
+shut down connection to PKCS#11 module.
+@end defun
+
+@defun C-GetInfo 
+Return information about the PKCS#11 module.
+
+The return value of the function will contain the contents of a CK_INFO
+structure as a list in the @code{cdr}: version of the cryptoki
+interface, manufacturer ID padded with blanks to a lengh of 32
+characters, the flags, the library description (also blank padded), and
+library version.
+ 
+@end defun
+@c {{{endfold}}}
+
+@c {{{ Slot and Token Management }}}
+@node Slot and Token Management, Session Management, General-Purpose, Cryptsh
+@section Slot and Token Management Functions
+
+@defun C-GetSlotList tokenp
+Return the list of valid slot ID's. If tokenp is set to @code{#t} only
+slots that contain tokens are returned, otherwise all slots are listed.
+@end defun
+
+@defun C-GetSlotInfo slot_int
+Return information about a slot as list holding the elements of the
+@code{CK_SLOT_INFO} structure. The elements are as follows:
+slot description, manufacturerID, flags, hardware version, firmware
+version (for details check section 10.5 of the PKCS#11 standard
+document)
+@end defun
+
+@defun C-GetTokenInfo slot_int
+Return information about a token occupying the slot with the given slot
+ID. A list containing the elements of the @code{CK_TOKEN_INFO} structure
+are returned:   
+@table @asis
+@item label
+a string padded with blanks to a lenght of 32 characters
+@item manufacturerID
+a string padded with blanks to a lenght of 32 characters
+@item model
+a string padded with blanks to a lenght of 16 characters
+@item serialNumber
+a string padded with blanks to a lenght of 16 characters
+@item flags
+An integer number from following or'ed values:
+@multitable @columnfractions .5 .5
+@item CKF_RNG
+@tab token has its own random generator
+
+@item CKF_WRITE_PROTECTED         
+@tab token is write-protected
+
+@item CKF_LOGIN_REQUIRED          
+@tab user must login in order to use R/W functions.
+
+@item CKF_USER_PIN_INITIALIZED    
+@tab normal user's PIN is set
+
+@end multitable
+
+@item ulMaxSessionCount
+@item ulSessionCount
+@item ulMaxRwSessionCount
+@item ulRwSessionCount
+@item ulMaxPinLen
+@item ulMinPinLen
+@item ulTotalPublicMemory
+@item ulFreePublicMemory
+@item ulTotalPrivateMemory
+@item ulFreePrivateMemory
+@item hardwareVersion
+@item firmwareVersion
+@item utcTime
+a string padded with blanks to a lenght of 16 characters.
+@end table
+
+More details on the semantics of each of the elements are described in
+section 8.2 of the PKCS#11 standard document.
+@end defun
+
+@defun C-WaitForSlotEvent flags_ulong
+Function will wait for an event on a Slot to occour. The function will
+block further execution if the flags value is set to zero and will
+continue execution even if no event ocoured if the value is 1.
+@end defun
+
+@defun C-GetMechanismList slot_ulong
+the function returns a list of the mechanism identifiers as defined in
+the @code{pkcs11t.h}
+@end defun
+
+@defun C-GetMechanismInfo slot_ulong mech_type_ulong
+Function returns a list of the elements of the @code{CK_MECHANISM_INFO}
+structure: minimum lenght of key, maximum length of key, 
+
+@multitable @columnfractions .10 .10 .80
+@item Bit Flag
+@tab Mask
+@tab Meaning
+
+@item CKF_HW
+@tab 0x00000001
+@tab TRUE if the mechanism is performed by the device; FALSE if the
+mechanism is performed in software
+
+@item CKF_ENCRYPT
+@tab 0x00000100
+@tab TRUE if the mechanism can be used with C_EncryptInit
+
+@item CKF_DECRYPT
+@tab 0x00000200
+@tab TRUE if the mechanism can be used with C_DecryptInit
+
+@item CKF_DIGEST
+@tab 0x00000400
+@tab TRUE if the mechanism can be used with C_DigestInit
+
+@item CKF_SIGN
+@tab 0x00000800
+@tab TRUE if the mechanism can be used with C_SignInit
+
+@item CKF_SIGN_RECOVER
+@tab 0x00001000
+@tab TRUE if the mechanism can be used with C_SignRecoverInit
+
+@item CKF_VERIFY
+@tab 0x00002000
+@tab TRUE if the mechanism can be used with C_VerifyInit
+
+@item CKF_VERIFY_RECOVER
+@tab 0x00004000
+@tab TRUE if the mechanism can be used with C_VerifyRecoverInit
+
+@item CKF_GENERATE
+@tab 0x00008000
+@tab TRUE if the mechanism can be used with C_GenerateKey
+
+@item CKF_GENERATE_KEY_PAIR
+@tab 0x00010000
+@tab TRUE if the mechanism can be used with C_GenerateKeyPair
+
+@item CKF_WRAP
+@tab 0x00020000
+@tab TRUE if the mechanism can be used with C_WrapKey
+
+@item CKF_UNWRAP
+@tab 0x00040000
+@tab TRUE if the mechanism can be used with C_UnwrapKey
+
+@item CKF_DERIVE
+@tab 0x00080000
+@tab TRUE if the mechanism can be used with C_DeriveKey
+
+@item CKF_EXTENSION
+@tab 0x80000000
+@tab TRUE if there is an extension to the flags; FALSE if no
+extensions. Must be FALSE for this version 
+@end multitable
+
+@end defun
+
+@defun C-InitToken slot_ulong pin_string label_string
+(Re-)Set the token with a new pin and label. The strings may be any
+sequence of bytes, but this may lead to problems in other applications. 
+@end defun
+
+@defun C-InitPin session_ulong pin_string
+@end defun
+
+@defun C-SetPin session_ulong oldpin_string newpin_string
+@end defun
+
+@c {{{endfold}}}
+
+@c {{{ Session Management }}}
+@node Session Management, Object Management, Slot and Token Management, Cryptsh
+@section Session Management Functions
+
+@defun C-OpenSession slot_ulong flags_ulong
+Returns the session handle
+@end defun
+
+@defun C-CloseSession handle_ulong
+@end defun
+
+@defun C-CloseAllSessions slot_ulong
+@end defun
+
+@defun C-GetSessionInfo session_ulong
+@end defun
+
+@defun C-GetOperationState session_ulong null_data
+@end defun
+
+@defun C-SetOperationState session state enc_key auth_key
+@end defun
+
+@defun C-Login session_ulong user_ulong pin_string
+@end defun
+
+@defun C-Logout session_ulong
+@end defun
+
+@c {{{endfold}}}
+
+@c {{{ Object Management }}}
+@node Object Management, Encryption, Session Management, Cryptsh
+@section Object Management Function
+
+@defun C-CreateObject session_ulong attribs_list
+@end defun
+
+@defun C-CopyObject session_ulong object_ulong template_list
+@end defun
+
+@defun C-DestroyObject session_ulong object_ulong
+@end defun
+
+@defun C-GetObjectSize session_ulong object_ulong
+@end defun
+
+@defun C-GetAttributeValue session_ulong object_ulong attr_list
+The @code{attr-list} must contain the list of attribute type IDs that
+function shall look up. The function returns a pair of the error code
+and a list of lists of two elements each. Each of these tuples contains
+one attribute type ID and its corresponding value.
+@end defun
+
+@defun C-SetAttributeValue session_ulong object_ulong template_list
+@code{template_list} must contain a list of list of two elements
+eacht. These tuples each contain the attribute type ID and its value.
+@end defun
+
+@defun C-FindObjectsInit session_ulong attribs_list 
+@end defun
+
+@defun C-FindObjects session_ulong
+@end defun
+
+@defun C-FindObjectsFinal session_ulong
+@end defun
+
+@c {{{endfold}}}
+
+@c {{{ Encryption }}}
+@node Encryption, Decryption, Object Management, Cryptsh
+@section Encryption Functions
+
+@defun C-EncryptInit session_ulong mechanism_list key_ulong
+@end defun
+
+@defun C-Encrypt session_ulong data_string null_data
+@end defun
+
+@defun C-EncryptUpdate session_ulong data_string null_data
+@end defun
+
+@defun C-EncryptFinal session_ulong null_data
+@end defun
+@c {{{endfold}}}
+
+@c {{{ Decryption }}}
+@node Decryption, Message Digesting, Encryption, Cryptsh
+@section Decryption Functions
+
+@defun C-DecryptInit session_ulong mechanism_list key_ulong
+@end defun
+
+@defun C-Decrypt session_ulong data_string null_data
+@end defun
+
+@defun C-DecryptUpdate session_ulong data_string null_data
+@end defun
+
+@defun C-DecryptFinal session_ulong null_data
+@end defun
+@c {{{endfold}}}
+
+@c {{{ Message Digesting }}}
+@node Message Digesting, Signing and MACing, Decryption, Cryptsh
+@section Message Digesting Functions
+
+@defun C-DigestInit session_ulong mechanism_list
+@end defun
+
+@defun C-Digest session_ulong data_string null_data
+@end defun
+
+@defun C-DigestUpdate session_ulong data_string
+@end defun
+
+@defun C-DigestKey session_ulong key_ulong
+@end defun
+
+@defun C-DigestFinal session_ulong null_data
+@end defun
+@c {{{endfold}}}
+
+@c {{{ Signing and MACing }}}
+@node Signing and MACing, Verifying Signatures and MACs, Message Digesting, Cryptsh
+@section Signing MACing Functions
+
+@defun C-SignInit session_ulong mechanism_list key_ulong
+@end defun
+
+@defun C-Sign session_ulong data_string null_data
+@end defun
+
+@defun C-SignUpdate session_ulong data_string
+@end defun
+
+@defun C-SignFinal session_ulong null_data
+@end defun
+
+@defun C-SignRecoverInit session_ulong mechanism_list key_ulong
+@end defun
+
+@defun C-SignRecover session_ulong data_string null_data
+@end defun
+@c {{{endfold}}}
+
+@c {{{ Verifying Signatures and MACs }}}
+@node Verifying Signatures and MACs, Dual-function Cryptographics, Signing and MACing, Cryptsh
+@section Functions for Verifying Signatures and MACs
+
+@defun C-VerifyInit session_ulong mechanism_list key_ulong
+@end defun
+
+@defun C-Verify session data_string signature_string
+@end defun
+
+@defun C-VerifyUpdate session_ulong part_string
+@end defun
+
+@defun C-VerifyFinal session_ulong signature_string
+@end defun
+
+@defun C-VerifyRecoverInit session_ulong mechanism_list key_ulong
+@end defun
+
+@defun C-VerifyRecover session_ulong signature_string null_data
+@end defun
+@c {{{endfold}}}
+
+@c {{{ Dual-function Cryptographics }}}
+@node Dual-function Cryptographics, Key Management, Verifying Signatures and MACs, Cryptsh
+@section Dual-Function Cryptographics
+
+@defun C-DigestEncryptUpdate session part null_data
+@end defun
+
+@defun C-DecryptDigestUpdate session enc_part null_data
+@end defun
+
+@defun C-SignEncryptUpdate session part null_data
+@end defun
+
+@defun C-DecryptVerifyUpdate session enc_part null_data
+@end defun
+@c {{{endfold}}}
+
+@c {{{ Key Management }}}
+@node Key Management, Random Number Generation, Dual-function Cryptographics, Cryptsh
+@section Key Manamgement Functions
+
+@defun C-GenerateKey session mechanism template
+ generate a new key. @code{session} is the session handle for the
+session to be used, @code{mechanism} a list of values in the order of
+definition as given for the mechanism structure. @code{template} is a
+list of pairs that give default values for attributes of the object to
+be created. 
+
+The function returns a pair of the the value returned by the PKCS#11
+C function and the handle of the key that was created. If the return value
+is not CKR_OK (0) the handle of the key is set to 0.
+@end defun
+
+@defun C-GenerateKeyPair session mechanism public_template private_template
+ generate a new pair of private and public key. @code{session} provides
+the handle of the session that this pair is created in, @code{mechanism} states
+the mechanism to be used. For valid mechanism please check with the
+standard. @code{public_template} and @code{private_template} are lists
+of pairs that give default values for attributes for the public and
+private key respectively.
+
+The function returns a pair of the value returned by the PKCS#11 C
+function and a pair of the public and the private key.
+@end defun
+
+@defun C-WrapKey session mech_list wrapper wrappeenull_data
+@end defun
+
+@defun C-UnwrapKey session mechanism unwrapper wrapped template
+@end defun
+
+@defun C-DeriveKey session mechanism base_key template
+@end defun
+@c {{{endfold}}}
+
+@c {{{ Random Number Generation }}}
+@node Random Number Generation, Parallel functions Management, Key Management, Cryptsh
+@section Random Number Generation Functions
+
+@defun C-SeedRandom session_ulong seed_string
+@end defun
+
+@defun C-GenerateRandom session_ulong len_ulong
+@end defun
+
+@node Parallel functions Management, Helper, Random Number Generation, Cryptsh
+@section Parallel functions Management Functions
+
+@defun C-GetFunctionStatus session
+@end defun
+
+@defun C-CancelFunction session
+@end defun
+@c {{{endfold}}}
+
+@c {{{ Helper }}}
+@node Helper,  , Parallel functions Management, Cryptsh
+@section Helper Functions
+
+These functions aid in handling certificates or require the use of an
+ASN.1 Parser. They call code in the OpenSSL library more or less
+directly.
+
+@defun create-cert-req session key subject file
+ create a new certificate. Function PEM encodes the data and writes it
+to a file. The filename is given as the last parameter.
+@end defun
+
+@c {{{endfold}}}
+
+@c {{{endfold}}}
+
+@c {{{ Planed changes }}}
+@node Planed, Bugs, Cryptsh, Top
+@chapter Planed Changes and Future Features
+
+Design a new object maintenance system. 
+It will consist of one central object list ( a hash table ) and each
+object will contain tags, containing information about the sessions and
+application that is is visible for. Most acces on the objects is done
+via the handles, searches may be expensive, but this will make inserting
+and deleting an object much cheaper and simpler.
+
+use an PKCS#15 complient storage format.
+
+@c {{{endfold}}}
+
+@c {{{ Bugs }}}
+@node Bugs, File List, Planed, Top
+@chapter Problems and bugs.
+
+Bugs? Never! B-)
+
+If you have problems with @code{gpkcs11} or think you've found a bug,
+please report it. Before reporting a bug, make sure you've actually
+found a real bug. Carefully reread the documentation and see if it
+really says you can do what you're trying to do. If it's not clear
+whether you should be able to do something or not, report that too; it's
+a bug in the documentation!
+
+Before reporting a bug or trying to fix it yourself, try to isolate it
+to the smallest possible input file that reproduces the problem. Then
+send us the input file and the exact results @code{gpkcs11} gave you. Also
+say what you expected to occur; this will help us decide whether the
+problem was really in the documentation.
+
+Once you've got a precise problem, send e-mail to:
+
+@example
+Internet: @file{bug-gpkcs11@@gnu.org}.
+@end example
+
+Please include the version number of @code{gpkcs11} you are using. You can get
+this information by printing the variable @code{library_version} (see Variables).
+
+Non-bug suggestions are always welcome as well. If you have questions
+about things that are unclear in the documentation or are just obscure
+features, please report them too.
+
+You may contact the author by:
+
+@example
+Lutz Behnke (behnke@@trustcenter.de)
+TC TrustCenter for Security
+in Data Networks GmbH
+Sonninstrasse 24
+20097 Hamburg, Germany
+
+Tel.:   +49 (0)40 / 80 80 26 -0
+Fax.:   +49 (0)40 / 80 80 26 -1 26
+@end example
+
+@c {{{endfold}}}
+
+@c {{{ File List }}}
+@node File List, , Bugs, Top
+@appendix List of all files
+
+@table @emph
+
+@item 
+PKCS-11 wrapper functions
+
+@item decrypt.c	
+@itemx digest.c	
+@itemx dual.c	
+@itemx encrypt.c	
+@itemx getinfo.c	
+@itemx init.c	
+@itemx key_mng.c	
+@itemx random.c	
+@itemx sessions.c	
+@itemx sign.c	
+@itemx slot.c	
+@itemx verify.c	
+contains the wrapper functions that call the real token implementation
+functions after doing some supporting operations.
+
+@item objects.c	
+contains object system implementation and the API functions for object handling.
+
+@item other_fkts.c	
+API functions that are currently not supported by the library.
+
+@item 
+Internal library functions
+
+@item error.c	
+Errorcodes und -messages, as well as logging
+
+@item hash.c	
+simple hash table
+
+@item mutex.c	
+library supplied mutex functions.
+
+@item internal_def.h
+@itemx internal_slot.h
+Internal header files
+
+@item dll_wrap.h	
+wrapper for calls to dynamic shared objects on multiple
+architectures. Contains calls for WinNT and ELF systems at the moment. 
+
+@item error.h	
+Definition of loggin and error handling functions.
+
+@item hash.h	
+Definition of the hash table
+
+@item init.h	
+Definition of internal functions for loading and intitialising the token
+DSOs
+
+@item internal_def.h	
+internal data structures.
+
+@item internal_slot.h	
+Definition of the internal token functions.
+
+@item mutex.h	
+Definition of the library supplied mutex functions
+
+@item objects.h	
+Definition of the object handling system
+
+@item obj_defaults.h	
+Defaults for new objects
+
+@item cryptoki.h	
+@itemx pkcs11.h	
+@itemx pkcs11f.h	
+@itemx pkcs11t.h	
+public header files provided by RSADSI
+
+@item 
+SSLeay based software token
+
+@item ceay_token.c	
+Implmentation of the tokens.
+
+@item ceay_token.h	
+Definition of token internal funktions
+
+@item 
+Testprogram
+
+@item pkcs11_test.c	
+Testprogramm for pkcs11 libraries
+
+@item 
+Configurations Scripte und Templates
+
+@item Makefile.in	
+Template for Makefile
+
+@item conf.h.in	
+Template for conf.h
+
+@item conf.h.win32	
+replacement conf.h for Windows
+
+@item configure.in	
+Template for configure script.
+
+@item config.guess	
+@itemx config.sub	
+Identification of the used operating system
+
+@item install-sh	
+Script for installation. this is required by configure
+
+@item ConfFile.java	
+Class to create configuration files in the format used by the gpkcs11
+library . This is usually called in gpkcs11_install.js.
+
+@item tc_pkcs11_install.js	
+JavaScript fife to automaticall install gpkcs11 in Netscape using the
+JAR Installation Manager
+
+@end table 
+
+@c {{{endfold}}}
+
+
+@c
+@c Local variables:
+@c folded-file: t
+@c end:
+@c
+
+@bye
+
+
+

@@ -1,0 +1,249 @@
+ -*- indented-text -*-
+
+
+			      GPKCS11
+				   
+What:         pure software implementation of the PKCS11 API as
+              specified by the document of RSA labs. A HTMLified
+              copy is in the docs directory, since there are free
+	      software tools in existence to view HTML, but not
+	      WinWord docs
+
+Version:      2.01 Cryptoki Standard
+              0.6.1 Library
+              0.2.0 Ceay token
+	      
+Status:       late-alpha. A core of the functions have been
+	      implemented, but still need a lot of testing. The
+	      following features are lacking at this time (03/00), but
+	      will be implemented ASAP: 
+
+	      - propper SO/token reset support
+	      - thread save
+	      - multi session/multi app support
+
+	      If you have need for another feature not yet
+	      implemented, give me a holler. Even though I will
+	      probably ask for your cooperation, I might bump it up on
+	      my feature list. But I consider this library only of use
+	      to the hardened crypto developer, therefore will assume
+	      that you are able to help further the development.
+
+	      This code is now usable with the Netscape Communicator!
+	      I found out that it is due to a collision between symbols
+              in the libcrypto and symbols within the Communicator.
+              Therefore this release now does some magic to the OpenSSL
+              code before compiling and linking it to the ceay token.
+
+Runs on:      Solaris 2.5.x (tested on SPARC)
+              Linux 2.x.y, glibc2
+
+	      It compiles on my Windows system, but there has happened
+	      virtually no testing by me of the actual token (I do use
+	      libgpkcs11 a lot). But others have reported regular use
+	      of the library under Windows NT
+
+Requirements: At this time you will need OpenSSL (the crypto
+	      library therein) as the crypto backend. It is availiable
+	      from every good ftp archive or 
+	      
+	      http://www.openssl.org/source/openssl-0.9.4.tar.gz
+
+	      I will probably never distribute the crypto back-end
+	      with the library as this frees me of all the legalities
+	      that we have come to love in this little corner of the
+	      IT community. 
+
+	      In order to compile the Java code in the package you
+	      also need a java compiler installed. Setting up the
+	      proper path has to be done by hand at this time.
+
+	      For completely installing the stuff with the Netscape
+	      Communicator you need the NS object signing package.
+
+
+Docs:         There is virtually none. Use the source Luke. B-) If you
+	      are writing code for a new token the function
+	      definitions in 'internal.h' might give you some
+	      insight. The texinfo documentation is that is in the
+	      docs directory is a skeleton for docs to come.
+
+	      I have cobbled together some information on the internal
+	      interface in the texinfor documentation that you will
+	      find in the doc subdirectory.
+
+Licence:      (c) 1999,2000 TC TrustCenter GmbH. The code to
+	      libgpkcs11 and the ceay-token are released under the
+	      Lesser GNU Public License (LGPL) (this is all code in
+	      the ligpkcs11 and ceay_token subdiretories), the terms
+	      of which are detailed in the file COPYING.LIB, that must
+	      accompany this document.  All other code in this package
+	      is released under the GNU Public License (GPL), the
+	      terms of which are detailed in the file COPYING, that
+	      must accompany this document.  
+     
+
+	      THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR
+	      IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+	      IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+	      PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
+	      THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+	      INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+	      CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+	      PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+	      USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+	      CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+	      CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+	      NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+	      USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
+	      OF SUCH DAMAGE.
+
+	      (deep breath. I dispise writing on the top of my lungs)		 
+
+
+			 Other Stuff included
+			 --------------------
+
+      The package also includes a PKCS-11 shell that enables libraries to
+      be tested from the command line and with automatic testing tools
+      like DejaGNU. You need Guile 1.3 or higher to compile it
+      with. The path to you installation of guile needs to be given
+      when calling './configure'. issue a './configure --help' to
+      display information on how this is done. 
+
+      Two small test programms are supplied as well. They run through
+      a typical session of Netscape Communicator when calling a PKCS-11
+      library. There is also some code and notes for using and
+      installing this library with the Communicator, inlcuding the
+      nessecary ECMA-Script and Java code.
+
+      The library is furthermore implemented in such a way that it should
+      make implementing the support of real chip-/smart-card easier.
+      While this may be done by third parties, my employer is offering
+      this a service to the paying customer.
+
+
+
+			     INSTALLATION
+			     ------------
+
+after unpacking the package and READING THE TOKEN DOCUMENTATION simply type
+
+   ./configure --enable-<name>-token [<further configure options>]
+   make && make install
+
+to create the library set. The files will be installed according to
+the GNU installation guidelines. You can change this behavior by
+setting options when calling configure. See INSTALL for more
+information.
+
+Note however that currently all token require some prior preparation,
+so you should rather read on to avoid problems B-)
+
+		      TOKEN SPECIFIC INFORMATION
+		      --------------------------
+ceay_token:
+-----------
+
+If you are using the software-only token you need to prepare the
+OpenSSL-Library before compiling. This preparation is not nessecary if
+you know that you will use the token with netscape. But it is likely
+that the same symbol clash might apear with other applications this
+generation of a special version of the libcrypto is the default
+behavior. 
+
+After unpacking:
+
+    cd gpkcs11-0.x.y/ceay_token
+    tar xvzf /your/path/to/openssl-0.9.4.tar.gz
+
+    # apply my shared library path
+    patch -p0 <./shared_openssl-0.9.4.diff
+    ln -s openssl-0.9.4 openssl
+
+    # prepare the local symbols to avoid clashes with Netscape Products
+    # you might have the change the perl path
+    perl ./symbol_transform.pl symbol_list.txt openssl-0.9.4 CI_Ceay_
+
+    cd ..
+
+now continue with the above configuration and make step. 
+
+The default PIN for the ceay token is "12345678".
+Login as SO is disabled at the moment.
+
+Warning: the native patch(1) on Solaris chokes on the diff file, since
+it has to have the full count of trailing lines on a context diff. 
+Rather use the GNU replacement, part of the GNU diff utilities.
+
+		 DEVELOPING APPLICATIONS FOR PKCS#11
+		 -----------------------------------
+
+if you are developing new applications you also need to copy the files
+supplied by RSA Labs:
+
+    pkcs11.h
+    pkcs11f.h
+    pkcs11t.h
+
+                           CODING STANDARD
+                           ---------------
+
+If you are submitting source code for the inclusion into the library, I am
+in general very gratefull. But I am outright happy if you stick to some
+basic rules:
+
+ - The code has to be layouted according to the GNU Coding Standard.
+   It is described on http://www.gnu.org/prep/standards_toc.html
+ - The code contains marks for the emacs folding mode (my way of handling
+   source files of more then 6K lines B-}). They look like this:
+
+      /* {{{ <some explanation> */
+       :
+       : <your code here>
+       :
+      /* }}} */
+
+   please ensure that there is an equal number of opening and closing marks
+   as I hate grepping through the code looking for the missing one.
+ - Submit diffs as context diffs with _at least_ 3 lines of context. chances
+   are that my code is not at the same line as you code and I have a really
+   tough time deciding into which line the lonely 'foo++;' belongs.
+ - If you are changing more than one file, please submit the changes as a
+   patch input with the proper file marks in place. If you are using CVS
+   it will even put the in place with the right version and revision 
+   information for me to help understand what you changed.
+ - As far as possible I try to stick to the GNU coding standards. Please try
+   to do so as well.
+
+			       CONTACT
+			       -------
+
+There are three mailing lists in existence that are supposed to help the
+work on the package. All of the may be subscribed to by sending a mail
+to <majordomo@trustcenter.de> with an empty subject line and the following
+message in the body:
+
+  subscribe <ML-NAME>
+
+where <ML-NAME> is one of the lists below:
+
+ gpkcs11-announce    Announcements about new releases or other items for
+                     all interested
+ gpkcs11-dev         discussion about the state of things as far as the actual
+                     package is concerned.
+ gpkcs11-users       discussion for making use of gpkcs11 in applications.
+
+All MLs are of rather low traffic right now, but that will hopefully change.
+
+
+For further questions, delivery of quantities of beer (no english, australian, 
+dutch (except for Palm) or belgium lager please) or patches contact me at
+
+Lutz Behnke
+email: behnke@trustcenter.de
+
+TC TrustCenter for Security
+in Data Networks GmbH                   
+Sonninstrasse 24-28
+20097 Hamburg, Germany

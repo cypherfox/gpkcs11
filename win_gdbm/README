@@ -1,0 +1,38 @@
+# This directory contains the files that are different for the windows
+# gdbm from the UNIX gdbm library. 
+#
+# In order to use the simply copy all files from gdbm-1.8.0 in this directory
+# as long as there is not a file of the same name allready in this directory.
+# 
+# If you are accessing your files from a UNIX based Samba server the best way
+# is to use symlinks on the UNIX box like this: ( you can call this whole
+# file like this: sh README )
+# 
+# ---8<----8<----8<----8<----8<----8<----8<----8<----8<----8<----8<---
+
+NEEDED_FILES="bucket.c close.c dbm.h dbmclose.c dbmdelete.c           \
+dbmdirfno.c dbmfetch.c dbminit.c dbmopen.c dbmpagfno.c dbmrdonly.c    \
+dbmseq.c dbmstore.c delete.c extern.h falloc.c fetch.c findkey.c      \
+gdbmclose.c gdbmconst.h gdbmdefs.h gdbmdelete.c gdbmerrno.c           \
+gdbmerrno.h gdbmexists.c gdbmfdesc.c gdbmfetch.c gdbmopen.c gdbmseq.c \
+gdbmsetopt.c gdbmstore.c gdbmsync.c global.c hash.c ndbm.h proto.h    \
+seq.c store.c  update.c version.c"
+
+for i in $NEEDED_FILES
+ do 
+  file=`basename $i` 
+  if test ! -f ./$file
+   then 
+    ln -s ../gdbm-1.8.0/$i . 
+   fi
+ done
+
+# ---8<----8<----8<----8<----8<----8<----8<----8<----8<----8<----8<---
+# 
+# This way the files will apear as regular on your Windows network
+# drive. While there are some files that are not nessecary to build the
+# library on windows they don't harm either.
+# 
+# The Visual C project files that are included assume that all files are
+# visible in this directory. 
+#

@@ -1,0 +1,13 @@
+[PKCS11-DLL]
+TokenList = CEAY-TOKEN TCSC-TOKEN1
+ExtraLibraryPath = /path/to/additional/libaries/needed/by/other/libs/
+LoggingLevel = 3
+ 
+[CEAY-TOKEN]
+TokenDLL = /path/to/your/libceay_tok.so.0.0.1
+InitSym = ceayToken_init
+PersistentRootDir = /path/to/directory/containing/the/persistant/storage/
+cryptoDll = /path/to/your/libcrypto.so.0.9.4
+ 
+[TCSC-TOKEN1]
+TokenDLL = /path/to/your/libtcsc_tok.so.0.0.1

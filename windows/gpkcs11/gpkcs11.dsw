@@ -1,0 +1,176 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNUNG: DIESE ARBEITSBEREICHSDATEI DARF NICHT BEARBEITET ODER GELÖSCHT WERDEN!
+
+###############################################################################
+
+Project: "ceay_token"=.\ceay_token\ceay_token.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libgpkcs11
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name gdbm
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name openssl
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "gdbm"=.\gdbm\gdbm.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "gpkcs11_test"=.\gpkcs11_test\gpkcs11_test.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name tcsc_token
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "libgpkcs11"=.\libgpkcs11\libgpkcs11.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "openssl"=.\openssl\openssl.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "pkcslstn"=.\pkcslstn\pkcslstn.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name tcsc_token
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "tcsc_token"=.\tcsc_token\tcsc_token.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libgpkcs11
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "test_C_SetPin"=.\test_C_SetPin\test_C_SetPin.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libgpkcs11
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcsc_token
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "test_decrypt"=.\test_decrypt\test_decrypt.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libgpkcs11
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcsc_token
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ceay_token
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "test_sign"=.\test_sign\test_sign.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libgpkcs11
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcsc_token
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+

@@ -1,0 +1,180 @@
+# -*- indented-text -*-
+################################################################
+#                   Change log for GPKCS-11                    #
+################################################################
+
+changes between 0.6.1 and 0.7.2
+
+Mon Aug 14 17:34:26 2000 Sparkal.Sharma <Sparkal.Sharma@nokia.com>
+        * fix lenght of buffer to en/decrypted, remove '/8'
+          (ceay_token/cryptdb.c)
+
+
+changes between 0.6.1 and 0.7.1 (version 0.7.0 does not exist)
+Wed Jun 28 13:50:24 2000 Lutz Behnke <behnke@trustcenter.de>
+        * seperate the ceay_token in multiple files as tracking diffs
+	on 9799 LoC became neigh impossible.
+
+Wed Jun 28 12:34:19 2000 Lutz Behnke <behnke@trustcenter.de>
+        * add some fixes and code for key wrapping provided by
+          Felix Baessler <Felix.Baessler@swisscom.com>
+
+Fri Jun 23 19:35:38 2000 Lutz Behnke <behnke@trustcenter.de>
+        * fix range check in C_GetAttributeValue 
+          (libgpkcs11/objects.c)
+
+changes between 0.6 and 0.6.1
+
+Tue Mar  7 18:27:19 2000 Lutz Behnke <behnke@trustcenter.de>
+        * Fix SIGBUS in reading and writing of objects in
+          ceay_token. The use of htonl requires word aligned
+          data. (ceay_token/cryptdb.c)
+
+        * improve readability of the C_FindObject logging
+          output. (libgpkcs11/objects.c)
+
+changes between 0.5.6 and 0.6
+Tue Feb  1 13:52:46 2000 Lutz Behnke <behnke@trustcenter.de>
+
+	* clean um the win_gdbm directory, only include the needed
+	  files 
+
+Fri Jan 29 23:00:00 2000 Alexander S. Guy <alex@luxlucis.com>
+
+        * Fix number of scheme-to-c variable mapping bugs. Functions
+          where using completely wrong data. (cryptsh/pkcs11_guile.c)
+
+Mon Jan 24 15:51:19 2000 Lutz Behnke <behnke@trustcenter.de>
+
+	* change the Makefiles for the test environment from autoconf
+	  based to autoconf/automake based ones and actually add a
+	  test. (configure.in Makefile.am, tests/Makefile.am, 
+          tests/config/Makefile.am tests/gpkcs11.base/Makefile.am
+          gdbm-1.8.0/Makfile.in)
+
+	* add CKS_RW_PUBLIC_SESSION to the list of states that
+          constitute a RW session in C_SetPIN (libgpkcs11/slot.c)
+
+Wed Jan 19 22:29:51 2000 Piling Chen <piling@nst.com.tw>
+
+	* allow pins in ceay_token to be changes independant of the
+          encryption of the stored objects (ceay_token/ceay_token.c,
+          ceay_token/cryptdb.c, ceay_token/cryptdb.h) 
+
+Wed Jan 19 22:29:51 2000 Lutz Behnke <behnke@trustcenter.de>
+
+	* correct lots of small memory leaks, especiall when
+	  finalizing. (objects.c, slot.c, session.c) 
+        * correct table acces in CI_HashIterateDel (hash.c)
+
+Fri Jan 14 11:03:36 2000 Lutz Behnke <behnke@trustcenter.de>
+
+	* add the conf.h.win32 to the list of distributed files. This
+	  is a hand crafted (crufted?) replacement for conf.h for
+	  win32 (Makefile.am)
+
+Wed Jan 12 23:23:25 2000 Lutz Behnke <behnke@trustcenter.de>
+
+	* add check on slot_info flags for token presence in
+	  C_OpenSession. Thus a token implementation may initialize
+	  all the token structures and a missing token will still be
+	  recognized. (sessions.c)
+
+Mon Jan 10 22:38:42 2000 Lutz Behnke <behnke@trustcenter.de>
+
+        * add code to reset the login state of the token once the last
+	  session has been closed (sessions.c)
+
+Fri Jan  7 10:38:54 2000 Lutz Behnke <behnke@trustcenter.de>
+
+	* fix build on Linux, add config checks for all libs that are
+	  availiable on Linux, but not on Solaris and vice versa
+	  (configure.in, Makefile.in,cryptsh/pkcs11_guile.c) 
+
+Thu Dec 23 18:21:34 1999 Lutz Behnke <behnke@trustcenter.de>
+
+	* prepend the contents of the extra Library Path to the
+	  systems path variable rather then appending it. Otherwise
+	  libraries by the same name as in the package specific folder
+	  may be found first. (init.c:735)
+
+
+changes between 0.5.5 and 0.5.6
+
+Wed Dec  8 18:30:22 1999 Lutz Behnke <behnke@trustcenter.de>
+
+	* change from a application based object listing to a token 
+	  based. This sever design bug never showed because there was
+	  only one token. Changes are in interal.h, objects.c and
+	  sessions.c. Added code to init token in slot.c
+
+Wed Nov 10 21:28:52 1999 Lutz Behnke <behnke@trustcenter.de>
+
+	* hopefully finaly fix all build problems on non-TC
+          machines: add the tests Makefile.in to the EXTR_DIST in
+          ./Makfile.in and recheck the tcpu.config problem.
+	* change the location of all definitions for the internal slot
+          interface. The means that internal_slot.h and internal_def.h
+          are moved into internal.h together with some changes in some
+          other files (other then the obvious change of the
+          preprocessor statements). This allows for some cleanup of
+          the internal interface.
+
+Tue Nov  2 12:00:36 1999 afchine <Afchine.Madjlessi@bull.net>
+
+	* fix a incorrect index in CI_RegisterSlot that should never
+          have worked. The memory for the slot table was never
+          correctly allocated. (slot.c)
+        * fix space allocation and writing of data to database for
+          ceay_token (cryptdb.c)
+	* fix typo on key type in C_GenerateKeyPair (key_mng.c)
+        * Add a complete mechanism suite for DSA to ceay_token.
+          (ceay_token.c)  
+
+changes between 0.5.4 and 0.5.5
+
+Thu Oct 21 16:48:24 1999 Lutz Behnke <behnke@trustcenter.de>
+
+        * move the methods to the slot data and put slot data in 
+          place of token data into the session data. This completes 
+          the dynamic loading of slots rather then tokens and allows 
+          access to the methods without a token present. 
+          (internal_def.h, internal_slot.h, tcsc_token.c, ceay_token.c
+          object.c, object.h, init.c)
+
+Wed Oct  6 11:18:43 1999 Lutz Behnke <behnke@trustcenter.de>
+
+	* fix the Netscape symbol collision problem. 
+
+
+changes between 0.5.3 and 0.5.4
+
+Tue Aug 03 14:18:20 1999 Lutz Behnke <behnke@trustcenter.de>
+
+	* fix more installation issues and add missing files
+
+
+changes between 0.5.2 and 0.5.3
+
+Wed Jun 16 11:17:20 1999 Lutz Behnke <behnke@trustcenter.de>
+
+	* reorder files to clean up top level dir
+	* add create-certificate to cryptsh in pkcs11_guile.c
+
+Tue Jun 15 17:02:14 1999 Régis Gaschy <gaschy@stud.fh-frankfurt.de>
+Tue Jun 15 17:02:14 1999 Greg Robert <robert@stud.fh-frankfurt.de>
+
+	* insert slots and not tokens dynamically in init.h, init.c
+	* enable multisession for ceay token in ceay_token.c
+
+
+changes between 0.5.1 and 0.5.2
+
+Mon Apr 12 18:15:38 1999  Lutz Behnke  <behnke@trustcenter.de>
+
+	* added missing break in ceay_token.c
+	* fixed erreanous hash lengh in cryptodb.c
+	* corrected session flag in session.c:246
+
+
+
