@@ -14,7 +14,7 @@ NEEDED_FILES="bucket.c close.c dbm.h dbmclose.c dbmdelete.c           \
 dbmdirfno.c dbmfetch.c dbminit.c dbmopen.c dbmpagfno.c dbmrdonly.c    \
 dbmseq.c dbmstore.c delete.c extern.h falloc.c fetch.c findkey.c      \
 gdbmclose.c gdbmconst.h gdbmdefs.h gdbmdelete.c gdbmerrno.c           \
-gdbmerrno.h gdbmexists.c gdbmfdesc.c gdbmfetch.c gdbmopen.c gdbmseq.c \
+gdbmerrno.h gdbmexists.c gdbmfdesc.c gdbmfetch.c gdbmseq.c            \
 gdbmsetopt.c gdbmstore.c gdbmsync.c global.c hash.c ndbm.h proto.h    \
 seq.c store.c  update.c version.c"
 

@@ -30,6 +30,9 @@
  * AUTHOR:      lbe
  * BUGS: *      -
  * HISTORY:     $Log$
+ * HISTORY:     Revision 1.1.1.1  2000/10/15 16:49:11  cypherfox
+ * HISTORY:     import of gpkcs11-0.7.2, first version for SourceForge
+ * HISTORY:
  * HISTORY:     Revision 1.3  2000/09/19 09:15:05  lbe
  * HISTORY:     write flag for pin change onto SC, support Auth Pin path
  * HISTORY:
@@ -198,7 +201,7 @@ int main(int argc, char** argv, char** envp)
     /* for each slot with a token */
     for(i=0;i<ulSlotCount;i++)
       {
-	CK_SESSION_HANDLE sign_sess, verify_sess;
+	CK_SESSION_HANDLE sign_sess=0, verify_sess=0;
 	CK_ULONG mech_count;
 	CK_MECHANISM_TYPE_PTR mech_list;
 	CK_ULONG j,k, pub_handle_count,priv_handle_count;
@@ -261,24 +264,25 @@ int main(int argc, char** argv, char** envp)
 	rv = find_rsa_verify(pFunctionList,&verify_slot);
 	if(rv != CKR_OK)
 	  {
-	    printf("FAIL: unable to find token for verify: 0x%lx\n",rv);
-	    continue;
+	    printf("FAIL: unable to find token for verify: 0x%lx. Cannot verify the signature\n",rv);
+	    verify_sess = 0;
 	  }
-
-	if(verify_slot == pSlotList[i])
-	  verify_sess = sign_sess;
-	else
+         else
 	  {
-	    rv = (pFunctionList->C_OpenSession)(verify_slot,
-						CKF_SERIAL_SESSION|CKF_RW_SESSION,
-						NULL,NULL,&verify_sess);
-	    if(rv != CKR_OK)
+	    if (verify_slot == pSlotList[i])
+	      verify_sess = sign_sess;
+	     else
 	      {
-		printf("FAIL: C_OpenSession failed on slot %ld for verify: %ld\n",
-		       pSlotList[i],rv);
-		continue;
+		rv = (pFunctionList->C_OpenSession)(verify_slot,
+						    CKF_SERIAL_SESSION|CKF_RW_SESSION,
+						    NULL,NULL,&verify_sess);
+		if(rv != CKR_OK)
+		  {
+		    printf("FAIL: C_OpenSession failed on slot %ld for verify: %ld\n",
+			   pSlotList[i],rv);
+		    continue;
+		  }		
 	      }
-
 	  }
 
 	for(k=0; k<pub_handle_count; k++)
@@ -286,7 +290,7 @@ int main(int argc, char** argv, char** envp)
 	    CK_ATTRIBUTE theTemplate = {CKA_ID, NULL, 0}; 
 	    CK_CHAR_PTR clear_text1 ="foobar1";
 	    CK_CHAR_PTR clear_text2 ="This is a text that is too long even for a 1k key: The quick brown fox jumps over the lazy dog. 1234567890";
-	    CK_OBJECT_HANDLE new_pub_handle;
+	    CK_OBJECT_HANDLE new_pub_handle=0;
 
 	    /* set the ID of the public key in the private key */
 	    rv = (pFunctionList->C_GetAttributeValue)(sign_sess, pub_handle_arr[k], &theTemplate, 1);
@@ -340,13 +344,15 @@ int main(int argc, char** argv, char** envp)
 
 	    /* copy the public key if needed */
 	    if(sign_sess != verify_sess)
-	      {
-		rv = P11_loadPubRSAKey(pFunctionList, sign_sess,
-				       pFunctionList, verify_sess,
-				       pub_handle_arr[k], &new_pub_handle);
+	      { if ( verify_sess != 0 )
+		  rv = P11_loadPubRSAKey(pFunctionList, sign_sess,
+					 pFunctionList, verify_sess,
+					 pub_handle_arr[k], &new_pub_handle);
+	        else
+		 new_pub_handle = 0;
 	      }
 	    else
-	      new_pub_handle =pub_handle_arr[k];
+	      new_pub_handle = pub_handle_arr[k];
 	    	    
 	    /* sign test vector */
 	    rv = sign_and_verify(sign_sess,verify_sess,clear_text1,
@@ -355,20 +361,28 @@ int main(int argc, char** argv, char** envp)
 	    if(rv != CKR_OK) 
 	      continue;
 
-	    printf("sign and verify succeded for short text session %ld: 0x%08lx\n",
-		   sign_sess,rv);
+	    if ( verify_sess != 0 )
+	      printf("sign and verify succeded for short text session %ld: 0x%08lx\n",
+		     sign_sess,rv);
+	     else
+	      printf("sign succeded for short text session %ld: 0x%08lx\n",
+		     sign_sess,rv);
 
 	    rv = sign_and_verify(sign_sess,verify_sess,clear_text2,
 				 priv_handle_arr[0],new_pub_handle,
 				 argv[1]);
 	    if(rv == CKR_OK) 
 	      {
-		printf("FAIL: over long clear text did not fail");
+		printf("FAIL: over long clear text did not fail\n");
 		continue;
 	      }
 
-	    printf("verify succeded in session %ld: 0x%08lx\n",
-		   sign_sess,rv);
+	    if ( verify_sess != 0 )
+	      printf("sign and verify succeded in session %ld: 0x%08lx\n",
+		     sign_sess,rv);
+	     else
+	      printf("sign succeded in session %ld: 0x%08lx\n",
+		     sign_sess,rv);
 
 
 	} /* for each public key */
@@ -400,6 +414,7 @@ int main(int argc, char** argv, char** envp)
 
   return 0;
 }
+
 /* }}} */
 
 /* {{{ pkcs11_find_object */
@@ -716,6 +731,7 @@ CK_RV find_rsa_verify(CK_FUNCTION_LIST_PTR pFunctionList, CK_SLOT_ID CK_PTR p_sl
 /* }}} */
 
 /* {{{ CK_BBOOL user_loged_in(CK_SESSION_HANDLE sess); */
+
 CK_BBOOL user_loged_in(CK_SESSION_HANDLE sess)
 {
   CK_SESSION_INFO sinfo;
@@ -726,7 +742,7 @@ CK_BBOOL user_loged_in(CK_SESSION_HANDLE sess)
     { 
       printf("FAIL: could not get session info for session %ld: 0x%08lx\n",
 	     sess, rv);
-      return rv;
+      return FALSE;
     }
   
   if((sinfo.state == CKS_RO_USER_FUNCTIONS) ||
@@ -735,7 +751,10 @@ CK_BBOOL user_loged_in(CK_SESSION_HANDLE sess)
   else
     return FALSE;
 }
+
 /* }}} */
+
+/* {{{ CK_RV sign_and_verify(...) */
 
 CK_RV sign_and_verify(CK_SESSION_HANDLE sign_sess, CK_SESSION_HANDLE verify_sess,
 		      CK_CHAR_PTR clear_text,
@@ -795,16 +814,22 @@ CK_RV sign_and_verify(CK_SESSION_HANDLE sign_sess, CK_SESSION_HANDLE verify_sess
 	     sign_sess,rv);
       return rv;
     }
-  
+    
   /* verify test vector */
-  rv = verify_vector(verify_sess, pub_handle,
-		     cipher_text, cipher_len,
-		     clear_text, strlen(clear_text));
+  if ( (verify_sess != 0)&&(pub_handle != 0) )
+    rv = verify_vector(verify_sess, pub_handle,
+		       cipher_text, cipher_len,
+		       clear_text, strlen(clear_text));
+   else
+    { printf("could not verify the signature, since no verify token is available!\n");
+    }
   
   free(cipher_text);
   return rv;
 }
+
 /* }}} */
+
 /*
  * Local variables:
  * folded-file: t

@@ -295,32 +295,6 @@ distdir: $(DISTFILES)
 	    || cp -p $$d/$$file $(distdir)/$$file || :; \
 	  fi; \
 	done
-c_setpin.o: ../../tests/gpkcs11.base/c_setpin.c \
-	../../libgpkcs11/cryptoki.h ../../conf.h \
-	../../libgpkcs11/pkcs11.h ../../libgpkcs11/pkcs11t.h \
-	../../libgpkcs11/pkcs11f.h
-t_session_obj_delete1.o: \
-	../../tests/gpkcs11.base/t_session_obj_delete1.c ../../conf.h \
-	../../libgpkcs11/cryptoki.h ../../libgpkcs11/pkcs11.h \
-	../../libgpkcs11/pkcs11t.h ../../libgpkcs11/pkcs11f.h
-t_session_obj_delete2.o: \
-	../../tests/gpkcs11.base/t_session_obj_delete2.c \
-	../../libgpkcs11/cryptoki.h ../../conf.h \
-	../../libgpkcs11/pkcs11.h ../../libgpkcs11/pkcs11t.h \
-	../../libgpkcs11/pkcs11f.h
-test_decrypt.o: ../../tests/gpkcs11.base/test_decrypt.c \
-	../../libgpkcs11/cryptoki.h ../../conf.h \
-	../../libgpkcs11/pkcs11.h ../../libgpkcs11/pkcs11t.h \
-	../../libgpkcs11/pkcs11f.h
-test_rsa.o: ../../tests/gpkcs11.base/test_rsa.c \
-	../../libgpkcs11/cryptoki.h ../../conf.h \
-	../../libgpkcs11/pkcs11.h ../../libgpkcs11/pkcs11t.h \
-	../../libgpkcs11/pkcs11f.h
-test_sign.o: ../../tests/gpkcs11.base/test_sign.c \
-	../../libgpkcs11/cryptoki.h ../../conf.h \
-	../../libgpkcs11/pkcs11.h ../../libgpkcs11/pkcs11t.h \
-	../../libgpkcs11/pkcs11f.h
-
 info-am:
 info: info-am
 dvi-am:
