@@ -271,7 +271,7 @@ gdbm_open (file, block_size, flags, mode, fatal_func)
       dbf->bucket->bucket_avail[0].av_size = dbf->header->block_size;
 
       /* Set table entries to point to hash buckets. */
-      for (index = 0; index < dbf->header->dir_size / sizeof (off_t); index++)
+      for (index = 0; (unsigned int)index < dbf->header->dir_size / sizeof (off_t); index++)
 	dbf->dir[index] = 2*dbf->header->block_size;
 
       /* Initialize the active avail block. */
@@ -350,7 +350,7 @@ gdbm_open (file, block_size, flags, mode, fatal_func)
       bcopy (&partial_header, dbf->header, sizeof (gdbm_file_header));
       num_bytes = read (dbf->desc, &dbf->header->avail.av_table[1],
 			dbf->header->block_size-sizeof (gdbm_file_header));
-      if (num_bytes != dbf->header->block_size-sizeof (gdbm_file_header))
+      if ((unsigned int)num_bytes != dbf->header->block_size-sizeof (gdbm_file_header))
 	{
 	  gdbm_close (dbf);
 	  gdbm_errno = GDBM_FILE_READ_ERROR;

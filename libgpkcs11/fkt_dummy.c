@@ -47,7 +47,7 @@ const char* Version_fkt_dummy_c(){return RCSID;}
 
 #include "fkt_dummy.h"
 #include "internal.h"
-#include "error.h"
+#include "pkcs11_error.h"
 
 
 /* {{{ FdC_Initialize */

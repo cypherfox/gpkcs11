@@ -40,7 +40,7 @@ const char* Version_error_c(){return RCSID;}
 #endif
 
 #include "internal.h"
-#include "error.h"
+#include "pkcs11_error.h"
 
 #if defined(CK_Win32)
 #include "windows.h"
@@ -556,7 +556,7 @@ CK_DEFINE_FUNCTION(CK_CHAR_PTR, CI_PrintTemplate)(
 
       len += strlen("(  #x12345678)\n ");
       len += strlen(CI_AttributeStr(pTemplate[i].type));
-      /* len += CI_AttribOutFormat(pTemplate[i].type); später! */
+      /* len += CI_AttribOutFormat(pTemplate[i].type); later! */
       len += strlen(tmp); 
       TC_free(tmp);
     }
@@ -629,8 +629,8 @@ CK_DEFINE_FUNCTION(void, CI_LogEntry)(
   if ( CK_I_global_logging_file == NULL_PTR ) 
     CI_EvalLogFileName();
   
-  /* wir testen nicht ob das öffnen des logs fehlgeschlagen ist. 
-   * Wem sollten wir das mitteilen? */
+  /* we don't test for failure of opening the log. 
+   * we should we report this to? */
   log = fopen(CK_I_global_logging_file,"a");
 
 #if defined(DEBUG) && defined(CK_Win32)
@@ -657,6 +657,7 @@ CK_DEFINE_FUNCTION(void, CI_LogEntry)(
   return;
 
 }
+
 /* }}} */
 /* {{{ CI_EvalLogFileName*/
 CK_DEFINE_FUNCTION(void, CI_EvalLogFileName)(
@@ -709,8 +710,8 @@ CK_DEFINE_FUNCTION(void, CI_VarLogEntry)(
   if ( CK_I_global_logging_file == NULL_PTR ) 
     CI_EvalLogFileName();
 
-  /* wir testen nicht ob das öffnen des logs fehlgeschlagen ist. 
-   * Wem sollten wir das mitteilen? */
+  /* we don't test for failure of opening the log.  
+   * we should we report this to? */
   log = fopen(CK_I_global_logging_file,"a");
   if(log == NULL)
 #if defined(CK_GENERIC) 
@@ -755,8 +756,8 @@ CK_DECLARE_FUNCTION(void, CI_CodeFktEntry)(
   if ( CK_I_global_logging_file == NULL_PTR ) 
     CI_EvalLogFileName();
   
-  /* wir testen nicht ob das öffnen des logs fehlgeschlagen ist. 
-   * Wem sollten wir das mitteilen? */
+  /* we don't test for failure of opening the log. 
+   * we should we report this to? */
   log = fopen(CK_I_global_logging_file,"a");
   if(log == NULL)
 #if defined(CK_GENERIC) 
@@ -876,8 +877,8 @@ CK_DECLARE_FUNCTION(void,__TC_free)(
   if ( CK_I_global_mem_logging_file == NULL_PTR ) 
     TC_EvalMemLogFileName();
   
-  /* wir testen nicht ob das öffnen des logs fehlgeschlagen ist. 
-   * Wem sollten wir das mitteilen? */
+  /* we don't test for failure of opening the log.  
+   * we should we report this to? */
 #if defined(CK_GENERIC) 
   log = fopen(CK_I_global_mem_logging_file,"a");
 #elif defined(CK_Win32)
@@ -938,8 +939,8 @@ CK_DECLARE_FUNCTION(void*,__TC_calloc)(
   if ( CK_I_global_mem_logging_file == NULL_PTR ) 
     TC_EvalMemLogFileName();
   
-  /* wir testen nicht ob das öffnen des logs fehlgeschlagen ist. 
-   * Wem sollten wir das mitteilen? */
+  /* we don't test for the opening of the log
+   * we should we report this to? */
 #if defined(CK_GENERIC) 
   log = fopen(CK_I_global_mem_logging_file,"a");
 #elif defined(CK_Win32)
@@ -998,8 +999,8 @@ CK_DECLARE_FUNCTION(void*,__TC_malloc)(
   if ( CK_I_global_mem_logging_file == NULL_PTR ) 
     TC_EvalMemLogFileName();
   
-  /* wir testen nicht ob das öffnen des logs fehlgeschlagen ist. 
-   * Wem sollten wir das mitteilen? */
+  /* we don't test for failure of opening the log.  
+   * we should we report this to? */
 #if defined(CK_GENERIC) 
   log = fopen(CK_I_global_mem_logging_file,"a");
 #elif defined(CK_Win32)

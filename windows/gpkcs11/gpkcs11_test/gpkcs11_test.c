@@ -11,7 +11,7 @@
 static char* object_labels[GT_OBJ_TYPE_NUM] = {
   "data",
   "certificate",
-  "pubclic key",
+	"public key",
   "private key",
   "secret key",
   "hardware feature" 
@@ -66,14 +66,12 @@ CK_RV read_statistic(CK_ULONG session,CK_FUNCTION_LIST_PTR pFunctionList,
       
       do {
 	CK_OBJECT_HANDLE handle_hold;
-	rv = (pFunctionList->C_FindObjects)(session,&handle_hold,
-					    1,&retcount);
+			rv = (pFunctionList->C_FindObjects)(session,&handle_hold,1,&retcount);
 	if(rv != CKR_OK)
 	  {
 	    printf("FindObj failed: 0x%08x",i,rv);
 	    return rv;
 	  }
-
 	count+=retcount;
       } while(retcount == 1);
       
@@ -86,9 +84,7 @@ CK_RV read_statistic(CK_ULONG session,CK_FUNCTION_LIST_PTR pFunctionList,
       
       printf("there are %i %s objects on token %i\n", 
 	     count,object_labels[i], slotId);
-      
     }
-
   return rv;
 }
 /* }}} */
@@ -149,10 +145,9 @@ int main()
 	exit(1);
       }
     
-    for(i=0;i<ulSlotCount;i++)
+		for(i=0;(unsigned long)i<ulSlotCount;i++)
       {
 	CK_SLOT_INFO SlotInfo;
-	CK_TOKEN_INFO TokenInfo;
 	CK_SESSION_HANDLE sess;
 	
 	rv= (pFunctionList->C_GetSlotInfo)(pSlotList[i],&SlotInfo);
@@ -178,12 +173,12 @@ int main()
 	  }
 	else
 	  {
-#if 0
+				#if 0
 	    CK_CHAR outbuf[2048];
 	    CK_ULONG buff_len = 2046;
 
 	    CK_MECHANISM mech = {CKM_RSA_PKCS, NULL_PTR, 0x00000000};
-#endif
+				#endif
 
 	    
 	    /* open a session to test the loading of the objects */
@@ -194,6 +189,15 @@ int main()
 		exit(1);
 	      }
 	    
+				/* To de able to see private objects, user must be authenticated */
+
+				rv = (pFunctionList->C_Login) (sess, CKU_USER, "12345678", 8);
+				if(rv != CKR_OK)
+				{
+					printf("Bad login, rv: %d\n",rv);
+					exit(1);
+				}
+
 	    /* build a little statistic over the objects on the token */
 	    read_statistic(sess,pFunctionList,pSlotList[i]);
 
@@ -209,7 +213,7 @@ int main()
 
   {
     char buf[3]={1};
-    printf("weiter mit return");
+		printf("Press any key to continue...");
     _cgets(buf);
   }
 }

@@ -44,7 +44,7 @@ const char* Version_hash_c(){return RCSID;}
 
 #include "internal.h"
 #include "mutex.h"
-#include "error.h"
+#include "pkcs11_error.h"
 
 /* extremely simple but should suffice */
 #define CI_HASH(_table,_key)  ((_key) % (_table->tab_size)) 
@@ -100,7 +100,9 @@ CK_DEFINE_FUNCTION(CK_RV, CI_DestroyHashtable)(
     }
   
   TC_free(pHashTable->table);
+	pHashTable->table = NULL;
   TC_free(pHashTable);
+	pHashTable = NULL;
 
   return CKR_OK;
 }
@@ -138,7 +140,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_HashPutEntry)(
   else
     {
       tmpBucket= pHashTable->table[index];
-      while(TRUE)
+	  while(tmpBucket)
 	{
 	  if(key == tmpBucket->key) /* same key -> replace value */
 	    {
@@ -180,7 +182,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_HashGetEntry)(
   else
     {
       tmpBucket= pHashTable->table[index];
-      while(TRUE)
+        while(tmpBucket)
 	{
 	  if(key == tmpBucket->key) /* same key -> return value */
 	    {
@@ -273,7 +275,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_HashEntryExists)(
     {
       currBucket = pHashTable->table[index];
 
-      while(TRUE)
+     while(currBucket)
 	{
 	  if(key == currBucket->key) /* same key -> return all ok */
 	    {
@@ -351,10 +353,10 @@ CK_DEFINE_FUNCTION(CK_RV, CI_HashIterateInit)(
 )
 {
   CK_ULONG i;
+  *pIterator = NULL_PTR;
 
   if(pHashTable == NULL_PTR) 
     {
-      *pIterator = NULL_PTR;
       return CKR_GENERAL_ERROR;
     }
 
@@ -375,7 +377,10 @@ CK_DEFINE_FUNCTION(CK_RV, CI_HashIterateInit)(
   if(i < pHashTable->tab_size)
     (*pIterator)->curr_bucket=pHashTable->table[i];
   else
+	{
+		TC_free(*pIterator);
     (*pIterator)=NULL_PTR;
+	}
 
   return CKR_OK;
 }
@@ -492,7 +497,8 @@ CK_DECLARE_FUNCTION(CK_RV, CI_HashIterateDelete)(
  CK_I_HASH_ITERATOR_PTR pIterator
 )
 {
-  free(pIterator);
+ 	TC_free(pIterator);
+
   return CKR_OK;
 }
 /* }}} */

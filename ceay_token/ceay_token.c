@@ -43,7 +43,7 @@ const char* ceay_token_c_version(){return RCSID;}
 #include "ceay_token.h"
 #include "ceay_symbols.h"
 #include "objects.h"
-#include "error.h"
+#include "pkcs11_error.h"  /* Caution, windows has already a error.h, it can cause problems */
 #include "mutex.h"
 #include "init.h"
 #include "ctok_mem.h"
@@ -97,7 +97,7 @@ static CK_OBJECT_CLASS CK_I_secret_key_class = CKO_SECRET_KEY;
 static CK_OBJECT_CLASS CK_I_public_key_class = CKO_PUBLIC_KEY;
 static CK_OBJECT_CLASS CK_I_private_key_class = CKO_PRIVATE_KEY;
 
-/* Schlüsselgrößen */
+/* Key Sizes */
 static CK_BYTE CK_I_eight      =  8;
 static CK_BYTE CK_I_sixteen    = 16;
 static CK_BYTE CK_I_twentyfour = 24; 
@@ -640,6 +640,8 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_InitToken)(
     {
       CI_LogEntry("CI_Ceay_TokenObjDelete","Setting PIN failed", 
 		  rv ,0);
+      CDB_Close(cryptdb);
+	  CDB_Close(cryptdb);
       TC_free(cryptdb);
       return rv;
     }
@@ -962,7 +964,6 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_CloseSession)(
 	CI_LogEntry("CI_Ceay_CloseSession","encrypt state cleared",rv,2);
       else
 	CI_LogEntry("CI_Ceay_CloseSession","encrypt state not cleared",rv,2);
-      
     }
   if(session_data->decrypt_state != NULL_PTR) 
     {
@@ -1214,6 +1215,7 @@ CK_DECLARE_FUNCTION(CK_RV, CI_Ceay_Login)(
     }
 
   /* TODO: this might load public objects more than once */
+  /* Now it has been solved, see CI_Ceay_ReadPrivate code */
   CI_Ceay_ReadPrivate(session_data, cryptdb);
 
   rv = CDB_Close(cryptdb);
@@ -3642,7 +3644,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Verify)(
 	  {
 	    rv = CKR_SIGNATURE_LEN_RANGE;
 	    goto rsa_pkcs1_err;
-	  };
+	  }
 	
 	tmp_buf = CI_ByteStream_new(sign_len);
 	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto rsa_pkcs1_err; }
@@ -3653,11 +3655,11 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Verify)(
 	if(processed == -1)
 	  { rv = CKR_GENERAL_ERROR; goto rsa_pkcs1_err; }
 
-	if(ulDataLen != processed)
+	if(ulDataLen != (unsigned long)processed)
 	  {
 	    rv = CKR_DATA_LEN_RANGE;
 	    goto rsa_pkcs1_err;
-	  };
+	  }
 	
 	if(memcmp(pData,tmp_buf,processed)!= 0)
 	    rv = CKR_SIGNATURE_INVALID;
@@ -3699,7 +3701,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Verify)(
 	if(processed == -1)
 	  { rv = CKR_GENERAL_ERROR; goto rsa_x509_err; }
 
-	if(ulDataLen != processed)
+	if(ulDataLen != (unsigned long) processed)
 	  {
 	    rv = CKR_DATA_LEN_RANGE;
 	    goto rsa_x509_err;
@@ -4808,7 +4810,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_GenerateKey)(
 	    return rv;
 	  }
      
-	/* Setzen der SSL Version im Schlüssel Obj */
+	/* setting the SSL version in the key object */
 	tmp_version = CI_VERSION_new();
 	if(tmp_version == NULL_PTR)
 	  {
@@ -4849,7 +4851,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_GenerateKey)(
 				    CK_I_SSL3_PRE_MASTER_SIZE-2);
 	if(rv != CKR_OK)
 	  {
-	    /* key_obj wird in der Außenfunktion zerstört */
+	    /* key_obj will be destroyed in the outer function */
 	    TC_free(value);
 	    CI_LogEntry("CI_Ceay_GenerateKey", "generating random", rv, 0);
 	    return rv;
@@ -4868,7 +4870,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_GenerateKey)(
 					CK_I_SSL3_PRE_MASTER_SIZE);
 	if(rv != CKR_OK)
 	  {
-	    /* key_obj wird in der Außenfunktion zerstört */
+	    /* key_obj will be destroyed in the outer function */
 	    TC_free(value);
 	    CI_LogEntry("CI_Ceay_GenerateKey", "inserting key value", rv, 0);
 	    return rv;
@@ -4911,7 +4913,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_GenerateKey)(
 	rv = CI_ObjSetIntAttributeValue(key_obj,CK_IA_VALUE,value,sizeof(des_cblock));
 	if(rv != CKR_OK)
 	  {
-	    /* key_obj wird in der Außenfunktion zerstört */
+	    /* key_obj is destroyed in the outer function */
 	    TC_free(value);
 	    return rv;
 	  }
@@ -4981,7 +4983,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_GenerateKey)(
 	rv = CI_ObjSetIntAttributeValue(key_obj,CK_IA_VALUE,value,IDEA_KEY_LENGTH);
 	if(rv != CKR_OK)
 	  {
-	    /* key_obj wird in der Außenfunktion zerstört */
+	    /* key_obj destroyed in the outer function */
 	    TC_free(value);
 	    return rv;
 	  }
@@ -5026,7 +5028,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_GenerateKey)(
 	rv = CI_ObjSetIntAttributeValue(key_obj,CK_IA_VALUE,value,key_len/8);
 	if(rv != CKR_OK)
 	  {
-	    /* key_obj wird in der Außenfunktion zerstört */
+	    /* key_obj destroyed in the outer function */
 	    TC_free(value);
 	    return rv;
 	  }
@@ -5091,14 +5093,14 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_GenerateKey)(
   if(rv != CKR_OK)
     {
       CI_LogEntry("CI_Ceay_GenerateKey", "object merge failed", rv, 2);
-      return rv; /* Zerstört wird in der Außenfunktion */
+      return rv; /* destroyed in the outer function */
     }
 
   rv= CI_ObjVerifyObj(default_obj);
   if(rv != CKR_OK)
     {
       CI_LogEntry("CI_Ceay_GenerateKey", "object verify failed", rv, 2);
-      return rv; /* Zerstört wird in der Außenfunktion */
+      return rv; /* destroyed in the outer function */
     }
 
   CI_LogEntry("CI_Ceay_GenerateKey", "...complete", rv, 2);
@@ -5186,22 +5188,23 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_GenerateKeyPair)(
 	rv = CI_ObjTemplateInit(&CK_I_rsa_empty_public_key_obj,
 				CK_I_rsa_empty_public_key,
 				CK_I_rsa_empty_public_key_count);
+	
+	CI_LogEntry("CI_CL_GenerateKeyPair", "creating public key template", rv, 0);
+	
 	if(rv != CKR_OK)
-	  {
-	    CI_LogEntry("CI_Ceay_GenerateKeyPair", 
-			"creating public key template", rv, 0);
 	    return rv;
-	  }
+	
 	default_public_obj = CK_I_rsa_empty_public_key_obj;
 
 	/* parse the private empty_key */
 	rv = CI_ObjTemplateInit(&CK_I_rsa_empty_private_key_obj,
 				CK_I_rsa_empty_private_key,
 				CK_I_rsa_empty_private_key_count);
+	
+	CI_LogEntry("CI_CL_GenerateKeyPair", "creating private key template", rv, 0);
+	
 	if(rv != CKR_OK)
 	  {
-	    CI_LogEntry("CI_Ceay_GenerateKeyPair", 
-			"creating private key template", rv, 0);
 	    return rv;
 	  }
 	default_private_obj = CK_I_rsa_empty_private_key_obj;
@@ -5211,7 +5214,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_GenerateKeyPair)(
 	  {
 	    rv = CKR_TEMPLATE_INCOMPLETE;
 	    CI_LogEntry("CI_Ceay_GenerateKeyPair", "no key len specified", rv, 0);
-	    return rv; /* no key len specified. Keine Hände - keine Kekse! */
+	    return rv; /* no key len specified. */
 	  }
 	key_len = *((CK_ULONG_PTR)CI_ObjLookup(public_key_obj,
 					       CK_IA_MODULUS_BITS)->pValue);
@@ -5229,7 +5232,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_GenerateKeyPair)(
       
 	/* get the public exponent */
 	if(CI_ObjLookup(public_key_obj,CK_IA_PUBLIC_EXPONENT) == NULL_PTR)
-	  /* no public exponent specified. Keine Hände - keine Kekse! */
+	  /* no public exponent specified.  */
 	  {
 	    rv = CKR_TEMPLATE_INCOMPLETE; 
 	    CI_LogEntry("CI_Ceay_GenerateKeyPair", 
@@ -5367,15 +5370,36 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_GenerateKeyPair)(
 	/* template must not specify an inconsistent key type */
 	/* The type of the key MUST be specified.
 	 */
-	if((CI_ObjLookup(public_key_obj, CK_IA_KEY_TYPE) == NULL_PTR) || 
-	   (*((CK_KEY_TYPE CK_PTR)
-	      CI_ObjLookup(public_key_obj, CK_IA_KEY_TYPE)->pValue) 
-	    != CKK_DSA) ||
-	   (CI_ObjLookup(private_key_obj, CK_IA_KEY_TYPE) == NULL_PTR) || 
-	   (*((CK_KEY_TYPE CK_PTR)
-	      CI_ObjLookup(private_key_obj, CK_IA_KEY_TYPE)->pValue) 
-	    != CKK_DSA))
-	  return CKR_TEMPLATE_INCONSISTENT;
+	
+	if((CI_ObjLookup(public_key_obj, CK_IA_KEY_TYPE) == NULL_PTR))
+	  {
+	    CK_KEY_TYPE val = CKK_DSA;
+	    
+	    CI_LogEntry("CI_CL_GenerateKeyPair", "warning: public key type not defined (netscape specific)",  CKR_TEMPLATE_INCONSISTENT, 0);
+				/* I would not allow this behavior, but netscape does not set a key type, so I have to live with it */
+	    CI_ObjSetIntAttributeValue(public_key_obj,CK_IA_KEY_TYPE, &val,sizeof(CK_KEY_TYPE));
+	  }
+	if((*((CK_KEY_TYPE CK_PTR) CI_ObjLookup(public_key_obj, CK_IA_KEY_TYPE)->pValue) != CKK_DSA))
+	  {
+	    rv = CKR_TEMPLATE_INCONSISTENT;
+	    CI_VarLogEntry("CI_CL_GenerateKeyPair", "public key template inconsistent: %lu", rv, 0, *((CK_KEY_TYPE CK_PTR) CI_ObjLookup(public_key_obj, CK_IA_KEY_TYPE)->pValue));
+	    return rv;
+	  }
+	
+	if((CI_ObjLookup(private_key_obj, CK_IA_KEY_TYPE) == NULL_PTR))
+	  {
+	    CK_KEY_TYPE val = CKK_DSA;
+	    
+	    CI_LogEntry("CI_CL_GenerateKeyPair", "warning: private key type not defined (netscape specific)", CKR_TEMPLATE_INCONSISTENT, 0);
+				/* I would not allow this behavior, but netscape does not set a key type, so I have to live with it */
+	    CI_ObjSetIntAttributeValue(private_key_obj,CK_IA_KEY_TYPE, &val,sizeof(CK_KEY_TYPE));
+	  }
+	if((*((CK_KEY_TYPE CK_PTR) CI_ObjLookup(private_key_obj, CK_IA_KEY_TYPE)->pValue) != CKK_DSA))
+	  {
+	    rv = CKR_TEMPLATE_INCONSISTENT;
+	    CI_VarLogEntry("CI_CL_GenerateKeyPair", "private key template inconsistent: %lu", rv, 0, *((CK_KEY_TYPE CK_PTR) CI_ObjLookup(public_key_obj, CK_IA_KEY_TYPE)->pValue));
+	    return rv;
+			}
 	
 	/* parse the public empty_key */
 	rv = CI_ObjTemplateInit(&CK_I_dsa_empty_public_key_obj,
@@ -5401,7 +5425,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_GenerateKeyPair)(
 	  }
 	default_private_obj = CK_I_dsa_empty_private_key_obj;
 	
-	/* kopieren der template Einträge in das interne object */
+	/* copy the template entries into the internal object */
 	
 	rv = CI_Ceay_ObjEntry2BN(CI_ObjLookup(public_key_obj,CK_IA_PRIME),&(common_key->p));
 	if(rv != CKR_OK) return rv;
@@ -5410,11 +5434,11 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_GenerateKeyPair)(
 	rv = CI_Ceay_ObjEntry2BN(CI_ObjLookup(public_key_obj,CK_IA_BASE),&(common_key->g));
 	if(rv != CKR_OK) return rv;
 	
-	/* die eigentliche Schlüsselerzeugung */
+	/* the actual key generation */
 	rv = DSA_generate_key(common_key);
 	if(rv == 0) return CKR_GENERAL_ERROR;
 
-	/* kopieren des schlüssels in die objecte */
+	/* copying the key into the objects */
  	/* y (public key) */
 	if((rv = CI_Ceay_BN2ObjEntry(CKA_VALUE,common_key->pub_key,
 				     NULL_PTR, public_key_obj)) 
@@ -5797,7 +5821,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DeriveKey)(
 	CK_BYTE CK_PTR p = NULL_PTR;   /* master Secret */
         int i=0;
 
-	/* Wenn sich die Länge des Schlüssels ändert brauchen wir mehr Salz */
+	/* if the size of the key changes, we need more salt. */
 	
 	CI_LogEntry("CI_Ceay_DeriveKey", "CKM_SSL3_MASTER_KEY_DERIVE starting...", rv, 2);
 
@@ -5961,7 +5985,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DeriveKey)(
 	  }
 	CI_LogEntry("CI_Ceay_DeriveKey", "got here3", rv ,2);
 	
-	/* Elemente in Schlüssel eintragen */
+	/* insert elemtents into key */
 	CI_VarLogEntry("CI_Ceay_DeriveKey", "Master Key: %s (key len: %i)",
 		       rv,2,
 		       tmp_str = CI_PrintableByteStream(out,key_len),
@@ -6189,7 +6213,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DeriveKey)(
 		CI_ERR(CI_Ceay_DigestUpdate(session_data, param->RandomInfo.pServerRandom, 
 					    param->RandomInfo.ulServerRandomLen));
 		
-		/* nur für buf_len */
+		/* only for buf_len */
 		CI_ERR(CI_Ceay_DigestFinal(session_data, NULL_PTR, &buf_len)); 
 		CI_ERR(CI_Ceay_DigestFinal(session_data, 
 					   param->pReturnedKeyMaterial->pIVClient, 
@@ -6203,7 +6227,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DeriveKey)(
 		CI_ERR(CI_Ceay_DigestUpdate(session_data,
 					    param->RandomInfo.pServerRandom,
 					    param->RandomInfo.ulServerRandomLen));
-		CI_ERR(CI_Ceay_DigestFinal(session_data, NULL_PTR, &buf_len)); /* nur für buf_len */
+		CI_ERR(CI_Ceay_DigestFinal(session_data, NULL_PTR, &buf_len)); /* only for buf_len */
 		CI_ERR(CI_Ceay_DigestFinal(session_data, 
 					   param->pReturnedKeyMaterial->pIVServer, 
 					   &buf_len));
@@ -6216,7 +6240,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DeriveKey)(
 	  }
 	
 	
-	/* müssen wir die Daten noch für export Verbindungen nachbearbeiten? */
+	/* does the data have to be post-processed for export? */
 	if( param->bIsExport == TRUE )
 	  {
 	    CI_LogEntry("CI_Ceay_DeriveKey","doing exportable Encryption",rv,2);
@@ -6256,7 +6280,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DeriveKey)(
 	    
 	    CI_VarLogEntry("CI_Ceay_DeriveKey","final client Key: %s",rv,2,
 			   tmp_str = CI_PrintableByteStream(buf,buf_len));
-	    /* gleich wieder aufräumen! */
+	    /* clean up immediately! */
 	    TC_free(buf); buf = NULL_PTR;
 	    TC_free(tmp_str);
 	    
@@ -6297,7 +6321,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DeriveKey)(
 	    
 	    CI_VarLogEntry("CI_Ceay_DeriveKey","final server Key: %s",rv,2,
 			   tmp_str = CI_PrintableByteStream(buf,buf_len));
-	    /* gleich wieder aufräumen! */
+	    /* clean up immediately! */
 	    TC_free(buf); buf = NULL_PTR;
 	    TC_free(tmp_str);
 	  }
@@ -6497,7 +6521,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_ReadPersistent)(
   CK_RV rv = CKR_OK;
   CK_OBJECT_HANDLE handle;
   CK_I_OBJ_PTR curr_obj = NULL_PTR;
-  CK_CHAR_PTR db_file;
+    CK_CHAR_PTR db_file = NULL;
   CK_ULONG obj_count =1; 
 
   CK_I_CRYPT_DB_PTR cryptdb;
@@ -7062,7 +7086,7 @@ CK_TOKEN_INFO Ceay_token_info = {
 				    * TODO: sollten wir hier der Software S/N's per build geben? 
 				    * datum? epoch? 
 				    */
-CKF_RNG|CKF_USER_PIN_INITIALIZED|CKF_DUAL_CRYPTO_OPERATIONS, /* flags */
+CKF_RNG|CKF_USER_PIN_INITIALIZED|CKF_DUAL_CRYPTO_OPERATIONS|CKF_LOGIN_REQUIRED, /* flags, added CKF_LOGIN_REQUIRED */
 CK_I_MAX_SESSION_COUNT,            /* ulMaxSessionCount */
 0,                                 /* ulSessionCount */
 CK_I_MAX_RW_SESSION_COUNT,         /* ulMaxRwSessionCount */
@@ -7140,9 +7164,9 @@ CK_DEFINE_FUNCTION(CK_RV, ceayToken_init)(
 
 /* {{{ CI_Ceay_Obj2RSA */
 /** Erzeugen einer internen struktur aus einem Template.
- * @return ceay interne RSA Schlüssel Struktur; NULL_PTR bei auftreten 
+ * @return ceay internal RSA key structure; NULL_PTR bei auftreten 
  *         eines Fehlers
- * @param  key_obj Schlüssel der in die Struktur gewandelt werden soll.
+ * @param  key_obj key that should be turned into a structure.
  */
 CK_DEFINE_FUNCTION(RSA_PTR, CI_Ceay_Obj2RSA)(
  CK_I_OBJ_PTR key_obj
@@ -7488,14 +7512,14 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DigestTransform)(
   CK_BYTE CK_PTR buf = NULL_PTR;
   CK_BYTE CK_PTR curr_out = NULL_PTR; /* moving pointer for current piece of buffer */
   
-  /* Wenn sich die Länge des Schlüssels ändert brauchen wir mehr Salz */
+  /* if the lenght of the key changes, we need more salt */
 
   CI_LogEntry("CI_Ceay_DigestTransform", "starting...", rv, 2);
 
   /* 
    * Achtung: dieser Code geht schief ( erzeugt einen Fehler im MD5
-   * FinalDigest ) wenn die Länge des Schlüssels nicht ein vielfaches
-   * der MD5 Digestgröße (128 Bit) ist.
+   * FinalDigest ) if the length of the key ist not an multiple of
+   * the MD5 Digestsize (128 Bit).
    */
   rest_out_len = CK_I_SSL3_KEY_BLOCK_SIZE; 
   curr_out = pDigest;
@@ -7669,7 +7693,7 @@ CK_DEFINE_FUNCTION(void, CI_Ceay_RSA_Callback)(
   void* session_ptr /* pointer to the session_data. */
 )
 {
-  /* als variable um ein ändern beim debug zu ermöglichen */
+  /* as an variable to make changes possible when debugging */
   static int CK_I_CEAY_min_callback_level =0;
 
   static CK_CHAR_PTR type_txts[] = { "prime suspected",

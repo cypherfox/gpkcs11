@@ -40,7 +40,7 @@ const char* Version_key_mng_c(){return RCSID;}
 
 #include "internal.h"
 #include "objects.h"
-#include "error.h"
+#include "pkcs11_error.h"
 
 #include <stdlib.h>
 #include <assert.h>
@@ -90,10 +90,16 @@ CK_DEFINE_FUNCTION(CK_RV, C_GenerateKey)(
       return rv;
     }
 
-  CI_ObjCreateObj(&new_key);
+  if(CKR_OK != (rv = CI_ObjCreateObj(&new_key)))
+		return rv;
 
   /* parse the template */
-  CI_ObjReadTemplate(new_key, pTemplate, ulCount);
+	if(CKR_OK != (rv = CI_ObjReadTemplate(new_key, pTemplate, ulCount)))
+	{
+		CI_ObjDestroyObj(new_key);
+		return rv;
+	}  
+
   
   /* template must not specify an inconsistent class  */
   if( (CI_ObjLookup(new_key,CK_IA_CLASS) != NULL_PTR) && 
@@ -185,12 +191,26 @@ CK_DEFINE_FUNCTION(CK_RV, C_GenerateKeyPair)(
     }
   assert(session_data->session_handle == hSession);
 
-  CI_ObjCreateObj(&new_private_key);
-  CI_ObjCreateObj(&new_public_key);
+	if(CKR_OK != (rv = CI_ObjCreateObj(&new_private_key)))
+		return rv;
+	if(CKR_OK != (rv = CI_ObjCreateObj(&new_public_key)))
+	{
+		CI_ObjDestroyObj(new_private_key);
+		return rv;
+	}
   /* parse the template */
-  CI_ObjReadTemplate(new_private_key, pPrivateKeyTemplate, ulPrivateKeyAttributeCount);
-  CI_ObjReadTemplate(new_public_key, pPublicKeyTemplate, ulPublicKeyAttributeCount);
-
+	if(CKR_OK != (rv = CI_ObjReadTemplate(new_private_key, pPrivateKeyTemplate, ulPrivateKeyAttributeCount)))
+	{
+		CI_ObjDestroyObj(new_private_key);
+		CI_ObjDestroyObj(new_public_key);
+		return rv;
+	}
+	if(CKR_OK != (rv = CI_ObjReadTemplate(new_public_key, pPublicKeyTemplate, ulPublicKeyAttributeCount)))
+	{
+		CI_ObjDestroyObj(new_private_key);
+		CI_ObjDestroyObj(new_public_key);
+		return rv;
+	}
   
   /* templates must not specify an inconsistent class  */
   if( ( (CI_ObjLookup(new_private_key,CK_IA_CLASS) != NULL_PTR) && 
@@ -425,7 +445,8 @@ CK_DEFINE_FUNCTION(CK_RV, C_UnwrapKey)
     }
 
   /* check that key supports unwrapping */
-  if(*((CK_BBOOL CK_PTR)CI_ObjLookup(wrapper,CK_IA_UNWRAP)->pValue) != TRUE)
+   if(CI_ObjLookup(wrapper,CK_IA_UNWRAP) != NULL_PTR && *((CK_BBOOL CK_PTR)CI_ObjLookup(wrapper,CK_IA_UNWRAP)->pValue) != TRUE) 
+
     {
       rv = CKR_KEY_TYPE_INCONSISTENT;
       CI_LogEntry("C_UnwrapKey", "check unwrappping capability", rv, 1);
@@ -440,7 +461,7 @@ CK_DEFINE_FUNCTION(CK_RV, C_UnwrapKey)
       return rv;
     }
 
-  CI_ObjReadTemplate(key_obj,pTemplate, ulAttributeCount);
+  rv = CI_ObjReadTemplate(key_obj,pTemplate, ulAttributeCount);
   if(rv != CKR_OK)
     {
       CI_ObjDestroyObj(key_obj);

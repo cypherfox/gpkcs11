@@ -41,6 +41,7 @@ const char* Version_test_sign_c(){return RCSID;}
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <conio.h>
 
 CK_RV pkcs11_find_object(CK_SESSION_HANDLE sess, 
 			 CK_ATTRIBUTE_PTR template, CK_ULONG count,  
@@ -180,7 +181,7 @@ int main(int argc, char** argv, char** envp)
       }
     
     /* for each slot with a token */
-    for(i=0;i<ulSlotCount;i++)
+		for(i=0;(unsigned long)i<ulSlotCount;i++)
       {
 	CK_SESSION_HANDLE sign_sess=0, verify_sess=0;
 	CK_ULONG mech_count;
@@ -231,6 +232,14 @@ int main(int argc, char** argv, char** envp)
 	    continue;
 	  }
 	
+			// To be able to retrieve private objects from the token, the user must be authenticated */
+			rv = (pFunctionList->C_Login) (sign_sess, CKU_USER, argv[1], 8);
+			if(rv != CKR_OK)
+			{
+				printf("Bad login, rv: %d",rv);
+				exit(1);
+			}
+			
 	/* find the public keys */
 	rv = pkcs11_find_object(sign_sess, 
 				CK_I_rsa_public_key_template, CK_I_rsa_public_key_count ,
@@ -301,8 +310,7 @@ int main(int argc, char** argv, char** envp)
 			       theTemplate.pValue, theTemplate.ulValueLen);
 	    if(rv != CKR_OK)
 	      {
-		printf("FAIL: unable to set id in templatee for private key: 0x%lx\n",
-		       rv);
+					printf("FAIL: unable to set id in templatee for private key: 0x%lx\n",rv);
 		continue;
 	      }
 
@@ -377,21 +385,19 @@ int main(int argc, char** argv, char** envp)
 	  }
 
 	printf("slot %ld done\n", pSlotList[i]);
-
-
       }
     free(pSlotList);
   }
   
   (pFunctionList->C_Finalize)(NULL);
 
-#ifdef CK_Win32
+	#ifdef CK_Win32
   {
     char buf[3]={1};
-    printf("weiter mit return");
+		printf("\nPress any key to continue...");
     _cgets(buf);
   }
-#endif
+	#endif
 
   return 0;
 }
@@ -441,8 +447,7 @@ CK_RV pkcs11_find_object(CK_SESSION_HANDLE sess,
   if(rv != CKR_OK)
     return rv;
   
-  for(handle_count=0,find_count=HANDLE_FIELD_SIZE;
-      find_count==HANDLE_FIELD_SIZE;)
+	for(handle_count=0,find_count=HANDLE_FIELD_SIZE;find_count==HANDLE_FIELD_SIZE;)
     {
       rv = (pFunctionList->C_FindObjects)(sess,
 					  handle_field,
@@ -531,7 +536,7 @@ CK_RV P11_loadPubRSAKey(CK_FUNCTION_LIST_PTR pFunctionListA, CK_SESSION_HANDLE s
 			CK_OBJECT_HANDLE object, CK_OBJECT_HANDLE CK_PTR pNewObject)
 {
   /* list of attributes that will be copied */
-#define attr_list_len 19
+	#define attr_list_len 19
 
   static CK_ATTRIBUTE_TYPE attr_list[attr_list_len] = {
     CKA_CLASS,      CKA_TOKEN,        CKA_PRIVATE,        CKA_LABEL, 
@@ -623,7 +628,7 @@ static void free_template(CK_ATTRIBUTE_PTR obj_template, CK_ULONG length)
 CK_RV verify_vector(CK_SESSION_HANDLE sess, CK_OBJECT_HANDLE pub_key,
 		    CK_CHAR_PTR cipher_text, CK_ULONG cipher_len,
 		    CK_CHAR_PTR clear_text, CK_ULONG clear_len)
- {
+{
    CK_MECHANISM mechanism = { CKM_RSA_PKCS ,NULL_PTR, 0};
    CK_RV rv = CKR_OK;
 
@@ -645,9 +650,8 @@ CK_RV verify_vector(CK_SESSION_HANDLE sess, CK_OBJECT_HANDLE pub_key,
 	      sess,rv);
        return rv;
      }
-
    return rv;
- }
+}
 /* }}} */
 
 /* {{{ find_rsa_verify */
@@ -748,6 +752,7 @@ CK_RV sign_and_verify(CK_SESSION_HANDLE sign_sess, CK_SESSION_HANDLE verify_sess
   CK_MECHANISM mechanism = { CKM_RSA_PKCS ,NULL_PTR, 0};
   
   /* log in before using the private key */
+	/* Already done!!
   rv = (pFunctionList->C_Login)(sign_sess,
 				CKU_USER,
 				user_pin,strlen(user_pin));
@@ -757,7 +762,7 @@ CK_RV sign_and_verify(CK_SESSION_HANDLE sign_sess, CK_SESSION_HANDLE verify_sess
 	     sign_sess,rv);
       return rv;
     }
-  
+	*/
   rv = (pFunctionList->C_SignInit)(sign_sess,
 				   &mechanism,
 				   priv_handle);

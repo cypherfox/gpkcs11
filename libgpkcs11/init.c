@@ -64,7 +64,7 @@ const char* Version_init_c(){return RCSID;}
 #include <assert.h>
 
 #include "mutex.h"
-#include "error.h"
+#include "pkcs11_error.h"
 #include "utils.h"
 #include "init.h"
 #include "objects.h"
@@ -395,7 +395,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_FindConfFile)(
 	
 	if(retlen > MAX_PATH)
 	  {
-	    /* realloc würde u.U. den Block erst moven */
+	    /* realloc would move the block first */
 	    TC_free(system_dir); 
 	    system_dir = TC_malloc(sizeof(CK_CHAR) * retlen);
 	    if( system_dir == NULL_PTR )
@@ -566,13 +566,15 @@ CK_DEFINE_FUNCTION(CK_RV, CI_FindConfFile)(
     if(rv == CKR_OK)
       {
 	CI_SetLoggingFile(buf);
-	free(buf);
+	TC_free(buf);
+
       }
     else
       {
 	/* if there is not special logging-file we can skip this step */
 	/* and use the default                                        */
       }
+		rv = CKR_OK;
   } 
   
   /*******************************************************************
@@ -588,7 +590,9 @@ CK_DEFINE_FUNCTION(CK_RV, CI_FindConfFile)(
   
     level = strtoul(buf,NULL,10);
     CI_SetLogingLevel(level);
-    free(buf);
+	TC_free(buf);
+	rv = CKR_OK;
+
   }  
  
   /*******************************************************************
@@ -602,7 +606,8 @@ CK_DEFINE_FUNCTION(CK_RV, CI_FindConfFile)(
     if(rv == CKR_OK)
       {
 	TC_SetMemLoggingFile(buf);
-	free(buf);
+	TC_free(buf);
+
       }
     else
      {
@@ -1085,6 +1090,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_GetConfigString)(
 {
   CK_CHAR buff[512];
   CK_RV rv = CKR_OK;
+  int len;
 
   pSectionName=((pSectionName!=NULL_PTR)?pSectionName:(CK_CHAR_PTR)"PKCS11-DLL");
 
@@ -1113,7 +1119,9 @@ CK_DEFINE_FUNCTION(CK_RV, CI_GetConfigString)(
       return CKR_GENERAL_ERROR;
     }
 
-  *ppValue = TC_malloc(strlen(buff)+1);
+len= strlen(buff)+1;
+
+  *ppValue = TC_malloc(len);
   if(*ppValue== NULL_PTR) return CKR_HOST_MEMORY;
 
   strcpy(*ppValue, buff);

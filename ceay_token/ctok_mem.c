@@ -41,7 +41,7 @@ const char* ctok_mem_c_version(){return RCSID;}
 #include "ceay_token.h"
 #include "objects.h"
 #include "ctok_mem.h"
-#include "error.h"
+#include "pkcs11_error.h"
 #include "ceay_symbols.h"
 
 #include <stdlib.h>

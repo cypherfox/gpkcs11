@@ -74,17 +74,13 @@ CPP = @CPP@
 DLLTOOL = @DLLTOOL@
 DLOPEN = @DLOPEN@
 DLPREOPEN = @DLPREOPEN@
-EXTRA_CRYPTSH_OBJECTS = @EXTRA_CRYPTSH_OBJECTS@
-EXTRA_CRYPTSH_SOURCES = @EXTRA_CRYPTSH_SOURCES@
 GUILE_BASE = @GUILE_BASE@
 GUILE_LIBS = @GUILE_LIBS@
 JAVAC = @JAVAC@
-LD = @LD@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
 MAKEINFO = @MAKEINFO@
-NM = @NM@
 OBJDUMP = @OBJDUMP@
 OPENSSL_INCLUDES = @OPENSSL_INCLUDES@
 PACKAGE = @PACKAGE@
@@ -101,7 +97,7 @@ VERSION = @VERSION@
 
 lib_LTLIBRARIES = libgpkcs11.la libplogger.la libdummy.la # libcrypto_dummy.la
 
-noinst_HEADERS = dll_wrap.h error.h hash.h init.h                  internal.h mutex.h obj_defaults.h                  objects.h pkcs11_logger.h                  slot.h utils.h fkt_dummy.h thread.h
+noinst_HEADERS = dll_wrap.h pkcs11_error.h hash.h init.h                  internal.h mutex.h obj_defaults.h                  objects.h pkcs11_logger.h                  slot.h utils.h fkt_dummy.h thread.h
 
 
 include_HEADERS = cryptoki.h pkcs11f.h pkcs11t.h pkcs11.h 

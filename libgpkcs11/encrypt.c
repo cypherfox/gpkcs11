@@ -30,6 +30,9 @@
  * AUTHOR:      lbe
  * BUGS: *      -
  * HISTORY:     $Log$
+ * HISTORY:     Revision 1.1.1.1  2000/10/15 16:48:01  cypherfox
+ * HISTORY:     import of gpkcs11-0.7.2, first version for SourceForge
+ * HISTORY:
  * HISTORY:     Revision 1.4  2000/01/31 18:09:02  lbe
  * HISTORY:     lockdown prior to win_gdbm change
  * HISTORY:
@@ -73,7 +76,7 @@ const char* Version_encrypt_c(){return RCSID;}
 #endif
 
 #include "internal.h"
-#include "error.h"
+#include "pkcs11_error.h"
 #include "objects.h"
 
 /* {{{ C_EncryptInit */

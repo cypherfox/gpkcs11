@@ -54,6 +54,9 @@
 /* Define if you have the <unistd.h> header file.  */
 #undef HAVE_UNISTD_H
 
+/* Define if you have the crypto library (-lcrypto).  */
+#undef HAVE_LIBCRYPTO
+
 /* Define if you have the curses library (-lcurses).  */
 #undef HAVE_LIBCURSES
 
@@ -87,15 +90,6 @@
 /* Version number of package */
 #undef VERSION
 
-/* activate and set level of debugging */
-#undef DEBUG
-
-/* turn of system assertions */
-#undef NDEBUG
-
-/* activate and set level of debugging */
-#undef USE_ASSERT
-
 /* major version number of cryptoki that this implements */
 #undef CRYPTOKI_VERSION_MAJOR
 
@@ -119,7 +113,4 @@
 
 /* Threads are activated, C_WaitForSlotEvent will work. */
 #undef HAVE_THREADING
-
-/* use an pkcs-11 extension in the OpenSSL lib */
-#undef HAVE_SC_OPENSSL
 

@@ -48,7 +48,7 @@ const char* Version_sessions_c(){return RCSID;}
 
 #include "internal.h"
 #include "objects.h"
-#include "error.h"
+#include "pkcs11_error.h"
 #include "mutex.h"
 #include "slot.h"
 

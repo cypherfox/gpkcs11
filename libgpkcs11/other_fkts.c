@@ -39,7 +39,7 @@ const char* Version_other_fkts_c(){return RCSID;}
 #endif
 
 #include "internal.h"
-#include "error.h"
+#include "pkcs11_error.h"
 
 /* Object management */
 /* C_GetObjectSize gets the size of an object in bytes. */

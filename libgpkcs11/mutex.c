@@ -40,7 +40,7 @@ const char* Version_mutex_c(){return RCSID;}
 #endif
 
 #include "internal.h"
-#include "error.h"
+#include "pkcs11_error.h"
 #include "mutex.h"
 
 /* TODO: the mutexes are not working at all at the moment! Fix Me */
@@ -301,7 +301,7 @@ CK_DEFINE_FUNCTION(CK_RV, I_UnlockMutex)(
 }
 
 #else /* ! Win32 */
-#error für diese Architectur sind keine Mutexes implementiert!
+#error for this architecture there are no mutexes implemented!
 #endif
 
 CK_DEFINE_FUNCTION(CK_RV, CI_CreateMutex)(

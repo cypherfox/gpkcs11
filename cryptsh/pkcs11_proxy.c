@@ -30,6 +30,9 @@
  * AUTHOR:      lbe
  * BUGS: *      -
  * HISTORY:     $Log$
+ * HISTORY:     Revision 1.2  2001/06/12 17:54:52  cypherfox
+ * HISTORY:     update the openssl-library load mechanism, update the GNU header, change handling of CKA_SENSITIVE flag to only look at the attributes are supposed to be protected.
+ * HISTORY:
  * HISTORY:     Revision 1.1.1.1  2000/10/15 16:48:15  cypherfox
  * HISTORY:     import of gpkcs11-0.7.2, first version for SourceForge
  * HISTORY:
@@ -67,7 +70,7 @@ const char* Version_pkcs11_proxy_c(){return RCSID;}
 
 
 #include "pkcs11_proxy.h"
-#include "error.h"
+#include "pkcs11_error.h"
 
 #ifdef CK_GENERIC
 #include <sys/types.h>

@@ -39,7 +39,7 @@ const char* Version_verify_c(){return RCSID;}
 #endif
 
 #include "internal.h"
-#include "error.h"
+#include "pkcs11_error.h"
 #include "objects.h"
 
 #include <stdlib.h>

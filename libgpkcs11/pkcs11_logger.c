@@ -42,7 +42,7 @@ const char* Version_pkcs11_logger_c(){return RCSID;}
 
 #include "pkcs11_logger.h"
 #include "internal.h"
-#include "error.h"
+#include "pkcs11_error.h"
 
 #ifdef CK_Win32
 # include <windows.h>

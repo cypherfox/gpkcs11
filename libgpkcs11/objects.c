@@ -47,7 +47,7 @@ const char* Version_objects_c(){return RCSID;}
 #include "internal.h"
 #include "objects.h"
 #include "hash.h"
-#include "error.h"
+#include "pkcs11_error.h"
 #include "mutex.h"
 
 /* for debugging with a debugger */
@@ -458,14 +458,17 @@ CK_DEFINE_FUNCTION(CK_RV, CI_InternalCreateObject)(
       return rv;
     }
     else /* the attribute CK_IA_TOKEN doesn't exist */
+ 		{
       isToken = FALSE;
+			rv = CKR_OK;
+		}
   }
   /* if CKR_OK, the flag isToken is then positioned */
 
   if (isToken) {
     CK_I_SESSION_DATA_PTR i_session_data = NULL_PTR;
     CK_ULONG key;
-    CK_I_HASH_ITERATOR_PTR iter;
+    CK_I_HASH_ITERATOR_PTR iter = NULL_PTR;
     CK_SLOT_ID currentSlot;
     CK_SESSION_HANDLE currentSession;
     
@@ -567,7 +570,7 @@ CK_DEFINE_FUNCTION(CK_RV, C_DestroyObject)(
 /* {{{ CI_InternalDestroyObject */
 /** Entfernen eines internen Objectes aus der Objektliste einer Session.
  * Object wird aus der Liste entfernt wenn es enthalten ist. 
- * @param destroy_persistent Flag ob das Object auf dem Token auch zerstört werden soll.
+ * @param destroy_persistent Flag whether to destroy the object on the token as well.
  */
 CK_DEFINE_FUNCTION(CK_RV, CI_InternalDestroyObject)(
   CK_I_SESSION_DATA_PTR session_data,
@@ -794,7 +797,7 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetAttributeValue)(
   CI_CodeFktEntry("C_GetAttributeValue", "%lu,%lu,%p,%lu", 
                   hSession,
 		  hObject,
-		  pTemplate,
+		CI_PrintTemplate(pTemplate, ulCount),
 		  ulCount);
 
   /* make sure we are initialized */
@@ -1418,7 +1421,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_ObjSetAttributeValue)(
   memcpy(temp_attr->pValue, pValue, ulValueLen);
   
   
-  /* Als vorletztes. Danach kann nichts mehr schiefgehen was wir zurück rollen müssten */
+  /* second last. after this nothing may fail that we might have to roll back. */
   rv = CI_HashPutEntry(pObject->table, AttributeType, (CK_VOID_PTR)temp_attr);
   if(rv != CKR_OK) 
     {  
@@ -1432,7 +1435,10 @@ CK_DEFINE_FUNCTION(CK_RV, CI_ObjSetAttributeValue)(
   if(old_attr != NULL_PTR)
     {
       if(old_attr->pValue != NULL_PTR)
+		{
 	TC_free(old_attr->pValue);
+			old_attr->pValue = NULL;
+		}
       TC_free(old_attr);
     }
 
@@ -1488,7 +1494,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_ObjSetIntAttributeValue)(
 
   memcpy(temp_attr->pValue, pValue, ulValueLen);
     
-  /* Als vorletztes. Danach kann nichts mehr schiefgehen was wir zurück rollen müssten */
+  /* second last. after this nothing may fail that we might have to roll back. */
   rv = CI_HashPutEntry(pObject->table, attr_type, (CK_VOID_PTR)temp_attr);
   if(rv != CKR_OK) 
     {  
@@ -1503,7 +1509,10 @@ CK_DEFINE_FUNCTION(CK_RV, CI_ObjSetIntAttributeValue)(
   if(old_attr != NULL_PTR)
     {
       if(old_attr->pValue != NULL_PTR)
+		{
 	TC_free(old_attr->pValue);
+			old_attr->pValue = NULL;
+		}
       TC_free(old_attr);
     }
 
@@ -1516,11 +1525,11 @@ CK_DEFINE_FUNCTION(CK_RV, CI_ObjSetIntAttributeValue)(
 * Funktion kopiert die Attribute Struktur und den Speiche bereich auf den
 * pValue zeigt.
 *
-* Die alte Attribute Struktur wird gelöscht oder überschrieben.
+* the old attribute structure is being deleted or overwritten.
 *
 * @return
-* @param pObject zu änderndes Object
-* @param pAttribute Struktur mit den Werten für das neue Attribute
+* @param pObject object to change
+* @param pAttribute structur containing the values of the new attibute.
 */
 CK_DEFINE_FUNCTION(CK_RV, CI_ObjSetAttribute)(
   CK_I_OBJ_PTR pObject,
@@ -1544,7 +1553,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_ObjSetAttribute)(
 
   old_attr = CI_ObjLookup(pObject,int_attr_type);
 
-  /* Alles neu allozieren damit wir im Falles eines Fehlers zurück rollen können */
+  /* second last. after this nothing may fail that we might have to roll back. */
   temp_attr = TC_calloc(1,sizeof(CK_ATTRIBUTE));
   if(temp_attr == NULL_PTR)
     return CKR_HOST_MEMORY;
@@ -1569,7 +1578,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_ObjSetAttribute)(
       assert(pAttribute->ulValueLen == 0); 
     }
   
-  /* Als vorletztes. Danach kann nichts mehr schiefgehen was wir zurück rollen müssten */
+  /* second last. after this nothing may fail that we might have to roll back. */
   rv = CI_HashPutEntry(pObject->table, temp_attr->type, (CK_VOID_PTR)temp_attr);
   if(rv != CKR_OK) 
     {  
@@ -1583,7 +1592,10 @@ CK_DEFINE_FUNCTION(CK_RV, CI_ObjSetAttribute)(
   if(old_attr != NULL_PTR)
     {
       if(old_attr->pValue != NULL_PTR)
+		{
 	TC_free(old_attr->pValue);
+			old_attr->pValue = NULL;
+		}
       TC_free(old_attr);
     }
 
@@ -1608,7 +1620,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_ObjGetAttributeValue)(
   if((temp_attr = CI_ObjLookup(pObject,int_attr_type)) == NULL_PTR)
     return CKR_ATTRIBUTE_TYPE_INVALID;
 
-  /* ist dies nur ein Test auf die Länge des Puffers? */
+  /* is this just a test of the buffer size? */
   if(pValue == NULL_PTR)
     {
       *pulValueLen = temp_attr->ulValueLen;
@@ -1663,7 +1675,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_ObjGetIntAttributeValue)(
   if((temp_attr = CI_ObjLookup(pObject,InternalAttributeType)) == NULL_PTR)
     return CKR_ATTRIBUTE_TYPE_INVALID;
 
-  /* ist dies nur ein Test auf die Länge des Puffers? */
+  /* is this just a test of thhe buffer size? */
   if(pValue == NULL_PTR)
     {
       *pulValueLen = temp_attr->ulValueLen;
@@ -1688,7 +1700,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_ObjGetIntAttributeValue)(
 * @return CKR_OK wenn kein Fehler Aufgetreten, andere CK_* Fehlerkodes entsprechend dem Fehler
 * @param pObject Objekt in welches die Werte eingelesen werden.
 * @param pTemplate Array der Attributewerte
-* @param ulTemplateLen Länge des Arrays
+* @param ulTemplateLen length of the array
 */
 CK_DEFINE_FUNCTION(CK_RV, CI_ObjReadTemplate)(
   CK_I_OBJ_PTR  pObject,
@@ -1701,7 +1713,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_ObjReadTemplate)(
 
   CI_LogEntry("CI_ObjReadTemplate", "starting...", rv, 2);
 
-  /* TODO: dies lässt das Object u.U. in einem undefinierten Zustand. */
+  /* TODO: this might leave the object in an undefined state. */
   for(i=0; i<ulTemplateLen ; i++)
     {
       rv = CI_ObjSetAttribute(pObject, pTemplate+i);
@@ -1753,11 +1765,11 @@ CK_DEFINE_FUNCTION(CK_RV, CI_ObjCopyObject)(
 }
 /* }}} */
 /* {{{ CI_ObjDestroyObj */
-/** zerstört ein Objekt. 
+/** destroy an object.
 * allways deep destroys the data in the attribute structures.
 *
 * @return
-* @param pObject zu löschendes Objekt
+* @param pObject object to be deleted
 */
 CK_DEFINE_FUNCTION(CK_RV, CI_ObjDestroyObj)(
   CK_I_OBJ_PTR  pObject
@@ -1792,7 +1804,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_ObjDestroyObj)(
   
   CI_DestroyHashtable(pObject->table);
 
-  TC_free(pObject->lookup);
+	TC_free(pObject->lookup);pObject->lookup = NULL;
   TC_free(pObject);
 
   CI_LogEntry("CI_ObjDestroyObj", "...complete", rv , 2);
@@ -1833,7 +1845,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_ObjMergeObj)(
   for(i = 0 ; i <I_ATT_MAX_NUM ; i++)
     {
       temp_attr = CI_ObjLookup(pSourceObject,i);
-      if((temp_attr != NULL_PTR) && /* überhauptwas  und */
+      if((temp_attr != NULL_PTR) && /* something at all and */
 	 ((CI_ObjLookup(pTargetObject,i) == NULL_PTR) ||  /* nix im Ziel */
 	  overwrite))                                /* oder egal */
 	{
@@ -1851,7 +1863,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_ObjMergeObj)(
 }
 /* }}} */
 /* {{{ CI_ObjDeleteAttribute */
-/** Lösche Attribute in Objekt
+/** deltete attibute in object
 *
 * @return
 * @param
@@ -1871,7 +1883,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_ObjDeleteAttribute)(
 }
 /* }}} */
 /* {{{ CI_ObjDeleteIntAttribute */
-/** Lösche Attribute in object
+/** delete internal attribute in object
 * Benutze interne Attribute (CK_IA_*)
 * @return CKR_OK if delete succeeded, CKR_GENERAL_ERROR otherwise
 * @param
@@ -1951,6 +1963,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_ObjVerifyObj)(
 
   /* forward.... */
   for(i=0 ; i< I_ATT_MAX_NUM ; i++)
+	{
     if( (temp_attr = CI_ObjLookup(pObject,i)) != NULL_PTR)
       {
 	rv = CI_HashGetEntry(pObject->table, CK_I_attrib_xlate[i][1], (CK_VOID_PTR)(&temp_attr));
@@ -1962,6 +1975,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_ObjVerifyObj)(
 	  }
 	found_count++;
       }
+	}
   
   if(found_count != pObject->table->entries)
     {

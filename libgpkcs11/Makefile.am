@@ -33,7 +33,7 @@
 # create libraries with libtool
 lib_LTLIBRARIES = libgpkcs11.la libplogger.la libdummy.la # libcrypto_dummy.la
 
-noinst_HEADERS = dll_wrap.h error.h hash.h init.h \
+noinst_HEADERS = dll_wrap.h pkcs11_error.h hash.h init.h \
                  internal.h mutex.h obj_defaults.h \
                  objects.h pkcs11_logger.h \
                  slot.h utils.h fkt_dummy.h thread.h

@@ -7,6 +7,8 @@ The following people contributed to the development with bug fixes:
  Paul Augustyn <gustaw@cryptotech.com.pl>
  Jean-Marc Desperrier <jean-marc.desperrier@certplus.com>
  Sparkal.Sharma <Sparkal.Sharma@nokia.com>
+ Sergio Gallego <sattya@teleline.es>
+ Andreas Schweider (via Sergio)
 
 The following people contributed major improvements in design and
 implementation, as well patches to add features:
@@ -28,6 +30,6 @@ implementation, as well patches to add features:
 
  Rolf Lindemann <lindemann@trustcenter.de>
     - proper _SENSITIVE handling of object attributes 
-
+ 
 Everybody is named in (hopefully) chronological order of first submission
 to the project.

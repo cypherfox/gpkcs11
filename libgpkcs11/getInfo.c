@@ -41,7 +41,7 @@ const char* Version_getInfo_c(){return RCSID;}
 
 #include "internal.h"
 #include "fkt_dummy.h"
-#include "error.h"
+#include "pkcs11_error.h"
 
 #include <string.h>
 #include <stdio.h>

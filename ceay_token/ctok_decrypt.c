@@ -40,7 +40,7 @@ const char* ctok_decrypt_c_version(){return RCSID;}
 
 #include "ceay_token.h"
 #include "objects.h"
-#include "error.h"
+#include "pkcs11_error.h"
 #include "mutex.h"
 #include "init.h"
 #include "ctok_mem.h"
@@ -56,8 +56,11 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptInit)(
 {
   CK_RV rv = CKR_OK;
 
+  CI_LogEntry("C_DecryptInit", "starting...", rv , 0);	  
+
   switch(pMechanism->mechanism)
     {
+
       /* {{{ CKM_RSA_PKCS */
     case CKM_RSA_PKCS:
       {
@@ -68,6 +71,8 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptInit)(
 	   (*((CK_OBJECT_CLASS CK_PTR)CI_ObjLookup(key_obj,CK_IA_CLASS)->pValue) != CKO_PRIVATE_KEY))
 	  return CKR_KEY_TYPE_INCONSISTENT;
 
+	CI_LogEntry("C_Ceay_DecryptInit", "RSA PKCS starting", rv, 2);	  
+
 	internal_key_obj = CI_Ceay_Obj2RSA(key_obj);
 	if(internal_key_obj == NULL_PTR)
 	  return CKR_HOST_MEMORY;
@@ -76,6 +81,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptInit)(
 	session_data->decrypt_mechanism = CKM_RSA_PKCS;
       }
       break;
+
       /* }}} */
       /* {{{ CKM_RSA_X_509 */
     case CKM_RSA_X_509:
@@ -86,6 +92,8 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptInit)(
 	if((CI_ObjLookup(key_obj,CK_IA_CLASS) == NULL_PTR) || 
 	   (*((CK_OBJECT_CLASS CK_PTR)CI_ObjLookup(key_obj,CK_IA_CLASS)->pValue) != CKO_PRIVATE_KEY))
 	  return CKR_KEY_TYPE_INCONSISTENT;
+
+	CI_LogEntry("C_Ceay_DecryptInit", "RSA X509 starting", rv, 2);
 
 	internal_key_obj = CI_Ceay_Obj2RSA(key_obj);
 	if(internal_key_obj == NULL_PTR)
@@ -134,6 +142,8 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptInit)(
 	   (pMechanism->ulParameterLen != sizeof(CK_RC2_PARAMS)))
 	  return CKR_MECHANISM_PARAM_INVALID;
 
+	CI_LogEntry("C_CL_DecryptInit", "RC2 ECB starting", rv, 2);	  
+
 	internal_obj = CI_RC2Key_new();
 	if(internal_obj == NULL_PTR)
 	  return CKR_HOST_MEMORY;
@@ -170,6 +180,8 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptInit)(
 	    goto decrypt_init_rc2_error;
 	  }
 
+	CI_LogEntry("C_CL_DecryptInit", "RC2 CBC starting", rv, 2);
+
 	/* Ok, alles alloziert, jetzt die wirklichen Werte eintragen */
 	/* Mechanism zuerst, denn da kann ja der Parameter fehlen */
 	if((pMechanism->pParameter == NULL_PTR) ||
@@ -180,7 +192,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptInit)(
 	  }
 	/* Na da wolle wir mal besser sicher gehen das ceay und pkcs11 vom gleichen reden! */
 	assert(sizeof(CK_BYTE) == sizeof(unsigned char));
-	memcpy(internal_obj->ivec,pMechanism->pParameter, sizeof(CK_BYTE)*8);
+	memcpy(internal_obj->ivec,para->iv, sizeof(CK_BYTE)*8);
 	{
 	  CK_BYTE_PTR tmp_str = NULL_PTR;
 	  
@@ -224,6 +236,8 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptInit)(
 	if(internal_obj == NULL_PTR)
 	  return CKR_HOST_MEMORY;
 
+	CI_LogEntry("C_CL_DecryptInit", "DES ECB starting", rv, 2);	  
+
 	tmp_key_data = CI_ObjLookup(key_obj,CK_IA_VALUE)->pValue;
 	if(tmp_key_data == NULL_PTR)
 	  return CKR_KEY_TYPE_INCONSISTENT;
@@ -243,6 +257,8 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptInit)(
 	CK_BYTE_PTR tmp_key_data;
 
 	rv = CKR_OK; /* positiv denken */
+
+	CI_LogEntry("C_CL_DecryptInit", "DES CBC starting", rv, 2);	  
 
 	internal_obj= CI_DES_INFO_new();
 	if(internal_obj == NULL_PTR)
@@ -342,6 +358,8 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptInit)(
       {
 	CK_I_CEAY_DES3_INFO_PTR internal_obj = NULL_PTR;
 	
+	CI_LogEntry("C_CL_DecryptInit", "DES3 ECB starting", rv, 2);	  
+
 	/* TODO: change this into des_cblock[3] */
 	internal_obj = CI_DES3_INFO_new(CI_ObjLookup(key_obj,CK_IA_VALUE)->pValue);
 	if(internal_obj == NULL_PTR)
@@ -364,6 +382,8 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptInit)(
 	if((pMechanism->pParameter == NULL_PTR) ||
 	   (pMechanism->ulParameterLen != sizeof(des_cblock)))
 	  return CKR_MECHANISM_PARAM_INVALID;
+
+	CI_LogEntry("C_CL_DecryptInit", "DES3 CBC/PAD starting", rv, 2);	  
 
 	internal_obj= CI_DES3_INFO_new(CI_ObjLookup(key_obj,CK_IA_VALUE)->pValue);
 	if(internal_obj == NULL_PTR)
@@ -395,6 +415,8 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptInit)(
 	IDEA_KEY_SCHEDULE CK_PTR internal_obj = NULL_PTR;
 	IDEA_KEY_SCHEDULE temp_sched;
 
+	CI_LogEntry("C_CL_DecryptInit", "IDEA ECB starting", rv, 2);	  
+
 	internal_obj = CI_IDEA_KEY_SCHEDULE_new();
 	if(internal_obj == NULL_PTR)
 	  return CKR_HOST_MEMORY;
@@ -423,10 +445,12 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptInit)(
 
 	rv = CKR_OK; /* positiv denken */
 
-	/* Mechanism zuerst prüfen, denn da kann ja der Parameter fehlen */
+	/* check Mechanism first, there might be a parameter missing */
 	if((pMechanism->pParameter == NULL_PTR) ||
 	   (pMechanism->ulParameterLen != sizeof(des_cblock)))
 	    return CKR_MECHANISM_PARAM_INVALID;
+
+	CI_LogEntry("C_CL_DecryptInit", "IDEA CBC starting", rv, 2);	  
 
 	internal_obj= CI_IDEA_INFO_new();
 	if(internal_obj == NULL_PTR)
@@ -453,6 +477,10 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptInit)(
       /* }}} */
     default:
       rv = CKR_MECHANISM_INVALID;
+
+      CI_VarLogEntry("C_DecryptInit", "algorithm specified: %s", rv, 0, 
+		     CI_MechanismStr(pMechanism->mechanism));
+
     }
   
   return rv;
@@ -479,27 +507,18 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Decrypt)(
 	long processed; /* number of bytes processed by the crypto routine */
 	
 	rv = CKR_OK;
-	key_len = RSA_size((RSA CK_PTR)session_data->decrypt_state);
 	
-	/* terminate operation */
-	if(pulDataLen == NULL_PTR) 
-	  {
-	    rv = CKR_OK; goto rsa_pkcs1_err;
-	  }
- 
+	CI_LogEntry("C_Decrypt", "RSA PKCS", rv , 0);     
+	key_len = CI_Ceay_RSA_size((RSA CK_PTR)session_data->decrypt_state);
+	
 	/* check if this is only a call for the length of the output buffer */
 	if(pData == NULL_PTR)
 	  {
 	    *pulDataLen = key_len-CK_I_PKCS1_MIN_PADDING;
-	    rv = CKR_OK; break;
-	  }
-	else /* check that buffer is of sufficent size */
-	  {
-	    if(*pulDataLen < key_len-CK_I_PKCS1_MIN_PADDING) 
-	      {
-		*pulDataLen = key_len-CK_I_PKCS1_MIN_PADDING;
-		rv = CKR_BUFFER_TOO_SMALL; break;
-	      }
+	    CI_VarLogEntry("C_Decrypt", "RSA PKCS Datalength calculated (%i)", 
+			   rv , 0, *pulDataLen);
+	    CI_LogEntry("C_Decrypt", "...completed", rv , 0);         
+	    return CKR_OK;
 	  }
 	
 	/* check for length of input */
@@ -507,19 +526,31 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Decrypt)(
 	  { rv = CKR_DATA_LEN_RANGE; goto rsa_pkcs1_err; }
 	
 	tmp_buf = CI_ByteStream_new(key_len);
-	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto rsa_pkcs1_err; }
 	
-	processed = RSA_private_decrypt(ulEncryptedDataLen,pEncryptedData,
-					tmp_buf,session_data->decrypt_state,
+	processed = RSA_private_decrypt(ulEncryptedDataLen,pEncryptedData, 
+					tmp_buf,session_data->decrypt_state, 
 					RSA_PKCS1_PADDING);
+	
 	if(processed == -1)
-	  { rv = CKR_GENERAL_ERROR; goto rsa_pkcs1_err; }
+	  { 
+	    rv = CKR_GENERAL_ERROR; 
+	    goto rsa_pkcs1_err; 
+	  }
+	
+	if(*pulDataLen < (unsigned long)processed) 
+	  {
+	    *pulDataLen = processed;
+	    rv = CKR_BUFFER_TOO_SMALL;
+	    goto rsa_pkcs1_err; 
+	  }
+	
 	*pulDataLen = processed;
 	
-	memcpy(pData,tmp_buf,key_len);
+	memcpy(pData, tmp_buf, processed);
 	
       rsa_pkcs1_err:
-	if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
+	if(tmp_buf != NULL_PTR) 
+	  TC_free(tmp_buf);
 	if(session_data->decrypt_state != NULL_PTR)
 	  { 
 	    RSA_free(session_data->decrypt_state); 
@@ -527,14 +558,16 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Decrypt)(
 	  }
 	break;
       }
-
-    /* }}} */
-    /* {{{ CKM_RSA_X_509 */
+      
+      /* }}} */
+      /* {{{ CKM_RSA_X_509 */
     case CKM_RSA_X_509:
       {
 	CK_BYTE_PTR tmp_buf = NULL_PTR;
 	CK_ULONG key_len;
 	long processed; /* number of bytes processed by the crypto routine */
+
+	CI_LogEntry("C_Decrypt", "RSA X509", rv , 0);     
 
 	rv = CKR_OK;
 	key_len = RSA_size((RSA CK_PTR)session_data->decrypt_state);
@@ -595,6 +628,10 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Decrypt)(
 	    rv = CKR_OK; goto rc4_err;
 	  }
 	/* is this just a test for the length of the recieving buffer? */
+
+    rv = CKR_OK;
+	CI_LogEntry("C_Decrypt", "RC4", rv , 0);	  
+
 	if(pData == NULL_PTR)
 	  {
 	    *pulDataLen = ulEncryptedDataLen;
@@ -722,7 +759,7 @@ rc4_err:
 	  {
 	    rv = CKR_OK; goto des_ecb_err;
 	  }
-	/* DES always takes multiples of 8 bytes */
+	/* DES allways takes multiples of 8 bytes */
 	if(ulEncryptedDataLen%8 != 0)
 	  {
 	    rv = CKR_DATA_LEN_RANGE; goto des_ecb_err;
@@ -982,13 +1019,16 @@ rc4_err:
     case CKM_IDEA_ECB:
       {
 	CK_ULONG count;
+	rv = CKR_OK;
+
+	CI_LogEntry("C_Decrypt", "IDEA ECB", rv , 0); 
 
 	/* terminate operation */
 	if(pulDataLen == NULL_PTR) 
 	  {
 	    rv = CKR_OK; goto idea_ecb_err;
 	  }
-	/* DES always takes multiples of 8 bytes */
+	/* IDEA always takes multiples of 8 bytes */
 	if(ulEncryptedDataLen%8 != 0)
 	  {
 	    rv = CKR_DATA_LEN_RANGE; goto idea_ecb_err;
@@ -1084,7 +1124,12 @@ rc4_err:
       /* }}} */
     default:
       rv = CKR_MECHANISM_INVALID;
+      CI_VarLogEntry("C_Decrypt", "algorithm specified: %s", rv, 0, 
+		     CI_MechanismStr(session_data->decrypt_mechanism));
+
     }
+
+  CI_LogEntry("C_Decrypt", "...completed", rv , 0);
 
   return rv;
 }
@@ -1105,6 +1150,9 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptUpdate)(
       /* {{{ CKM_RC4 */
     case CKM_RC4:
       {
+	rv = CKR_OK;
+	CI_LogEntry("C_DecryptUpdate", "RC4", rv , 0);    
+
 	/* is this just a test for the length of the recieving buffer? */
 	if(pPart == NULL_PTR)
 	  {
@@ -1123,8 +1171,6 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptUpdate)(
 	RC4(session_data->decrypt_state,ulEncryptedPartLen,pEncryptedPart,pPart);
 	
 	*pulPartLen=ulEncryptedPartLen;
-
-	rv = CKR_OK;
       }
       break;
       /* }}} */
@@ -1132,6 +1178,9 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptUpdate)(
     case CKM_RC2_ECB:
       {
 	CK_ULONG count;
+
+	rv = CKR_OK;
+	CI_LogEntry("C_DecryptUpdate", "RC2 ECB", rv , 0);	  
 
 	/* RC2 always takes multiples of 8 bytes */
 	if(ulEncryptedPartLen%8 != 0)
@@ -1169,6 +1218,9 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptUpdate)(
       /* {{{ CKM_RC2_CBC */
     case CKM_RC2_CBC:
       {
+	rv = CKR_OK;
+	CI_LogEntry("C_DecryptUpdate", "RC2 CBC", rv , 0);	  
+
 	/* is the length of the supplied data a multiple of 8 to create des-blocks? */
 	if(ulEncryptedPartLen%8 != 0)
 	  return CKR_DATA_LEN_RANGE;
@@ -1194,6 +1246,8 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptUpdate)(
 			 ((CK_I_CEAY_RC2_INFO_PTR)session_data->decrypt_state)->ivec, 
 			 RC2_DECRYPT);
 	
+	*pulPartLen=ulEncryptedPartLen;
+
 	rv = CKR_OK;
 	
       }
@@ -1203,6 +1257,9 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptUpdate)(
     case CKM_DES_ECB:
       {
 	CK_ULONG count;
+
+	rv = CKR_OK;
+	CI_LogEntry("C_DecryptUpdate", "DES ECB", rv , 0);	  
 
 	/* DES always takes multiples of 8 bytes */
 	if(ulEncryptedPartLen%8 != 0)
@@ -1241,6 +1298,9 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptUpdate)(
       /* {{{ CKM_DES_CBC */
     case CKM_DES_CBC:
       {
+	rv = CKR_OK;
+	CI_LogEntry("C_DecryptUpdate", "DES3 CBC", rv , 0);	  
+
 	/* is the length of the supplied data a multiple of 8 to create des-blocks? */
 	if(ulEncryptedPartLen%8 != 0)
 	  return CKR_DATA_LEN_RANGE;
@@ -1370,6 +1430,10 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptUpdate)(
       /* {{{ CKM_DES3_CBC */
     case CKM_DES3_CBC:
       {
+	
+	rv = CKR_OK;
+	CI_LogEntry("C_DecryptUpdate", "IDEA CBC", rv , 0);	  
+
 	/* is the length of the supplied data a multiple of 8 to create des-blocks? */
 	if(ulEncryptedPartLen%8 != 0)
 	  return CKR_DATA_LEN_RANGE;
@@ -1409,6 +1473,9 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptUpdate)(
     case CKM_IDEA_ECB:
       {
 	CK_ULONG count;
+
+	rv = CKR_OK;
+	CI_LogEntry("C_DecryptUpdate", "IDEA ECB", rv , 0);	  
 
 	/* DES always takes multiples of 8 bytes */
 	if(ulEncryptedPartLen%8 != 0)
@@ -1450,6 +1517,9 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptUpdate)(
       /* {{{ CKM_IDEA_CBC */
     case CKM_IDEA_CBC:
       {
+	rv = CKR_OK;
+	CI_LogEntry("C_DecryptUpdate", "IDEA CBC", rv , 0);	  
+
 	/* is the length of the supplied data a multiple of 8 to create des-blocks? */
 	if(ulEncryptedPartLen%8 != 0)
 	  return CKR_DATA_LEN_RANGE;
@@ -1484,7 +1554,15 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptUpdate)(
       /* }}} */
     default:
       rv = CKR_MECHANISM_INVALID;
+      CI_VarLogEntry("C_DecryptUpdate", "algorithm specified: %s", rv, 0, 
+		     CI_MechanismStr(session_data->decrypt_mechanism));
     }
+  
+  CI_VarLogEntry("C_DecryptUpdate", "decryption (%s) result: %s", rv, 2,
+		 CI_MechanismStr(session_data->decrypt_mechanism),
+		 CI_PrintableByteStream(pPart,*pulPartLen));
+
+  CI_LogEntry("C_DecryptUpdate", "...completed", rv , 0);	  
 
   return rv;
 }
@@ -1505,7 +1583,10 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptFinal)(
     case CKM_RC2_ECB:
     case CKM_DES_ECB:
     case CKM_IDEA_ECB:
-      {
+      { 
+	rv = CKR_OK;
+	CI_LogEntry("C_DecryptFinal", "RC4 DES-ECB RC2-ECB IDEA-ECB", rv , 0);    
+ 
 	/* terminate operation */
 	if(pulLastPartLen == NULL_PTR) 
 	  {
@@ -1519,7 +1600,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptFinal)(
 	}
 	*pulLastPartLen=0;
 	
-des_err:
+      des_err:
 	if(session_data->decrypt_state != NULL_PTR)
 	  TC_free(session_data->decrypt_state);
 	session_data->decrypt_state = NULL_PTR;
@@ -1530,11 +1611,15 @@ des_err:
       /* {{{ CKM_RC2_CBC */
     case CKM_RC2_CBC:
       {
+	rv = CKR_OK;
+	CI_LogEntry("C_DecryptFinal", "RC2", rv , 0);     
+
 	/* terminate operation */
 	if(pulLastPartLen == NULL_PTR) 
 	  {
 	    rv = CKR_OK; goto rc2_cbc_err;
 	  }
+
 	/* is this just a test for the length of the recieving buffer? */
 	if(pLastPart == NULL_PTR)
 	{
@@ -1569,7 +1654,7 @@ rc2_cbc_err:
 	}
 	*pulLastPartLen=0;
 
-des3_ecb_err:
+      des3_ecb_err:
 	if(session_data->decrypt_state!= NULL_PTR)
 	  CI_DES3_INFO_delete(session_data->decrypt_state);
 	session_data->decrypt_state = NULL_PTR;
@@ -1581,6 +1666,9 @@ des3_ecb_err:
       /* {{{ CKM_DES3_CBC */
     case CKM_DES3_CBC:
       {
+	rv = CKR_OK;
+	CI_LogEntry("C_DecryptFinal", "DES3 CBC", rv , 0);         
+
 	/* terminate operation */
 	if(pulLastPartLen == NULL_PTR) 
 	  {
@@ -1594,12 +1682,10 @@ des3_ecb_err:
 	}
 	*pulLastPartLen=0;
 
-des3_cbc_err:
+      des3_cbc_err:
 	if(session_data->decrypt_state != NULL_PTR)
 	  CI_DES3_INFO_delete(session_data->decrypt_state);
 	session_data->decrypt_state = NULL_PTR;
-
-	rv = CKR_OK;
 	
       }
       break;
@@ -1607,28 +1693,30 @@ des3_cbc_err:
       /* {{{ CKM_DES_CBC */
     case CKM_DES_CBC:
       {
+	rv = CKR_OK;
+	CI_LogEntry("C_DecryptFinal", "DES CBC", rv , 0);         
+	
 	/* terminate operation */
 	if(pulLastPartLen == NULL_PTR) 
 	  {
 	    rv = CKR_OK; goto des_cbc_err;
 	  }
 	if(pLastPart == NULL_PTR)
-	{
-	  *pulLastPartLen = 0;
-	  rv = CKR_OK; break;
-	}
-      *pulLastPartLen=0;
-
+	  {
+	    *pulLastPartLen = 0;
+	    rv = CKR_OK; break;
+	  }
+	*pulLastPartLen=0;
+	
       des_cbc_err:
-      if(session_data->decrypt_state != NULL_PTR)
-	TC_free(session_data->decrypt_state);
-      session_data->decrypt_state = NULL_PTR;
-      
-      rv = CKR_OK;
+	if(session_data->decrypt_state != NULL_PTR)
+	  TC_free(session_data->decrypt_state);
+	session_data->decrypt_state = NULL_PTR;
+	
       }
       break;
 	/* }}} */
-        /* {{{ CKM_DES_CBC_PAD */
+      /* {{{ CKM_DES_CBC_PAD */
     case CKM_DES_CBC_PAD:
       {
 	/* terminate operation */
@@ -1650,17 +1738,17 @@ des3_cbc_err:
 	}
 
 	des_ncbc_encrypt(((CK_I_CEAY_DES_INFO_PTR)session_data->decrypt_state)->lastblock, 
-		       pLastPart, 
-		       8, 
-		       ((CK_I_CEAY_DES_INFO_PTR)session_data->decrypt_state)->sched, 
-		       &(((CK_I_CEAY_DES_INFO_PTR)session_data->decrypt_state)->ivec), 
-		       DES_DECRYPT);
-
+			 pLastPart, 
+			 8, 
+			 ((CK_I_CEAY_DES_INFO_PTR)session_data->decrypt_state)->sched, 
+			 &(((CK_I_CEAY_DES_INFO_PTR)session_data->decrypt_state)->ivec), 
+			 DES_DECRYPT);
+	
 	if (pLastPart[7] >= 1 && pLastPart[7] <= 8)
 	  *pulLastPartLen -= pLastPart[7];
 	else
 	  rv = CKR_GENERAL_ERROR;
-
+	
     des_cbc_pad_err:
       if(session_data->decrypt_state != NULL_PTR)
 	TC_free(session_data->decrypt_state);
@@ -1672,20 +1760,23 @@ des3_cbc_err:
       /* {{{ CKM_IDEA_CBC */
     case CKM_IDEA_CBC:
       {
+	rv = CKR_OK;
+	CI_LogEntry("C_DecryptFinal", "IDEA CBC", rv , 0);        
+
 	/* terminate operation */
 	if(pulLastPartLen == NULL_PTR) 
 	  {
-	    rv = CKR_OK; goto idea_cbc_err;
+	    goto idea_cbc_err;
 	  }
 	/* is this just a test for the length of the recieving buffer? */
 	if(pLastPart == NULL_PTR)
 	{
 	  *pulLastPartLen = 0;
-	  rv = CKR_OK; break;
+	  break;
 	}
 	*pulLastPartLen=0;
 	
-idea_cbc_err:
+      idea_cbc_err:
 	if(session_data->decrypt_state != NULL_PTR)
 	  {
 	    if( (((CK_I_CEAY_IDEA_INFO_PTR)session_data->decrypt_state)->ivec) != NULL_PTR)
@@ -1693,16 +1784,18 @@ idea_cbc_err:
 	    TC_free(session_data->decrypt_state);
 	  }
 	session_data->decrypt_state = NULL_PTR;
-
-	rv = CKR_OK;
-
       }
       break;
       /* }}} */
     default:
       rv = CKR_MECHANISM_INVALID;
+      
+      CI_VarLogEntry("C_DecryptFinal", "algorithm specified: %s", rv, 0, 
+		     CI_MechanismStr(session_data->decrypt_mechanism));
     }
-
+  
+  CI_LogEntry("C_DecryptFinal", "...completed", rv , 0);    
+  
   return rv;
 }
 /* }}} */

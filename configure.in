@@ -35,8 +35,6 @@ AM_CONFIG_HEADER(conf.h)
 AC_CANONICAL_SYSTEM
 AM_INIT_AUTOMAKE(gpkcs11, 0.8.0)
 
-TC_INIT(gpkcs11)
-
 dnl global package information
 PACKAGE=gpkcs11
 
@@ -327,28 +325,9 @@ fi
 
 dnl ###################### enable use openssl+pkcs11 code ###########
 
-AC_MSG_CHECKING([PKCS-11 extension in OpenSSL])
-AC_ARG_ENABLE(sc-openssl, [\
-    --enable-sc-openssl  enable the use of an PKCS-11 extension in
-                         OpenSSL library (default is off) ],
-[
-AC_MSG_RESULT([   enable_sc_openssl is '$enable_sc_openssl'])
-if test "$enable_sc_openssl" = "yes"
- then
-  AC_DEFINE(HAVE_SC_OPENSSL,1,use an pkcs-11 extension in the OpenSSL lib)
-  AC_MSG_RESULT([enabled])
-  EXTRA_CRYPTSH_SOURCES="utils.c request.c"
-  EXTRA_CRYPTSH_OBJECTS="utils.o request.o"
- else
-  AC_MSG_RESULT([disabled])
-  EXTRA_CRYPTSH_SOURCES=""
-  EXTRA_CRYPTSH_OBJECTS=""
- fi
-],[
-  AC_MSG_RESULT([disabled])
-])
-AC_SUBST(EXTRA_CRYPTSH_SOURCES)
-AC_SUBST(EXTRA_CRYPTSH_OBJECTS)
+dnl if the ceay token is used we have to find the proper openssl library
+
+AC_CHECK_LIB(crypto,SHA1)
 
 dnl ###################### enable use of purify ###################
 

@@ -73,6 +73,9 @@ const char* Version_cryptdb_c(){return RCSID;}
 /* Entry Flags */
 /* Entry is encrypted */
 #define CDB_F_ENCRYPTED 0x01
+/* Entry is private */ /* Maybe it's not the correct value for the flag*/
+#define CDB_F_PRIVATE 0x01
+
 
 /* table flags */
 #define CDB_F_TOKEN_EMPTY 0x01
@@ -108,7 +111,7 @@ static CK_RV CDB_ParseObject(CK_CHAR_PTR buffer, CK_ULONG buff_len,
   CK_I_OBJ_PTR curr_obj;
   CK_CHAR_PTR read_pos;
   const char* attr_name;
-  CK_ULONG attr_size,tmp_ulong;
+  CK_ULONG attr_size, tmp_ulong;
 
   /* create a new object */
   rv = CI_ObjCreateObj(&curr_obj);
@@ -142,7 +145,15 @@ static CK_RV CDB_ParseObject(CK_CHAR_PTR buffer, CK_ULONG buff_len,
       read_pos+=sizeof(CK_ULONG);
       
       /* attribute value */
-      new_attr.pValue=realloc(new_attr.pValue, new_attr.ulValueLen);
+      /* new_attr.pValue=realloc(new_attr.pValue, new_attr.ulValueLen); */
+      
+	  /* That realloc causes memory violation under Win32 this is my solution: */
+	  attr_size=new_attr.ulValueLen;
+	  if (new_attr.pValue != NULL_PTR)
+		  free(new_attr.pValue);
+	  new_attr.pValue=malloc(attr_size);
+
+
       if(new_attr.pValue == NULL_PTR) return CKR_HOST_MEMORY;
 
       memcpy(new_attr.pValue,read_pos,new_attr.ulValueLen);
@@ -163,8 +174,10 @@ static CK_RV CDB_ParseObject(CK_CHAR_PTR buffer, CK_ULONG buff_len,
 	}
 
     }
-
-  TC_free(new_attr.pValue);
+  /* That causes memory violation on Win32, a given module cannot free memory 
+      requested by other module */
+  /* TC_free(new_attr.pValue);	*/
+  free(new_attr.pValue);
   
   *new_obj = curr_obj;  
   return rv;
@@ -274,6 +287,11 @@ CK_I_CRYPT_DB_PTR CDB_Open(CK_CHAR_PTR file_name)
     */
   if (CDB_PinExists(retval, FALSE) == CKR_USER_PIN_NOT_INITIALIZED)
     {
+		/* if the db does not exist we munt initialize the pins 
+		user pin worked, but SO pin not because this flag was not 
+                activated */
+		retval->flags |= CDB_F_TOKEN_EMPTY;
+		
       /* Initialize token and user pin */
       CDB_NewPin(retval, TRUE, NULL, 0, DefaultPin, DefPinLen); //SO's Pin
       CDB_NewPin(retval, FALSE, NULL, 0, DefaultPin, DefPinLen); //User's Pin
@@ -457,7 +475,6 @@ CK_RV CDB_GetObjectInit(CK_I_CRYPT_DB_PTR cdb)
   cdb->old_key = gdbm_firstkey(cdb->table);
   if(cdb->old_key.dptr == NULL_PTR)
     return CKR_GENERAL_ERROR;
-
   return CKR_OK;
 } 
 /* }}} */
@@ -491,9 +508,10 @@ CK_RV CDB_GetObjectUpdate(CK_I_CRYPT_DB_PTR cdb, CK_I_OBJ_PTR CK_PTR next_obj)
 	return CKR_GENERAL_ERROR;            
       }
     
-    if (cdb->old_key.dptr[0] == CDB_E_OBJECT)
-      {
 	
+		// Come on!! Let's ignore private objets until user authentication...
+		if ((cdb->old_key.dptr[0] == CDB_E_OBJECT)&&(!(((CK_CHAR_PTR)cdb->old_key.dptr)[1] & CDB_F_PRIVATE)))		
+		{
 	/* decrypt object into a string */
 	if(data.dsize%8 != 0)
 	  {

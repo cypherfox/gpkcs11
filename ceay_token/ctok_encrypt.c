@@ -41,7 +41,7 @@ const char* ctok_encrypt_c_version(){return RCSID;}
 
 #include "ceay_token.h"
 #include "objects.h"
-#include "error.h"
+#include "pkcs11_error.h"
 #include "mutex.h"
 #include "init.h"
 #include "ctok_mem.h"
@@ -56,6 +56,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_EncryptInit)(
 )
 {
   CK_RV rv = CKR_OK;
+  CI_LogEntry("C_EncryptInit", "starting...", rv , 0);	  
 
   switch(pMechanism->mechanism)
     {
@@ -443,7 +444,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_EncryptInit)(
 	   (pMechanism->ulParameterLen != sizeof(des_cblock)))
 	  {
 	    rv = CKR_MECHANISM_PARAM_INVALID;
-	    goto encrypt_init_des_error;
+	    goto encrypt_init_des3_error;
 	  }
 	memcpy(internal_obj->ivec,pMechanism->pParameter, sizeof(des_cblock));
 
@@ -496,7 +497,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_EncryptInit)(
 
 	CI_LogEntry("CI_Ceay_EncryptInit", "starting CKM_IDEA_CBC", rv, 2);
 
-	/* Mechanism zuerst prüfen, denn da kann ja der Parameter fehlen */
+	/* check mechanism first, there might be parameter missing */
 	if((pMechanism->pParameter == NULL_PTR) ||
 	   (pMechanism->ulParameterLen != sizeof(des_cblock)))
 	    return CKR_MECHANISM_PARAM_INVALID;
@@ -525,7 +526,13 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_EncryptInit)(
       /* }}} */
     default:
       rv= CKR_MECHANISM_INVALID;
+
+    	CI_VarLogEntry("C_EncryptInit", "algorithm specified: %s", rv, 0, 
+		       CI_MechanismStr(pMechanism->mechanism));
+
     }
+
+  CI_LogEntry("C_EncryptInit", "...completed", rv , 0);	  
 
   return rv;
 }
@@ -539,7 +546,8 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Encrypt)(
   CK_ULONG_PTR      pulEncryptedDataLen  /* gets c-text size */
 )
 {
-  CK_RV rv;
+CK_RV rv = CKR_OK;
+	CI_LogEntry("C_Encrypt", "starting...", rv , 0);	  
 
   switch(session_data->encrypt_mechanism)
     {
@@ -1153,8 +1161,14 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Encrypt)(
       /* }}} */
     default:
       rv = CKR_MECHANISM_INVALID;
-    }
 
+      CI_VarLogEntry("C_Encrypt", "algorithm specified: %s", rv, 0, 
+		     CI_MechanismStr(session_data->encrypt_mechanism));
+      
+    }
+  
+  CI_LogEntry("C_Encrypt", "...completed", rv , 0);	  
+	
   return rv;
 }
 /* }}} */
@@ -1170,6 +1184,8 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_EncryptUpdate)(
   CK_RV rv = CKR_OK;
   CK_BYTE_PTR tmp_str = NULL_PTR;
   
+  CI_LogEntry("C_EncryptUpdate", "starting...", rv , 0);	  
+
   CI_VarLogEntry("CI_Ceay_EncryptUpdate", "encryption (%s) input: %s", rv, 2,
 		 CI_MechanismStr(session_data->encrypt_mechanism),
 		 tmp_str = CI_PrintableByteStream(pPart,ulPartLen));
@@ -1569,6 +1585,10 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_EncryptUpdate)(
 
     default:
       rv = CKR_MECHANISM_INVALID;
+
+      CI_VarLogEntry("C_EncryptUpdate", "algorithm specified: %s", rv, 0, 
+		     CI_MechanismStr(session_data->encrypt_mechanism));
+
     }
 
   CI_VarLogEntry("CI_Ceay_EncryptUpdate", "encryption (%s) result: %s", rv, 2,
@@ -1576,6 +1596,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_EncryptUpdate)(
 		 tmp_str = CI_PrintableByteStream(pEncryptedPart,*pulEncryptedPartLen));
 
   TC_free(tmp_str);
+  CI_LogEntry("C_EncryptUpdate", "...completed", rv , 0);	  
 
   return rv;
 }
@@ -1587,7 +1608,8 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_EncryptFinal)(
   CK_ULONG_PTR      pulLastEncryptedPartLen  /* gets last size */
 )
 {
-  CK_RV rv;
+	CK_RV rv = CKR_OK;
+	CI_LogEntry("C_EncryptFinal", "starting...", rv , 0);	  
 
   switch(session_data->encrypt_mechanism)
     {
@@ -1775,8 +1797,14 @@ idea_cbc_err:
       /* }}} */
     default:
       rv = CKR_MECHANISM_INVALID;
-    }
 
+      CI_VarLogEntry("C_EncryptFinal", "algorithm specified: %s", rv, 0, 
+		     CI_MechanismStr(session_data->encrypt_mechanism));
+
+    }
+  
+  CI_LogEntry("C_EncryptFinal", "..completed", rv , 0);	  
+	
   return rv;
 }
 /* }}} */

@@ -43,7 +43,7 @@ const char* Version_slot_c(){return RCSID;}
 #include <stdlib.h>
 
 #include "internal.h"
-#include "error.h"
+#include "pkcs11_error.h"
 #include "objects.h"
 #include "slot.h"
 

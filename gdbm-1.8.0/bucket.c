@@ -204,7 +204,7 @@ _gdbm_split_bucket (dbf, next_insert)
 	  new_dir  = (off_t *) malloc (dir_size);
 	  if (new_dir == NULL) _gdbm_fatal (dbf, "malloc error");
 	  for (index = 0;
-	  	index < dbf->header->dir_size/sizeof (off_t); index++)
+	       (unsigned int)index < dbf->header->dir_size/sizeof (off_t); index++)
 	    {
 	      new_dir[2*index]   = dbf->dir[index];
 	      new_dir[2*index+1] = dbf->dir[index];
