@@ -30,6 +30,9 @@
  * AUTHOR:      lbe
  * BUGS: *      -
  * HISTORY:     $Log$
+ * HISTORY:     Revision 1.1.1.1  2000/10/15 16:48:03  cypherfox
+ * HISTORY:     import of gpkcs11-0.7.2, first version for SourceForge
+ * HISTORY:
  * HISTORY:     Revision 1.11  2000/06/05 11:43:43  lbe
  * HISTORY:     tcsc token breakup, return pSlotCount in SlotList, code for event handling deactivated
  * HISTORY:
@@ -565,41 +568,32 @@ CK_DECLARE_FUNCTION(CK_CHAR_PTR, CI_ScanableMechanism)(
 )
 {
   CK_CHAR_PTR buffer = NULL_PTR;
-  CK_ULONG len;
+  CK_CHAR_PTR mech_str = NULL_PTR;
   CK_BYTE_PTR tmp = NULL_PTR;
+  CK_ULONG len;
 
   if(pMechanism->pParameter == NULL_PTR)
-    len = strlen("{CKM_, NULL_PTR, 0x12345678}") + 
-      strlen(CI_MechanismStr(pMechanism->mechanism)) + 1;
+    mech_str = tmp = CI_ScanableByteStream(pMechanism->pParameter,
+					   pMechanism->ulParameterLen);
   else
-    {
-      len = (strlen("{CKM_, , 0x12345678}") + 
-	     strlen(CI_MechanismStr(pMechanism->mechanism)) + 
-	     strlen(tmp = CI_ScanableByteStream(pMechanism->pParameter,
-						pMechanism->ulParameterLen)) + 
-	     1);
-      TC_free(tmp);
-    }
-
+    mech_str = "NULL_PTR";
+  
+  len = (strlen("{CKM_, , 0x12345678}") + 
+	 strlen(CI_MechanismStr(pMechanism->mechanism)) + 
+	 strlen(mech_str) + 
+	 1);
+  
   buffer = TC_malloc(len*sizeof(CK_BYTE));
   if(buffer == NULL_PTR)
     return buffer;
   
-  if(pMechanism->pParameter != NULL_PTR)
-    {
-      sprintf(buffer, "{CKM_%s, %s, 0x%08lx}", 
-	      CI_MechanismStr(pMechanism->mechanism), 
-	      tmp = CI_ScanableByteStream(pMechanism->pParameter, pMechanism->ulParameterLen),
-	      pMechanism->ulParameterLen);
-
-      TC_free(tmp);
-    }
-  else 
-    {
-      sprintf(buffer, "{CKM_%s, NULL_PTR, 0x%08lx}", 
-	      CI_MechanismStr(pMechanism->mechanism), 
-	      pMechanism->ulParameterLen);
-    }
+  sprintf(buffer, "{CKM_%s, %s, 0x%08lx}", 
+	  CI_MechanismStr(pMechanism->mechanism), 
+	  mech_str,
+	  pMechanism->ulParameterLen);
+  
+  if(tmp!=NULL_PTR)
+    TC_free(tmp);
   
   return buffer;
 }
