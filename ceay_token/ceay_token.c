@@ -30,6 +30,9 @@
  * AUTHOR:      lbe
  * BUGS: *      -
  * HISTORY:     $Log$
+ * HISTORY:     Revision 1.1.1.1  2000/10/15 16:49:03  cypherfox
+ * HISTORY:     import of gpkcs11-0.7.2, first version for SourceForge
+ * HISTORY:
  * HISTORY:     Revision 1.16  2000/07/24 15:43:53  lbe
  * HISTORY:     added the files for snacc usage
  * HISTORY:
@@ -3770,6 +3773,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_VerifyRecover)(
 	if(processed == -1)
 	  { rv = CKR_GENERAL_ERROR; goto rsa_pkcs1_err; }
 
+	*pulDataLen = processed;
 	
       rsa_pkcs1_err:
 	if(session_data->verify_state != NULL_PTR)
@@ -3782,8 +3786,8 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_VerifyRecover)(
       /* }}} */
       /* {{{ CKM_RSA_X_509 */
       /* 
-       * TODO: liegt das nur am RSA_PKCS oder ist 
-       * hier niemals CKR_SIGNATURE_INVALID zu melden? 
+       * TODO: is it only PSA_X_509 or is there never the case of CKR_SIGNATURE_INVALID to
+       * report? 
        */
     case CKM_RSA_X_509:
       {
@@ -3822,6 +3826,8 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_VerifyRecover)(
 					RSA_NO_PADDING);
 	if(processed == -1)
 	  { rv = CKR_GENERAL_ERROR; goto rsa_x509_err; }
+
+	*pulDataLen = processed;
 
 	
       rsa_x509_err:
