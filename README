@@ -155,15 +155,13 @@ behavior.
 After unpacking:
 
     cd gpkcs11-0.x.y/ceay_token
-    tar xvzf /your/path/to/openssl-0.9.4.tar.gz
+    tar xvzf /your/path/to/openssl-0.9.6.tar.gz
 
-    # apply my shared library path
-    patch -p0 <./shared_openssl-0.9.4.diff
     ln -s openssl-0.9.4 openssl
 
     # prepare the local symbols to avoid clashes with Netscape Products
     # you might have the change the perl path
-    perl ./symbol_transform.pl symbol_list.txt openssl-0.9.4 CI_Ceay_
+    perl ./symbol_transform.pl symbol_list.txt openssl-0.9.6 CI_Ceay_
 
     cd ..
 

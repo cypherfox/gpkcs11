@@ -11,6 +11,9 @@ dnl SEE/ALSO:    -
 dnl AUTHOR:      lbe
 dnl BUGS: *      -
 dnl HISTORY:     $Log$
+dnl HISTORY:     Revision 1.1.1.1  2000/10/15 16:47:20  cypherfox
+dnl HISTORY:     import of gpkcs11-0.7.2, first version for SourceForge
+dnl HISTORY:
 dnl HISTORY:     Revision 1.33  2000/07/24 15:43:51  lbe
 dnl HISTORY:     added the files for snacc usage
 dnl HISTORY:
@@ -117,23 +120,23 @@ AC_INIT(gpkcs11_install.js)
 AM_CONFIG_HEADER(conf.h)
 
 AC_CANONICAL_SYSTEM
-AM_INIT_AUTOMAKE(gpkcs11, 0.7.2)
+AM_INIT_AUTOMAKE(gpkcs11, 0.8.0)
 
 TC_INIT(gpkcs11)
 
 dnl global package information
 PACKAGE=gpkcs11
 
-AC_DEFINE(CRYPTO_LIB_VERSION,0.9.4,[version of OpenSSL which libcrypto is used])
+AC_DEFINE(CRYPTO_LIB_VERSION,0.9.6,[version of OpenSSL which libcrypto is used])
 
 AC_DEFINE(CRYPTOKI_VERSION_MAJOR,2,[major version number of cryptoki that this implements])
-AC_DEFINE(CRYPTOKI_VERSION_MINOR,01,[minor version number of cryptoki that this implements])
+AC_DEFINE(CRYPTOKI_VERSION_MINOR,10,[minor version number of cryptoki that this implements])
 
 dnl too bad that the automake version is a string 
 dnl maybe we can split it appart to make the below settings automagically.
 AC_DEFINE(LIBRARY_VERSION_MAJOR,0,[major version number of gpkcs11])
-AC_DEFINE(LIBRARY_VERSION_MINOR,7,[minor version number of gpkcs11])
-AC_DEFINE(TC_LIB_VERSION,2,[patch level of gpkcs11])
+AC_DEFINE(LIBRARY_VERSION_MINOR,8,[minor version number of gpkcs11])
+AC_DEFINE(TC_LIB_VERSION,0,[patch level of gpkcs11])
 
 
 dnl configure architecture support in cryptoki.h

@@ -30,6 +30,9 @@
  * AUTHOR:      lbe
  * BUGS: *      -
  * HISTORY:     $Log$
+ * HISTORY:     Revision 1.1.1.1  2000/10/15 16:47:57  cypherfox
+ * HISTORY:     import of gpkcs11-0.7.2, first version for SourceForge
+ * HISTORY:
  * HISTORY:     Revision 1.14  2000/09/19 09:14:54  lbe
  * HISTORY:     write flag for pin change onto SC, support Auth Pin path
  * HISTORY:
@@ -234,66 +237,78 @@ CK_BYTE CK_I_attributes[] = {
   CK_IO_SECRET_KEY, /* CKA_SSL_VERSION */
   CK_IO_DATA|CK_IO_CERTIFICATE|CK_IO_PUBLIC_KEY|CK_IO_PRIVATE_KEY|CK_IO_SECRET_KEY /* CKA_PERSISTENT_KEY */
 };
+
 /* }}} */
-/* {{{ Attribute Translation */
-static unsigned int CK_I_attrib_xlate[][2] = {
-  {0, CKA_CLASS}, 
-  {1, CKA_TOKEN},              
-  {2, CKA_PRIVATE},            
-  {3, CKA_MODIFIABLE},         
-  {4, CKA_LABEL},              
-  {5, CKA_APPLICATION},        
-  {6, CKA_VALUE},		
-  {7, CKA_CERTIFICATE_TYPE},	
-  {8, CKA_ISSUER},		
-  {9, CKA_SERIAL_NUMBER},      
-  {10, CKA_SUBJECT},		
-  {11, CKA_KEY_TYPE},		
-  {12, CKA_ID},			
-  {13, CKA_START_DATE},         
-  {14, CKA_END_DATE},		
-  {15, CKA_DERIVE},		
-  {16, CKA_LOCAL},		
-  {17, CKA_ENCRYPT},            
-  {18, CKA_VERIFY},		
-  {19, CKA_VERIFY_RECOVER},	
-  {20, CKA_WRAP},		
-  {21, CKA_MODULUS},		
-  {22, CKA_MODULUS_BITS},	
-  {23, CKA_PUBLIC_EXPONENT},	
-  {24, CKA_PRIME},		
-  {25, CKA_SUBPRIME},		
-  {26, CKA_BASE},		
-  {27, CKA_ECDSA_PARAMS},	
-  {28, CKA_EC_POINT},		
-  {29, CKA_SENSITIVE},		
-  {30, CKA_DECRYPT},		
-  {31, CKA_SIGN},               
-  {32, CKA_SIGN_RECOVER},	
-  {33, CKA_UNWRAP},		
-  {34, CKA_EXTRACTABLE},	
-  {35, CKA_ALWAYS_SENSITIVE},	
-  {36, CKA_NEVER_EXTRACTABLE},	
-  {37, CKA_PRIVATE_EXPONENT},	
-  {38, CKA_PRIME_1},		
-  {39, CKA_PRIME_2},		
-  {40, CKA_EXPONENT_1},		
-  {41, CKA_EXPONENT_2},		
-  {42, CKA_COEFFICIENT},	
-  {43, CKA_VALUE_BITS},		
-  {44, CKA_VALUE_LEN},
+/* {{{ Attribute Translation (ID and Sensitivity) */
+
+/*  First entry in each row is the internal ID,
+    second entry is the official (external) ID,
+    third entry is the attribute-dependant sensitivity:
+       FALSE means: this attribute is NEVER sensitive (regardless of the sensitivity of the object!)
+       TRUE means: sensitivity of the object will be inherited by this attribute
+
+ */
+static unsigned int CK_I_attrib_xlate[][3] = {
+  {0, CKA_CLASS, FALSE},
+  {1, CKA_TOKEN, FALSE},
+  {2, CKA_PRIVATE, FALSE},
+  {3, CKA_MODIFIABLE, FALSE},
+  {4, CKA_LABEL, FALSE},
+  {5, CKA_APPLICATION, FALSE},
+  {6, CKA_VALUE, TRUE},
+  {7, CKA_CERTIFICATE_TYPE, FALSE},
+  {8, CKA_ISSUER, FALSE},
+  {9, CKA_SERIAL_NUMBER, FALSE},
+  {10, CKA_SUBJECT, FALSE},
+  {11, CKA_KEY_TYPE, FALSE},
+  {12, CKA_ID, FALSE},
+  {13, CKA_START_DATE, FALSE},
+  {14, CKA_END_DATE, FALSE},
+  {15, CKA_DERIVE, FALSE},
+  {16, CKA_LOCAL, FALSE},
+  {17, CKA_ENCRYPT, FALSE},
+  {18, CKA_VERIFY, FALSE},
+  {19, CKA_VERIFY_RECOVER, FALSE},
+  {20, CKA_WRAP, FALSE},
+  {21, CKA_MODULUS, FALSE},
+  {22, CKA_MODULUS_BITS, FALSE},
+  {23, CKA_PUBLIC_EXPONENT, FALSE},
+  {24, CKA_PRIME, FALSE},
+  {25, CKA_SUBPRIME, FALSE},
+  {26, CKA_BASE, FALSE},
+  {27, CKA_ECDSA_PARAMS, FALSE},
+  {28, CKA_EC_POINT, FALSE},
+  {29, CKA_SENSITIVE, FALSE},
+  {30, CKA_DECRYPT, FALSE},
+  {31, CKA_SIGN, FALSE},
+  {32, CKA_SIGN_RECOVER, FALSE},
+  {33, CKA_UNWRAP, FALSE},
+  {34, CKA_EXTRACTABLE, FALSE},
+  {35, CKA_ALWAYS_SENSITIVE, FALSE},
+  {36, CKA_NEVER_EXTRACTABLE, FALSE},
+  {37, CKA_PRIVATE_EXPONENT, TRUE},
+  {38, CKA_PRIME_1, TRUE},
+  {39, CKA_PRIME_2, TRUE},
+  {40, CKA_EXPONENT_1, TRUE},
+  {41, CKA_EXPONENT_2, TRUE},
+  {42, CKA_COEFFICIENT, TRUE},
+  {43, CKA_VALUE_BITS, FALSE},
+  {44, CKA_VALUE_LEN, FALSE},
 
   /* Vendor Defined */
-  {45, CKA_SSL_VERSION},
-  {46, CKA_PERSISTENT_KEY}
+  {45, CKA_SSL_VERSION, TRUE},
+  {46, CKA_PERSISTENT_KEY, TRUE}
 };
+
 /* }}} */
 /* {{{ Global constants for template/object creation */
+
 CK_CHAR CK_I_empty_str[] = "";
 CK_BYTE CK_I_empty_bytes[] = "";
 CK_BBOOL CK_I_true = TRUE;
 CK_BBOOL CK_I_false = FALSE;
 CK_ULONG CK_I_ulEmpty = 0;
+
 /* }}} */
 
 /* {{{ CI_ReturnSession */
@@ -863,6 +878,7 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetAttributeValue)(
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
   CK_ATTRIBUTE_PTR template_entry = NULL_PTR;
   CK_BBOOL sensitive = FALSE;
+  CK_BBOOL obj_sensitive = FALSE;
   CK_BBOOL invalid = FALSE;
   CK_ATTRIBUTE_TYPE ia_type;
   CK_LONG err_retval = -1L;  
@@ -901,10 +917,11 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetAttributeValue)(
   if((template_entry != NULL) &&
      (TRUE == *((CK_BBOOL CK_PTR)template_entry->pValue)))
     {
-      sensitive = TRUE;
+      /* TODO: look, whether ATTRIBUTE is non-sensitive (independent of object) */
+      obj_sensitive = TRUE;
     }
 
-  for(i=0; i<ulCount ; i++,pTemplate++)
+  for(i=0, sensitive=FALSE; i<ulCount ; i++,pTemplate++)
     {
       rv= CI_TranslateAttribute(pTemplate->type,&ia_type);
       /* Rule 2a: check that the Attribute is a valid one at all */
@@ -925,8 +942,8 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetAttributeValue)(
 	      invalid = TRUE;
 	      rv = CKR_ATTRIBUTE_TYPE_INVALID;
 	      CI_VarLogEntry("C_GetAttributeValue",
-			     "Attribute %s not valid for object",
-			     rv, 0, CI_AttributeStr(pTemplate->type));
+			     "Attribute %s not valid for object (ia_type=%d)",
+			     rv, 0, CI_AttributeStr(pTemplate->type), ia_type);
 	    }
 	  else
 	    {
@@ -948,6 +965,18 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetAttributeValue)(
 		  invalid = TRUE; 
 		  rv = CKR_BUFFER_TOO_SMALL;
 		}
+	      
+	      /* Rule 6: check, whether the attribute for this object is in-sensitive in general */
+	      CI_VarLogEntry("C_GetAttributeValue",
+			     "looking for sensitivity of attribute in general (ia_type=%d)",
+			     rv, 5, ia_type);
+	      if (CK_I_attrib_xlate[ia_type][2] == FALSE)
+	        sensitive = FALSE; /* Attribute can never be sensitive */
+	       else
+		 /* Attribute-sensitivity depends on the sensitivity of the object */
+		sensitive = obj_sensitive; 
+	      CI_VarLogEntry("C_GetAttributeValue",
+			     " ... sensitivity is %d %d", rv, 5, sensitive, obj_sensitive);
 	    }
 	}
       
@@ -968,6 +997,7 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetAttributeValue)(
 
   return rv;
 }
+
 /* }}} */
 /* {{{ C_SetAttributeValue */
 CK_DEFINE_FUNCTION(CK_RV, C_SetAttributeValue)(
@@ -1353,6 +1383,7 @@ CK_DEFINE_FUNCTION(CK_RV, C_FindObjectsFinal)(
 CK_I_HASHTABLE_PTR CK_IA_ck2internal = NULL_PTR;
 
 /* {{{ CI_TranslateAttribute */
+
 CK_DEFINE_FUNCTION(CK_RV, CI_TranslateAttribute)(
   CK_ATTRIBUTE_TYPE CkAttrib,
   CK_ATTRIBUTE_TYPE CK_PTR pIAttrib

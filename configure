@@ -854,7 +854,7 @@ fi
 
 PACKAGE=gpkcs11
 
-VERSION=0.7.2
+VERSION=0.8.0
 
 if test "`cd $srcdir && pwd`" != "`pwd`" && test -f $srcdir/config.status; then
   { echo "configure: error: source directory already configured; run "make distclean" there first" 1>&2; exit 1; }
@@ -1121,7 +1121,7 @@ if test -d $prefix/share/tcpu
 PACKAGE=gpkcs11
 
 cat >> confdefs.h <<\EOF
-#define CRYPTO_LIB_VERSION 0.9.4
+#define CRYPTO_LIB_VERSION 0.9.6
 EOF
 
 
@@ -1130,7 +1130,7 @@ cat >> confdefs.h <<\EOF
 EOF
 
 cat >> confdefs.h <<\EOF
-#define CRYPTOKI_VERSION_MINOR 01
+#define CRYPTOKI_VERSION_MINOR 10
 EOF
 
 
@@ -1139,11 +1139,11 @@ cat >> confdefs.h <<\EOF
 EOF
 
 cat >> confdefs.h <<\EOF
-#define LIBRARY_VERSION_MINOR 7
+#define LIBRARY_VERSION_MINOR 8
 EOF
 
 cat >> confdefs.h <<\EOF
-#define TC_LIB_VERSION 2
+#define TC_LIB_VERSION 0
 EOF
 
 
