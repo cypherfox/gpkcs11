@@ -47,7 +47,8 @@ Requirements: At this time you will need OpenSSL (the crypto
 	      library therein) as the crypto backend. It is availiable
 	      from every good ftp archive or 
 	      
-	      http://www.openssl.org/source/openssl-0.9.4.tar.gz
+	      http://www.openssl.org/source/openssl-0.9.x.tar.gz
+              (current version at the time of writing is 0.9.6)
 
 	      I will probably never distribute the crypto back-end
 	      with the library as this frees me of all the legalities
@@ -72,7 +73,7 @@ Docs:         There is virtually none. Use the source Luke. B-) If you
 	      interface in the texinfor documentation that you will
 	      find in the doc subdirectory.
 
-Licence:      (c) 1999,2000 TC TrustCenter GmbH. The code to
+Licence:      (c) 1999,2000,2001 TC TrustCenter GmbH. The code to
 	      libgpkcs11 and the ceay-token are released under the
 	      Lesser GNU Public License (LGPL) (this is all code in
 	      the ligpkcs11 and ceay_token subdiretories), the terms
@@ -152,16 +153,16 @@ that the same symbol clash might apear with other applications this
 generation of a special version of the libcrypto is the default
 behavior. 
 
-After unpacking:
+After unpacking: (replace the x's with the version you have)
 
     cd gpkcs11-0.x.y/ceay_token
-    tar xvzf /your/path/to/openssl-0.9.6.tar.gz
+    tar xvzf /your/path/to/openssl-0.9.x.tar.gz
 
-    ln -s openssl-0.9.4 openssl
+    ln -s openssl-0.9.x openssl
 
     # prepare the local symbols to avoid clashes with Netscape Products
     # you might have the change the perl path
-    perl ./symbol_transform.pl symbol_list.txt openssl-0.9.6 CI_Ceay_
+    perl ./symbol_transform.pl symbol_list.txt openssl-0.9.x CI_Ceay_
 
     cd ..
 

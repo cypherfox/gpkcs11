@@ -13,6 +13,9 @@
 ## AUTHOR:      lbe
 ## BUGS: *      -
 ## HISTORY:     $Log$
+## HISTORY:     Revision 1.1.1.1  2000/10/15 16:48:58  cypherfox
+## HISTORY:     import of gpkcs11-0.7.2, first version for SourceForge
+## HISTORY:
 ## HISTORY:     Revision 1.14  2000/09/19 09:14:49  lbe
 ## HISTORY:     write flag for pin change onto SC, support Auth Pin path
 ## HISTORY:
@@ -57,7 +60,7 @@
 ## HISTORY:
 ## 
 
-LCRYPT_VERSION= 0.9.4
+LCRYPT_VERSION= 0.9.6
 LCRYPT_MINOR= 9
 LCRYPT_MAJOR= 0
 

@@ -30,6 +30,9 @@
  * AUTHOR:      lbe
  * BUGS: *      -
  * HISTORY:     $Log$
+ * HISTORY:     Revision 1.1.1.1  2000/10/15 16:49:06  cypherfox
+ * HISTORY:     import of gpkcs11-0.7.2, first version for SourceForge
+ * HISTORY:
  * HISTORY:     Revision 1.14  2000/09/19 09:14:49  lbe
  * HISTORY:     write flag for pin change onto SC, support Auth Pin path
  * HISTORY:
@@ -243,7 +246,7 @@ static CK_RV CDB_EncodeObject(CK_I_OBJ_PTR pObject, CK_CHAR_PTR CK_PTR ppBuffer,
   int i;
   char *write_pos;
 
-#if !defined(CK_Win32) && !defined(DEBUG_SIGNAL)
+#if !defined(CK_Win32) && defined(DEBUG_SIGNAL)
   kill(getpid(),SIGHUP);
 #endif 
 
