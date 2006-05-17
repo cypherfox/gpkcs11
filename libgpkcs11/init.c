@@ -42,6 +42,7 @@ const char* Version_init_c(){return RCSID;}
 #ifdef CK_Win32
 # include <windows.h>
 # include <winuser.h>
+# include <stdio.h>
 #elif CK_GENERIC
 # include <dlfcn.h>
 # ifdef HAVE_UNISTD_H
@@ -69,6 +70,8 @@ const char* Version_init_c(){return RCSID;}
 #include "init.h"
 #include "objects.h"
 #include "slot.h"
+
+#include "iniFile/c/inifile.h"
 
 /* more stupid Windowisms */
 # undef CreateMutex
@@ -290,8 +293,12 @@ CK_DEFINE_FUNCTION(CK_RV, C_Finalize)(
     }
   TC_free(slot_list);
 
+  //CI_DestroyHashtable(CK_I_app_table.session_table);
+  if (CK_I_app_table.session_table != NULL_PTR)
+  {
   CI_DestroyHashtable(CK_I_app_table.session_table);
   CK_I_app_table.session_table = NULL_PTR;
+  }
 
   /**** assert that there are no remaining objects ****/
   rv = CI_ObjFinalize();
@@ -369,7 +376,112 @@ CK_DEFINE_FUNCTION(CK_RV, CI_FindConfFile)(
 #if defined (CK_Win32)
       /* {{{ filename for Win32 */
 
-      /* look for <WINDOWS-VERZEICHNIS>\tcpkcs11.cnf */
+{
+	FILE *f;
+
+	/* first search the current directory for config-file */
+
+	// " '.'  + seperator +  CK_I_WINDOWS_RC_FNAME + \0" 
+	CK_I_config_fname = TC_malloc(sizeof(CK_CHAR) * (1 + 1 
+				     + strlen(CK_I_WINDOWS_RC_FNAME) + 1));
+	if( CK_I_config_fname == NULL_PTR )
+		{
+			rv = CKR_HOST_MEMORY;
+			CI_LogEntry("CI_FindConfFile", "Allocating Buffer Space", 
+			rv, 0); 
+			return rv;
+		}
+	
+	*CK_I_config_fname = 0;
+	strcat(CK_I_config_fname,".\\");
+	strcat(CK_I_config_fname,CK_I_WINDOWS_RC_FNAME);
+
+	CI_VarLogEntry("CI_FindConfFile", "trying %s", rv, 1,CK_I_config_fname);
+
+	if( (f = fopen(CK_I_config_fname, "r")) == NULL)
+	{
+	  if(errno != ENOENT)	
+	  {
+			rv = CKR_GENERAL_ERROR;
+			CI_VarLogEntry("CI_FindConfFile", 
+							   "opening file '%s': %s", 
+									rv, 0, CK_I_config_fname, strerror(errno)); 
+			return rv;
+	  }
+	  else
+	  {
+			TC_free(CK_I_config_fname);
+			CK_I_config_fname = NULL_PTR; /* nicht gefunden */
+	  }
+	}
+	else
+	{
+	  fclose(f);
+	}
+	
+	/* if no config-file was found in the current directory, search the user profile */
+	if ( CK_I_config_fname == NULL )
+	{
+		CK_CHAR_PTR application_data_dir = NULL_PTR;
+		
+		application_data_dir = getenv ("APPDATA");
+		if( application_data_dir == NULL_PTR )
+		{
+			CI_LogEntry("CI_FindConfFile", "'APPDATA' environment varibale not set", 
+			CKR_GENERAL_ERROR, 0);
+		}else
+		{
+			if( strlen (application_data_dir) == 0 )
+			{
+				CI_VarLogEntry("CI_FindConfFile", 
+				 "'APPDATA' environment varibale set, but has zero length", 
+				 CKR_GENERAL_ERROR, 0, 0); 
+			}else
+			{
+				/* directory + Seperator + 'gpkcs11' + Seperator + CK_I_conf_filename + Seperator + \0 */
+				CK_I_config_fname = TC_malloc(sizeof(CK_CHAR) * ( strlen (application_data_dir) 
+										 + 1 + strlen ("gpkcs11") + 1 + strlen(CK_I_WINDOWS_RC_FNAME) + 1));
+				if( CK_I_config_fname == NULL_PTR )
+				{
+					rv = CKR_HOST_MEMORY;
+					CI_LogEntry("CI_FindConfFile", "Allocating Buffer Space", 
+					rv, 0); 
+					return rv;
+				}
+				
+				strcpy(CK_I_config_fname,application_data_dir);
+				strcat(CK_I_config_fname,"\\");
+				strcat(CK_I_config_fname,"gpkcs11");
+				strcat(CK_I_config_fname,"\\");
+				strcat(CK_I_config_fname,CK_I_WINDOWS_RC_FNAME);
+			}
+		}
+	
+		CI_VarLogEntry("CI_FindConfFile", "trying %s", rv, 1,CK_I_config_fname);
+		if( (f = fopen(CK_I_config_fname, "r")) == NULL)
+		{
+			if(errno != ENOENT)	
+			{
+				rv = CKR_GENERAL_ERROR;
+				CI_VarLogEntry("CI_FindConfFile", 
+								   "opening file '%s': %s", 
+									rv, 0, CK_I_config_fname, strerror(errno)); 
+				return rv;
+			}else
+			{
+				TC_free(CK_I_config_fname);
+				CK_I_config_fname = NULL_PTR; /* nicht gefunden */
+			}
+		}
+		else
+		{
+		 fclose(f);
+		}
+	}
+
+
+	/* if no config-file was found in the user profile, search the system-directory */
+	if ( CK_I_config_fname == NULL )
       {
 	CK_CHAR_PTR system_dir = NULL_PTR;
 	UINT retlen;
@@ -419,7 +531,6 @@ CK_DEFINE_FUNCTION(CK_RV, CI_FindConfFile)(
 	      }
 	  }
 	
-	
 	/* directory + CK_I_conf_filename + Seperator + \0 */
 	CK_I_config_fname = TC_malloc(sizeof(CK_CHAR) * (strlen(system_dir) 
 					     + strlen(CK_I_WINDOWS_RC_FNAME) + 1 + 1));
@@ -438,6 +549,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_FindConfFile)(
 	
 	TC_free(system_dir);
       }
+}
 
       /* }}} */
 #else
@@ -819,6 +931,7 @@ CK_DEFINE_FUNCTION(void, CI_TokenInit)(
 	    }
 
 	  /* the 'token_name' is just the the ref to the config section */
+    /* this is redundant for the ceay_token, because it is done in the ceayToken_init method */
 	  pSlotData->config_section_name = strdup(token_name);
 	  if(pSlotData->config_section_name == NULL_PTR)
 	    {
@@ -1074,6 +1187,18 @@ CK_DECLARE_FUNCTION(CK_RV, CI_UnloadDlls)(
 
   return rv;
 }
+
+/* }}} */
+/* {{{ CI_GetConfigFileName */
+CK_DEFINE_FUNCTION(CK_RV, CI_GetConfigFileName)(
+	CK_CHAR_PTR CK_PTR ppFileName
+)
+{
+	CK_PTR ppFileName = CK_I_config_fname;
+	return CKR_OK;
+}
+
+
 /* }}} */
 /* {{{ CI_GetConfigString */
 static CK_C_CHAR_PTR CK_I_init_fail_reasons[] = {"no error",
@@ -1088,14 +1213,17 @@ CK_DEFINE_FUNCTION(CK_RV, CI_GetConfigString)(
   CK_CHAR_PTR CK_PTR ppValue
 )
 {
-  CK_CHAR buff[512];
+  CK_CHAR_PTR buff;
   CK_RV rv = CKR_OK;
   int len;
+  bool ret;
 
   pSectionName=((pSectionName!=NULL_PTR)?pSectionName:(CK_CHAR_PTR)"PKCS11-DLL");
 
   if(CK_I_config_fname == NULL_PTR)
     {
+     if ( CI_FindConfFile() != CKR_OK )
+     {
       rv = CKR_GENERAL_ERROR;
       CI_VarLogEntry("CI_GetConfigString", "Reading config field failed: config file not set", 
 		     rv, 0, 
@@ -1105,13 +1233,26 @@ CK_DEFINE_FUNCTION(CK_RV, CI_GetConfigString)(
 		     CK_I_init_fail_reasons[rv]);
       return rv;
     }
+  }
 
-  rv = TCU_GetProfileString(CK_I_config_fname, pSectionName, pFieldname, 
-			       buff, 510,FALSE);
-  if(rv != 0)
+	do
+	{
+		ret = OpenIniFile(CK_I_config_fname);
+		if (ret != TRUE)
+			break;
+
+		buff = (CK_CHAR_PTR)ReadString(pSectionName, pFieldname, "");
+		if (strcmp(buff, "") == 0)
+		{
+			CloseIniFile();
+			ret = FALSE;
+			break;
+		}
+	}while (false);
+  if(ret != TRUE)
     {
       CI_VarLogEntry("CI_GetConfigString", "Reading config field '%s' from section [%s] in file '%s' failed: %s", 
-		     CKR_GENERAL_ERROR, 0, 
+		     CKR_GENERAL_ERROR, 3,
 		     pFieldname, 
 		     pSectionName,
 		     CK_I_config_fname, 
@@ -1128,6 +1269,114 @@ len= strlen(buff)+1;
 
   return CKR_OK;
 }
+
+
+/* }}} */
+/* {{{ CI_SetConfigString */
+CK_DEFINE_FUNCTION(CK_RV, CI_SetConfigString)(
+  CK_CHAR_PTR pSectionName,
+  CK_CHAR_PTR pFieldname,
+  CK_CHAR_PTR pValue
+)
+{
+  CK_RV rv = CKR_OK;
+	bool ret;
+
+  pSectionName=((pSectionName!=NULL_PTR)?pSectionName:(CK_CHAR_PTR)"PKCS11-DLL");
+
+  if(CK_I_config_fname == NULL_PTR)
+    {
+      rv = CKR_GENERAL_ERROR;
+      CI_VarLogEntry("CI_GetConfigString", "Reading config field failed: config file not set", 
+		     rv, 0, 
+		     pFieldname, 
+		     pSectionName,
+		     CK_I_config_fname, 
+		     CK_I_init_fail_reasons[rv]);
+      return rv;
+    }
+
+	do 
+	{
+		ret = OpenIniFile(CK_I_config_fname);
+		if (ret != TRUE)
+			break;
+
+		ret = DeleteKey(pSectionName, pFieldname);
+		if (ret != TRUE)
+		{
+			CloseIniFile();
+			break;
+		}
+		
+		WriteString(pSectionName, pFieldname, pValue);
+
+		WriteIniFile(CK_I_config_fname);
+	}while (false);
+	if(ret != TRUE)
+    {
+      CI_VarLogEntry("CI_SetConfigString", "Setting config field '%s' from section [%s] in file '%s' failed: %s", 
+		     CKR_GENERAL_ERROR, 0, 
+		     pFieldname, 
+		     pSectionName,
+		     CK_I_config_fname, 
+		     CK_I_init_fail_reasons[rv]);
+      return CKR_GENERAL_ERROR;
+    }
+  return CKR_OK;
+}
+
+/* }}} */
+/* {{{ CI_AddConfigString */
+CK_DEFINE_FUNCTION(CK_RV, CI_AddConfigString)(
+  CK_CHAR_PTR pSectionName,
+  CK_CHAR_PTR pFieldname,
+  CK_CHAR_PTR pValue
+)
+{
+  CK_RV rv = CKR_OK;
+	bool ret;
+
+  pSectionName=((pSectionName!=NULL_PTR)?pSectionName:(CK_CHAR_PTR)"PKCS11-DLL");
+
+  if(CK_I_config_fname == NULL_PTR)
+    {
+      rv = CKR_GENERAL_ERROR;
+      CI_VarLogEntry("CI_GetConfigString", "Reading config field failed: config file not set", 
+		     rv, 0, 
+		     pFieldname, 
+		     pSectionName,
+		     CK_I_config_fname, 
+		     CK_I_init_fail_reasons[rv]);
+      return rv;
+    }
+
+	do 
+	{
+		ret = OpenIniFile(CK_I_config_fname);
+		if (ret != TRUE)
+			break;
+
+		WriteString(pSectionName, pFieldname, pValue);
+
+		WriteIniFile(CK_I_config_fname);
+	}while (false);
+	if(ret != TRUE)
+    {
+      CI_VarLogEntry("CI_SetConfigString", "Setting config field '%s' from section [%s] in file '%s' failed: %s", 
+		     CKR_GENERAL_ERROR, 0, 
+		     pFieldname, 
+		     pSectionName,
+		     CK_I_config_fname, 
+		     CK_I_init_fail_reasons[rv]);
+      return CKR_GENERAL_ERROR;
+    }
+  return CKR_OK;
+}
+
+
+
+
 /* }}} */
 #if 0
 /* #if defined(CK_Win32) */

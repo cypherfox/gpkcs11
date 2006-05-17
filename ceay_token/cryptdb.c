@@ -1,7 +1,8 @@
 /* -*- c -*- */
 /*
  * This file is part of GPKCS11. 
- * (c) 1999-2001 TC TrustCenter GmbH 
+ * (c) 1999-2001 TC TrustCenter GmbH
+ * (c) 2006 Lutz Behnke
  *
  * GPKCS11 is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,7 +53,8 @@ const char* Version_cryptdb_c(){return RCSID;}
 #include <time.h>
 
 #ifdef CK_Win32
-#include <winsock2.h>
+//#include <winsock2.h>
+#include <winsock.h>
 #include <gdbmerrno.h>
 #include <gdbm.h>
 #else
@@ -64,11 +66,13 @@ const char* Version_cryptdb_c(){return RCSID;}
 #endif /* HAVE_UNISTD_H */
 #endif /* !CK_Win32 */
 
+
 /* Entry types */
 #define CDB_E_VERSION 0
 #define CDB_E_SO_PIN 1
 #define CDB_E_USER_PIN 2
 #define CDB_E_OBJECT 3
+#define CDB_E_TOKEN_INFO	4
 
 /* Entry Flags */
 /* Entry is encrypted */
@@ -253,26 +257,28 @@ static CK_RV CDB_EncodeObject(CK_I_OBJ_PTR pObject, CK_CHAR_PTR CK_PTR ppBuffer,
 
   return CKR_OK;
 }
+
+
 /* }}} */
 
-/* {{{ CK_I_CRYPT_DB_PTR CDB_Open(CK_CHAR_PTR file_name) */
-CK_I_CRYPT_DB_PTR CDB_Open(CK_CHAR_PTR file_name)
+/* {{{ CK_I_CRYPT_DB_PTR CDB_Create(CK_CHAR_PTR file_name) */
+CK_I_CRYPT_DB_PTR CDB_Create(CK_CHAR_PTR file_name)
 {
   CK_I_CRYPT_DB_PTR retval;
 
   retval = TC_malloc(sizeof(CK_I_CRYPT_DB));
   if(retval == NULL_PTR)
     {
-      CI_LogEntry("CDB_Open","not enough memory",CKR_HOST_MEMORY ,0);
+      CI_LogEntry("CDB_Create","not enough memory",CKR_HOST_MEMORY ,0);
       return NULL_PTR;
     }
   memset(retval, 0, sizeof(CK_I_CRYPT_DB));
 
   retval->table = gdbm_open(file_name, 0 /* use system default */, 
-			    GDBM_WRCREAT, 0600, NULL_PTR);
+			    GDBM_NEWDB, 0600, NULL_PTR);
   if(retval->table == NULL_PTR)
     {
-      CI_VarLogEntry("CDB_Open","failure to open table '%s': %s",
+      CI_VarLogEntry("CDB_Create","failure to create table '%s': %s",
 		     CKR_GENERAL_ERROR ,0, 
 		     file_name, gdbm_strerror(gdbm_errno));
       TC_free(retval);
@@ -299,6 +305,47 @@ CK_I_CRYPT_DB_PTR CDB_Open(CK_CHAR_PTR file_name)
 
   return retval;
 }
+
+/* }}} */
+
+/* {{{ CK_I_CRYPT_DB_PTR CDB_Open(CK_CHAR_PTR file_name) */
+CK_I_CRYPT_DB_PTR CDB_Open(CK_CHAR_PTR file_name)
+{
+  CK_I_CRYPT_DB_PTR retval;
+
+  retval = TC_malloc(sizeof(CK_I_CRYPT_DB));
+  if(retval == NULL_PTR)
+    {
+      CI_LogEntry("CDB_Open","not enough memory",CKR_HOST_MEMORY ,0);
+      return NULL_PTR;
+    }
+  memset(retval, 0, sizeof(CK_I_CRYPT_DB));
+
+  // first check if there is a database file. if not, we don't want to create one!
+  retval->table = gdbm_open(file_name, 0 /* use system default */, 
+			    GDBM_READER, 0600, NULL_PTR);
+  if (retval->table == NULL_PTR)
+  {
+    TC_free(retval);
+    return NULL_PTR;      
+  }
+  gdbm_close(retval->table);
+
+  retval->table = gdbm_open(file_name, 0 /* use system default */, 
+			    GDBM_WRITER, 0600, NULL_PTR);
+  if(retval->table == NULL_PTR)
+    {
+      CI_VarLogEntry("CDB_Open","failure to open table '%s': %s",
+		     CKR_GENERAL_ERROR ,0, 
+		     file_name, gdbm_strerror(gdbm_errno));
+      TC_free(retval);
+
+      return NULL_PTR;      
+    }
+	return retval;
+}
+
+
 /* }}} */
 /* {{{ CK_RV CDB_Close(CK_I_CRYPT_DB_PTR cdb) */
 CK_RV CDB_Close(CK_I_CRYPT_DB_PTR cdb)
@@ -467,6 +514,71 @@ CK_RV CDB_SetPin(CK_I_CRYPT_DB_PTR cdb, CK_BBOOL so_pin, CK_CHAR_PTR pin, CK_ULO
 
   return CKR_OK;
 }
+
+/* }}} */
+/* {{{ CK_RV CDB_PutTokenInfo (CK_I_CRYPT_DB_PTR cdb, CK_TOKEN_INFO_PTR pTokenInfo) */
+CK_RV CDB_PutTokenInfo (CK_I_CRYPT_DB_PTR cdb, CK_TOKEN_INFO_PTR pTokenInfo)
+{
+	datum key, data;
+  CK_RV rv = CKR_OK;
+	CK_CHAR key_data;
+
+  key_data = CDB_E_TOKEN_INFO;
+  
+  /* write the key/data to the database */
+  key.dsize = 1;
+  key.dptr = &key_data;
+
+  data.dsize= sizeof (CK_TOKEN_INFO);
+  data.dptr= (char*)pTokenInfo;
+
+  if(gdbm_store(cdb->table,key,data,GDBM_REPLACE) != 0)
+    {
+			rv = CKR_GENERAL_ERROR;
+      CI_VarLogEntry("CDB_SetTokenInfo","could not insert data:%s",
+		     rv,0,gdbm_strerror(gdbm_errno));
+      return rv;
+    }
+  return rv;
+}
+
+
+/* }}} */
+/* {{{ CK_RV CDB_GetTokenInfo (CK_I_CRYPT_DB_PTR cdb, CK_TOKEN_INFO_PTR CK_PTR ppTokenInfo) */
+CK_RV CDB_GetTokenInfo (CK_I_CRYPT_DB_PTR cdb, CK_TOKEN_INFO_PTR CK_PTR ppTokenInfo)
+{
+	datum key;
+	datum data;
+  CK_RV rv = CKR_OK;
+  CK_CHAR key_data;
+
+  key_data = CDB_E_TOKEN_INFO;
+  
+  /* write the key/data to the database */
+  key.dsize = 1;
+  key.dptr = &key_data;
+
+	data = gdbm_fetch(cdb->table,key);
+
+	if (data.dptr == NULL)
+  {
+		rv = CKR_GENERAL_ERROR;
+    CI_LogEntry("CDB_GetTokenInfo","no data was found", rv, 0);
+    return rv;
+  }
+
+	if (data.dsize != sizeof (CK_TOKEN_INFO))
+	{
+		rv = CKR_GENERAL_ERROR;
+    CI_LogEntry("CDB_GetTokenInfo","illegal size of data found in db ", rv, 0);
+    return rv;
+	}
+
+	CK_PTR ppTokenInfo = (CK_TOKEN_INFO CK_PTR)data.dptr;
+  return rv;
+}
+
+
 /* }}} */
 
 /* {{{ CK_RV CDB_GetObjectInit(CK_I_CRYPT_DB_PTR cdb) */
@@ -477,6 +589,8 @@ CK_RV CDB_GetObjectInit(CK_I_CRYPT_DB_PTR cdb)
     return CKR_GENERAL_ERROR;
   return CKR_OK;
 } 
+
+
 /* }}} */
 /* {{{ CK_RV CDB_GetObjectUpdate(CK_I_CRYPT_DB_PTR cdb, CK_I_OBJ_PTR CK_PTR next_obj) */
 CK_RV CDB_GetObjectUpdate(CK_I_CRYPT_DB_PTR cdb, CK_I_OBJ_PTR CK_PTR next_obj)
@@ -492,108 +606,109 @@ CK_RV CDB_GetObjectUpdate(CK_I_CRYPT_DB_PTR cdb, CK_I_OBJ_PTR CK_PTR next_obj)
     if(cdb->old_key.dptr == NULL_PTR)
       {
 	*next_obj = NULL_PTR;
-	CI_LogEntry("CDB_Open","no further objects",
+	CI_LogEntry("CDB_GetObjectUpdate","no further objects",
 		    CKR_OK ,0);
 	return CKR_OK; /* the calling code must check for the empty obj */
       }
     
-    data = gdbm_fetch(cdb->table, cdb->old_key);
-    if(data.dptr == NULL_PTR)
+    /* if the entry is an object and ... (1) */
+    if (cdb->old_key.dptr[0] == CDB_E_OBJECT)
       {
-	CI_VarLogEntry("CDB_Open","failure to fetch next entry: %s",
-		       CKR_GENERAL_ERROR ,0, 
-		       gdbm_strerror(gdbm_errno));
-	*next_obj = NULL_PTR;
-	
-	return CKR_GENERAL_ERROR;            
-      }
-    
-	
-		// Come on!! Let's ignore private objets until user authentication...
-		if ((cdb->old_key.dptr[0] == CDB_E_OBJECT)&&(!(((CK_CHAR_PTR)cdb->old_key.dptr)[1] & CDB_F_PRIVATE)))		
-		{
-	/* decrypt object into a string */
-	if(data.dsize%8 != 0)
+	/* (1) ... is encrypted, we ... (2) */
+	if ( ((CK_CHAR_PTR)cdb->old_key.dptr)[1] & CDB_F_ENCRYPTED )
 	  {
-	    rv = CKR_GENERAL_ERROR;
-	    CI_VarLogEntry("CDB_GetObjectUpdate","data.size (%d) %% 8 != 0",
-			   rv,0,data.dsize);
-	    return rv; 
-	  }
-	if(data.dsize == 0)
-	  {
-	    rv = CKR_GENERAL_ERROR;
-	    CI_VarLogEntry("CDB_GetObjectUpdate","data.size (%d) == 0",
-			   rv,0,data.dsize);
-	    return rv; 
-	  }
-	
-	crypt_buffer = malloc(data.dsize);
-	if(crypt_buffer == NULL_PTR)
-	  return CKR_HOST_MEMORY;
-	
-	/* set the ivec */
-	memcpy(ivec,"A Secret",8);
-  
-	if(((CK_CHAR_PTR)cdb->old_key.dptr)[1]&CDB_F_ENCRYPTED)
-	  {
-	    /* check that the pin is provided */
-	    if(! cdb->flags & CK_I_CDB_F_USER_PIN_SET)
+	    /* (2) ... have to check that the pin is provided */
+	    if( cdb->flags & CK_I_CDB_F_USER_PIN_SET )
 	      {
-		rv = CKR_USER_NOT_LOGGED_IN;
-		CI_VarLogEntry("CDB_GetObjectUpdate","User pin not set for decryption",rv,0);
-		return rv;
+		break;
 	      }
-	    /* decode the stuff */
-	    des_ede3_cbc_encrypt(data.dptr,
-				 crypt_buffer,
-				 data.dsize,
-				 cdb->user_key_sched[0],
-				 cdb->user_key_sched[1],
-				 cdb->user_key_sched[2],
-				 &(ivec),
-				 0); /* no encrypt */
-	  }
-	else
+	  }else
 	  {
-	    crypt_buffer = data.dptr;
+	    /* (1) ... is not ecrypted, we can get it */
+	    break;
 	  }
-	
-	/* parse into structure */
-	rv =CDB_ParseObject(crypt_buffer,data.dsize,next_obj);
-	if(rv != CKR_OK)
-	  return rv;
-	
-	/* add key to structure */
-	key_attrib.type = CKA_PERSISTENT_KEY;
-	key_attrib.pValue = cdb->old_key.dptr;
-	key_attrib.ulValueLen = cdb->old_key.dsize;
-	
-	rv = CI_ObjSetAttribute(*next_obj,&key_attrib);
-	if(rv != CKR_OK)
-	  {
-	    CI_ObjDestroyObj(*next_obj);
-	    CI_VarLogEntry("CDB_GetObjectUpdate","Setting Attribute '%s' failed.",
-			   rv,0,CI_AttributeStr(key_attrib.type));
-	    return rv;
-	  }
-	
-	/* advance the key one element */
-	cdb->old_key = gdbm_nextkey(cdb->table, cdb->old_key);
-	
-	break;
       }
-    
-    /* advance the key one element */
     cdb->old_key = gdbm_nextkey(cdb->table, cdb->old_key);
-    /* no error check yet, as there is an object, but the test at the
-     * start of the next invocation will fail and report the lack of
-     * further objects */
   }while (TRUE);
+
+
+  data = gdbm_fetch(cdb->table, cdb->old_key);
+  if(data.dptr == NULL_PTR)
+    {
+      CI_VarLogEntry("CDB_GetObjectUpdate","failure to fetch next entry: %s",
+		     CKR_GENERAL_ERROR ,0, 
+		     gdbm_strerror(gdbm_errno));
+      *next_obj = NULL_PTR;
+      
+      return CKR_GENERAL_ERROR;            
+    }
+  
+  /* decrypt object into a string */
+  if(data.dsize%8 != 0)
+    {
+      rv = CKR_GENERAL_ERROR;
+      CI_VarLogEntry("CDB_GetObjectUpdate","data.size (%d) %% 8 != 0",
+		     rv,0,data.dsize);
+      return rv; 
+    }
+  if(data.dsize == 0)
+    {
+      rv = CKR_GENERAL_ERROR;
+      CI_VarLogEntry("CDB_GetObjectUpdate","data.size (%d) == 0",
+		     rv,0,data.dsize);
+      return rv; 
+    }
+  
+  crypt_buffer = malloc(data.dsize);
+  if(crypt_buffer == NULL_PTR)
+    return CKR_HOST_MEMORY;
+  
+  /* set the ivec */
+  memcpy(ivec,"A Secret",8);
+  
+  /* only if the object is encrypted, we have to decrypt it */
+  if(((CK_CHAR_PTR)cdb->old_key.dptr)[1]&CDB_F_ENCRYPTED)
+    {
+      /* decode the stuff */
+      des_ede3_cbc_encrypt(data.dptr,
+			   crypt_buffer,
+			   data.dsize,
+			   cdb->user_key_sched[0],
+			   cdb->user_key_sched[1],
+			   cdb->user_key_sched[2],
+			   &(ivec),
+			   0); /* no encrypt */
+    }
+  else
+    {
+      crypt_buffer = data.dptr;
+    }
+  
+  /* parse into structure */
+  rv =CDB_ParseObject(crypt_buffer,data.dsize,next_obj);
+  if(rv != CKR_OK)
+    return rv;
+  
+  /* add key to structure */
+  key_attrib.type = CKA_PERSISTENT_KEY;
+  key_attrib.pValue = cdb->old_key.dptr;
+  key_attrib.ulValueLen = cdb->old_key.dsize;
+  
+  rv = CI_ObjSetAttribute(*next_obj,&key_attrib);
+  if(rv != CKR_OK)
+    {
+      CI_ObjDestroyObj(*next_obj);
+      CI_VarLogEntry("CDB_GetObjectUpdate","Setting Attribute '%s' failed.",
+		     rv,0,CI_AttributeStr(key_attrib.type));
+      return rv;
+    }
+  
+  /* advance the key one element */
+  cdb->old_key = gdbm_nextkey(cdb->table, cdb->old_key);
   
   return CKR_OK;
-  
 }
+
 /* }}} */
 /* {{{ CK_RV CDB_GetObjectFinal(CK_I_CRYPT_DB_PTR cdb) */
 CK_RV CDB_GetObjectFinal(CK_I_CRYPT_DB_PTR cdb)

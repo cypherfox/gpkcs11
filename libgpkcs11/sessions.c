@@ -59,7 +59,8 @@ const char* Version_sessions_c(){return RCSID;}
 CK_I_APP_DATA CK_I_app_table = {NULL_PTR};
 
 /* {{{ C_OpenSession */
-CK_DEFINE_FUNCTION(CK_RV, C_OpenSession)(
+CK_DEFINE_FUNCTION(CK_RV, C_OpenSession)
+		(
         CK_SLOT_ID slotID,
         CK_FLAGS flags,
         CK_VOID_PTR pApplication,
@@ -295,6 +296,8 @@ CK_DEFINE_FUNCTION(CK_RV, C_OpenSession)(
   CI_DestroyMutex(mutex);
   return rv;
 }
+
+
 /* }}} */
 /* {{{ CI_InternalCloseSession*/
 CK_DEFINE_FUNCTION(CK_RV, CI_InternalCloseSession)(
@@ -317,7 +320,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_InternalCloseSession)(
       return rv;
     }
 
-#ifdef EBUG
+#ifdef _DEBUG
   /* make sure that the token has deleted all internal objects. */
   if(session_data->digest_state  || session_data->encrypt_state || 
      session_data->decrypt_state || session_data->sign_state    || 
@@ -339,7 +342,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_InternalCloseSession)(
       return rv;
     }
 
-#endif /* EBUG */
+#endif /* _DEBUG */
   
 
   /* free memory of remaining objects */
@@ -500,7 +503,9 @@ CK_DEFINE_FUNCTION(CK_RV, C_CloseAllSessions)
 
   /* TODO: the token knows about its sessions. use that info to clean up */
   /* go through all sessions in the session table and select those with same token_data */
-  if(CK_I_app_table.session_table == NULL_PTR) goto ende;
+  
+  //if(CK_I_app_table.session_table == NULL_PTR) goto ende;
+  if(CK_I_app_table.session_table == NULL_PTR) return rv;
 
   rv = CI_HashIterateInit(CK_I_app_table.session_table,&iter);
   if(rv != CKR_OK) 

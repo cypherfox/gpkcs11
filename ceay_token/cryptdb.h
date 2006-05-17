@@ -54,6 +54,7 @@ typedef struct CK_I_CRYPT_DB{
 
 typedef CK_I_CRYPT_DB CK_PTR CK_I_CRYPT_DB_PTR;
 
+CK_I_CRYPT_DB_PTR CDB_Create(CK_CHAR_PTR file_name);
 CK_I_CRYPT_DB_PTR CDB_Open(CK_CHAR_PTR file_name);
 CK_RV CDB_Close(CK_I_CRYPT_DB_PTR cdb);
 
@@ -61,6 +62,9 @@ CK_BBOOL CDB_CheckPin(CK_I_CRYPT_DB_PTR cdb, CK_BBOOL so_pin, CK_CHAR_PTR pin , 
 CK_RV CDB_SetPin(CK_I_CRYPT_DB_PTR cdb, CK_BBOOL so_pin, CK_CHAR_PTR pin, CK_ULONG pinLen);
 CK_RV CDB_NewPin(CK_I_CRYPT_DB_PTR cdb, CK_BBOOL so_pin, CK_CHAR_PTR old_pin, CK_ULONG old_pinLen, 
 		 CK_CHAR_PTR new_pin, CK_ULONG new_pinLen);
+
+CK_RV CDB_PutTokenInfo (CK_I_CRYPT_DB_PTR cdb, CK_TOKEN_INFO_PTR pTokenInfo);
+CK_RV CDB_GetTokenInfo (CK_I_CRYPT_DB_PTR cdb, CK_TOKEN_INFO_PTR CK_PTR ppTokenInfo);
 
 CK_RV CDB_GetObjectInit(CK_I_CRYPT_DB_PTR cdb);
 CK_RV CDB_GetObjectUpdate(CK_I_CRYPT_DB_PTR cdb, CK_I_OBJ_PTR CK_PTR next_obj);

@@ -40,6 +40,8 @@ static char RCSID[]="$Id$";
 
 #include "TCCGenKey.h"
 
+
+
 const char *TCC_GenKey_Version(void)
 {
    return RCSID;
@@ -93,11 +95,18 @@ RSA *TCC_GenKey_generate_rsa_key(unsigned long bits, unsigned long e_value,
   if (ctx == NULL) goto err;
   ctx2=BN_CTX_new();
   if (ctx2 == NULL) goto err;
-  r0=&(ctx->bn[0]);
-  r1=&(ctx->bn[1]);
-  r2=&(ctx->bn[2]);
-  r3=&(ctx->bn[3]);
-  ctx->tos+=4;
+//  r0=&(ctx->bn[0]);
+//  r1=&(ctx->bn[1]);
+//  r2=&(ctx->bn[2]);
+//  r3=&(ctx->bn[3]);
+//  ctx->tos+=4;
+  BN_CTX_start(ctx);
+  r0=BN_CTX_get(ctx);
+  r1=BN_CTX_get(ctx);
+  r2=BN_CTX_get(ctx);
+  r3=BN_CTX_get(ctx);
+  if (r0 == NULL || r1 == NULL || r2 == NULL || r3 == NULL)
+		goto err;
 
   bitsp=(bits+1+CLOSENESS_EXPONENT)/2;  /* p and q should not be very close */
   bitsq=bits-bitsp;
@@ -210,8 +219,16 @@ generate_q:
 
 err:
   BN_free(low_limit);
+	if (ctx != NULL)
+		{
+			BN_CTX_end(ctx);
   BN_CTX_free(ctx);
+		}
+	if (ctx2 != NULL)
+		{
+			BN_CTX_end(ctx2);
   BN_CTX_free(ctx2);
+		}
 
   if (!ok || (ok==-1))
     { if (rsa != NULL) 

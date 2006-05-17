@@ -126,11 +126,28 @@ CK_DECLARE_FUNCTION(CK_I_DLL_INFO_PTR, CK_I_DLL_INFO_new)(
   void
 );
 
+CK_DEFINE_FUNCTION(CK_RV, CI_GetConfigFileName)(
+	CK_CHAR_PTR CK_PTR ppFileName
+);
+
 CK_DECLARE_FUNCTION(CK_RV, CI_GetConfigString)(
   CK_CHAR_PTR SectionName,
   CK_CHAR_PTR FieldName,
   CK_CHAR_PTR CK_PTR value
 );
+
+CK_DECLARE_FUNCTION(CK_RV, CI_SetConfigString)(
+  CK_CHAR_PTR SectionName,
+  CK_CHAR_PTR FieldName,
+  CK_CHAR_PTR value
+);
+
+CK_DECLARE_FUNCTION(CK_RV, CI_AddConfigString)(
+  CK_CHAR_PTR SectionName,
+  CK_CHAR_PTR FieldName,
+  CK_CHAR_PTR value
+);
+
 
 CK_DECLARE_FUNCTION(CK_RV, CI_GetSignals)(
 );

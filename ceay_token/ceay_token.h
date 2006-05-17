@@ -56,6 +56,8 @@
 # define CK_I_CEAY_MECHANISM_NUM 3
 #endif
 
+#define CK_I_SERIAL_LENGTH	16
+
 extern CK_MECHANISM_TYPE ceay_mechanism_list[];
 extern CK_MECHANISM_INFO ceay_mechanism_info_list[];
 extern CK_I_TOKEN_DATA Ceay_token_data;
@@ -660,6 +662,13 @@ CK_DECLARE_FUNCTION(void, CI_Ceay_RSA_Callback)(
   int count,     /* value of prime (?) */
   void* session_ptr  /* pointer to the session. In truth this is a CK_I_SESSION_DATA_PTR */
 ); 
+
+
+/** Generates a SerialNumber from epoch.
+ */
+CK_DECLARE_FUNCTION(CK_RV, CI_Ceay_GenerateSerialNumber)(
+	CK_CHAR_PTR p_serialNumber
+);
 /******************************************************************
  *                  internal structures                           *
  ******************************************************************/

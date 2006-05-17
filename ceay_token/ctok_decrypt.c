@@ -47,6 +47,8 @@ const char* ctok_decrypt_c_version(){return RCSID;}
 
 #include <assert.h>
 
+
+
 /* {{{ CI_Ceay_DecryptInit */
 CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptInit)(
   CK_I_SESSION_DATA_PTR  session_data,

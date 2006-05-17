@@ -30,6 +30,12 @@ implementation, as well patches to add features:
 
  Rolf Lindemann <lindemann@trustcenter.de>
     - proper _SENSITIVE handling of object attributes 
- 
+
+ Sebastian Dingel <sdi@vitronic.com>
+    - Fixes to object persistence in ceay_token
+    - Serial-number and dynamic storage file support for ceay_token
+    - Bug fixes in configuration handling and lots of other places
+    - inclusion of inifile (http://inifile.sf.net)
+
 Everybody is named in (hopefully) chronological order of first submission
 to the project.
