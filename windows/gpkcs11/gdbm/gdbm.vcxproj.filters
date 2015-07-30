@@ -1,0 +1,170 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Code">
+      <UniqueIdentifier>{53179d16-d064-4ace-9abf-9bdfb7ae14ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{437eac19-e371-4076-9b17-4a5b695310cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Build">
+      <UniqueIdentifier>{58c140fe-369c-4c2e-ab8a-b723ffce8d5e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\bucket.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\close.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\win_gdbm\conv2gdbm.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\dbmclose.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\dbmdelete.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\dbmdirfno.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\dbmfetch.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\dbminit.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\dbmopen.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\dbmpagfno.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\dbmrdonly.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\dbmseq.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\dbmstore.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\delete.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\falloc.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\fetch.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\findkey.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\gdbmclose.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\gdbmdelete.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\gdbmerrno.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\gdbmexists.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\gdbmfdesc.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\gdbmfetch.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\gdbmopen.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\win_gdbm\gdbmreorg.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\gdbmseq.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\gdbmsetopt.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\gdbmstore.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\gdbmsync.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\global.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\hash.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\seq.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\store.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\update.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\gdbm-1.8.0\version.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\win_gdbm\autoconf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\win_gdbm\dbm.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\win_gdbm\extern.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\win_gdbm\gdbm.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\gdbm-1.8.0\gdbmconst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\gdbm-1.8.0\gdbmdefs.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\gdbm-1.8.0\gdbmerrno.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\gdbm-1.8.0\getopt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\gdbm-1.8.0\ndbm.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\gdbm-1.8.0\proto.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\win_gdbm\systems.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Build\buildnumber.h">
+      <Filter>Build</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Build\constants.h">
+      <Filter>Build</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\..\Build\ViPKCS11SoftToken_package.xml">
+      <Filter>Build</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\..\..\ViPKCS11SoftToken\Build\ViPKCS11SoftToken_requires.xml">
+      <Filter>Build</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

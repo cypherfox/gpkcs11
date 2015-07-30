@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{97585d15-2a9c-4521-acbb-98b09c7465c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{848f26b4-78a5-46b0-8736-b9b5332322e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Build">
+      <UniqueIdentifier>{5ca91c94-261c-4ffa-9adc-002201d6aeda}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Library %28Debug%29">
+      <UniqueIdentifier>{508ceea6-e12c-4df3-a152-d659a91ec9c8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\libgpkcs11\decrypt.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\libgpkcs11\digest.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\libgpkcs11\dual.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\libgpkcs11\encrypt.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\libgpkcs11\error.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\libgpkcs11\fkt_dummy.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\libgpkcs11\getInfo.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\libgpkcs11\hash.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\libgpkcs11\inifile\C\IniFile.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\libgpkcs11\init.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\libgpkcs11\key_mng.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\libgpkcs11\mutex.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\libgpkcs11\objects.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\libgpkcs11\other_fkts.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\libgpkcs11\random.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\libgpkcs11\sessions.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\libgpkcs11\sign.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\libgpkcs11\slot.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\libgpkcs11\thread.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\libgpkcs11\utils.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\libgpkcs11\verify.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\libgpkcs11\cryptoki.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\libgpkcs11\dll_wrap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\libgpkcs11\error.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\libgpkcs11\fkt_dummy.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\libgpkcs11\hash.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\libgpkcs11\inifile\C\IniFile.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\libgpkcs11\init.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\libgpkcs11\internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\libgpkcs11\internal_slot.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\libgpkcs11\mutex.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\libgpkcs11\obj_defaults.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\libgpkcs11\objects.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\libgpkcs11\slot.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\libgpkcs11\utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Build\buildnumber.h">
+      <Filter>Build</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Build\constants.h">
+      <Filter>Build</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\..\Build\ViPKCS11SoftToken_package.xml">
+      <Filter>Build</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\Build\ViPKCS11SoftToken_requires.xml">
+      <Filter>Build</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

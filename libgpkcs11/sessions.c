@@ -141,13 +141,14 @@ const char* Version_sessions_c(){return RCSID;}
 CK_I_APP_DATA CK_I_app_table = {NULL_PTR};
 
 /* {{{ C_OpenSession */
-CK_DEFINE_FUNCTION(CK_RV, C_OpenSession)(
-        CK_SLOT_ID slotID,
-        CK_FLAGS flags,
-        CK_VOID_PTR pApplication,
-        CK_NOTIFY Notify,
-        CK_SESSION_HANDLE_PTR phSession
-      )
+CK_DEFINE_FUNCTION(CK_RV, C_OpenSession)
+		(
+			 CK_SLOT_ID slotID,
+			 CK_FLAGS flags,
+			 CK_VOID_PTR pApplication,
+			 CK_NOTIFY Notify,
+			 CK_SESSION_HANDLE_PTR phSession
+		 )
 {
   CK_I_TOKEN_DATA_PTR token_data = NULL_PTR;
   CK_I_SLOT_DATA_PTR slot_data = NULL_PTR;
@@ -156,15 +157,15 @@ CK_DEFINE_FUNCTION(CK_RV, C_OpenSession)(
   CK_FLAGS session_flags;
   CK_I_SESSION_DATA_PTR new_session = NULL_PTR;
   CK_RV rv = CKR_OK;
-
+	
   CI_LogEntry("C_OpenSession", "starting...", rv, 1);
-  CI_CodeFktEntry("C_OpenSession", "%lu,%x,%p,%p,%p", 
-                  slotID,
+  CI_CodeFktEntry("C_OpenSession", "%lu,0x%x,%p,%p,%p", 
+		slotID,
 		  flags,
-		  pApplication,
-		  Notify,
-		  phSession);
-
+			pApplication,
+			Notify,
+			phSession);
+	
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
     return CKR_CRYPTOKI_NOT_INITIALIZED;
@@ -172,156 +173,159 @@ CK_DEFINE_FUNCTION(CK_RV, C_OpenSession)(
   /* Legacy check. See PKCS#11 Section 10.14 */
   if(!(flags & CKF_SERIAL_SESSION))
     return CKR_SESSION_PARALLEL_NOT_SUPPORTED;
-
+	
   /* get mutex, there are some synchronized areas in here */
   CI_CreateMutex(&mutex);
-
+	
   /* get the token data */
-
+	
   rv = CI_GetSlotData(slotID,&slot_data);
   if(rv != CKR_OK)
-    {
-      CI_LogEntry("C_OpenSession", "getting slot data", rv, 0);
-      CI_DestroyMutex(mutex);
-      return rv;
-    }
-
+	{
+		CI_LogEntry("C_OpenSession", "getting slot data", rv, 0);
+		CI_DestroyMutex(mutex);
+		return rv;
+	}
+	
   /* check wether there is a token at all (and it is marked valid).
-   * No sense opening a session in the void does now? B-) */
+	* No sense opening a session in the void does now? B-) */
   if(!(slot_data->slot_info->flags & CKF_TOKEN_PRESENT))
-    {
-      rv = CKR_TOKEN_NOT_PRESENT;
-      CI_LogEntry("C_OpenSession", "testing token flags", rv, 0);
-      CI_DestroyMutex(mutex);
-      return rv;
-    }
-
+	{
+		rv = CKR_TOKEN_NOT_PRESENT;
+		CI_LogEntry("C_OpenSession", "testing token flags", rv, 0);
+		CI_DestroyMutex(mutex);
+		return rv;
+	}
+	
   token_data=slot_data->token_data;
   if(token_data == NULL_PTR)
-    {
-      rv = CKR_TOKEN_NOT_PRESENT;
-      CI_LogEntry("C_OpenSession", "testing token", rv, 0);
-      CI_DestroyMutex(mutex);
-      return rv;
-    }
-
+	{
+		rv = CKR_TOKEN_NOT_PRESENT;
+		CI_LogEntry("C_OpenSession", "testing token", rv, 0);
+		CI_DestroyMutex(mutex);
+		return rv;
+	}
+	
   /* Check number of concurrent Sessions */
   _LOCK(mutex);
   if(token_data->token_info->ulSessionCount >= token_data->token_info->ulMaxSessionCount)
-    {
-      CI_LogEntry("C_OpenSession", "number of avail. sessions exhausted", rv, 0);
-      _UNLOCK(mutex);  
-      CI_DestroyMutex(mutex);
-      return CKR_SESSION_COUNT;
-    }
-
+	{
+		CI_LogEntry("C_OpenSession", "number of avail. sessions exhausted", rv, 0);
+		_UNLOCK(mutex);  
+		CI_DestroyMutex(mutex);
+		return CKR_SESSION_COUNT;
+	}
+	
   /* is the hashtable for the sessions already there? */
   if(CK_I_app_table.session_table == NULL_PTR) 
-    {
-      rv = CI_InitHashtable(&CK_I_app_table.session_table,
-			    token_data->token_info->ulMaxSessionCount);
-      if(rv != CKR_OK)
 	{
-	  CI_LogEntry("C_OpenSession", "creating application session list", rv, 0);
-	  _UNLOCK(mutex);  
-	  CI_DestroyMutex(mutex);
-	  return rv; 
+		rv = CI_InitHashtable(&CK_I_app_table.session_table,
+			token_data->token_info->ulMaxSessionCount);
+		if(rv != CKR_OK)
+		{
+			CI_LogEntry("C_OpenSession", "creating application session list", rv, 0);
+			_UNLOCK(mutex);  
+			CI_DestroyMutex(mutex);
+			return rv; 
+		}
 	}
-    }
-
+	
   /* If this is to be a RW session... */
   if(flags & CKF_RW_SESSION)
-    {
-      /* 1. check wether the token is write protected */
-      if(token_data->token_info->flags & CKF_WRITE_PROTECTED)
 	{
-	  _UNLOCK(mutex);  
-	  CI_DestroyMutex(mutex);
-	  return CKR_TOKEN_WRITE_PROTECTED;
+  	CI_LogEntry("C_OpenSession", "rw session", rv, 2);
+		/* 2. check wether the token itself is write protected */
+		if(token_data->token_info->flags & CKF_WRITE_PROTECTED)
+		{
+    	CI_LogEntry("C_OpenSession", "write protected - token read-only", rv, 1);
+			_UNLOCK(mutex);  
+			CI_DestroyMutex(mutex);
+			return CKR_TOKEN_WRITE_PROTECTED;
+		}
+		
+    /* 3. check number of concurrent RW Sessions */
+		if(token_data->token_info->ulRwSessionCount >= token_data->token_info->ulMaxRwSessionCount)
+		{
+    	CI_LogEntry("C_OpenSession", "too much concurrent sessions", rv, 1);
+			_UNLOCK(mutex);  
+			CI_DestroyMutex(mutex);
+			return CKR_SESSION_COUNT;
+		}
+		
+		
+		session_flags = CKF_SERIAL_SESSION|CKF_RW_SESSION;
+		
+		/*
+		* Es darf nur eine RW-SO Session geben. Das Flag wird in CI_Login
+		* (Beim Login des SO) gesetzt und hier nur für folgende Sessions
+		* getested
+		*/
+		
+		if(slot_data->flags & CK_I_SIF_RW_SO_SESSION)
+			state = CKS_RW_SO_FUNCTIONS;
+		else if(slot_data->flags & CK_I_SIF_USER_SESSION)
+			state = CKS_RW_USER_FUNCTIONS;
+		else
+			state = CKS_RW_PUBLIC_SESSION;
 	}
-
-      /* 2. check number of concurrent RW Sessions */
-      if(token_data->token_info->ulRwSessionCount >= token_data->token_info->ulMaxRwSessionCount)
-	{
-	  _UNLOCK(mutex);  
-	  CI_DestroyMutex(mutex);
-	  return CKR_SESSION_COUNT;
-	}
-      
-
-      session_flags = CKF_SERIAL_SESSION|CKF_RW_SESSION;
-
-      /*
-       * Es darf nur eine RW-SO Session geben. Das Flag wird in CI_Login
-       * (Beim Login des SO) gesetzt und hier nur für folgende Sessions
-       * getested
-       */
-            
-      if(slot_data->flags & CK_I_SIF_RW_SO_SESSION)
-	state = CKS_RW_SO_FUNCTIONS;
-      else if(slot_data->flags & CK_I_SIF_USER_SESSION)
-	state = CKS_RW_USER_FUNCTIONS;
-      else
-	state = CKS_RW_PUBLIC_SESSION;
-    }
   else /* This is a RO session... */
-    {
-      session_flags = CKF_SERIAL_SESSION;
-
-      /* make sure that there is not a RW SO session already open */
-      if(slot_data->flags & CK_I_SIF_RW_SO_SESSION)
 	{
-	  _UNLOCK(mutex);  
-	  CI_DestroyMutex(mutex);
-	  return CKR_SESSION_READ_WRITE_SO_EXISTS;
-	}
-
-      /* is there already a logged user session? */
-      if(slot_data->flags & CK_I_SIF_USER_SESSION)
-	state = CKS_RO_USER_FUNCTIONS; /* Then this becomes a logged in session as well */
-      else
-	session_flags = CKS_RO_PUBLIC_SESSION; /* this becomes a public RO session */
-    } /* RO session */
+		session_flags = CKF_SERIAL_SESSION;
+		
+		/* make sure that there is not a RW SO session already open */
+		if(slot_data->flags & CK_I_SIF_RW_SO_SESSION)
+		{
+			_UNLOCK(mutex);  
+			CI_DestroyMutex(mutex);
+			return CKR_SESSION_READ_WRITE_SO_EXISTS;
+		}
+		
+		/* is there already a logged user session? */
+		if(slot_data->flags & CK_I_SIF_USER_SESSION)
+			state = CKS_RO_USER_FUNCTIONS; /* Then this becomes a logged in session as well */
+		else
+			session_flags = CKS_RO_PUBLIC_SESSION; /* this becomes a public RO session */
+	} /* RO session */
   
   /* write data to session table */
   new_session = TC_calloc(1,sizeof(CK_I_SESSION_DATA));
   if(new_session == NULL_PTR)
-    {
-      _UNLOCK(mutex);  
-      CI_DestroyMutex(mutex);
-      return CKR_HOST_MEMORY;
-    }
-
+	{
+		_UNLOCK(mutex);  
+		CI_DestroyMutex(mutex);
+		return CKR_HOST_MEMORY;
+	}
+	
   new_session->session_info = TC_calloc(1,sizeof(CK_SESSION_INFO));
   if(new_session->session_info == NULL_PTR)
-    {
-      TC_free(new_session);
-      _UNLOCK(mutex);  
-      CI_DestroyMutex(mutex);
-      return CKR_HOST_MEMORY;
-    }
-
+	{
+		TC_free(new_session);
+		_UNLOCK(mutex);  
+		CI_DestroyMutex(mutex);
+		return CKR_HOST_MEMORY;
+	}
+	
   /* make sure that the object container is initialized */
   if(new_session->object_list == NULL_PTR)
-    {
-      rv = CI_InitHashtable(&(new_session->object_list),CK_I_OBJ_LIST_SIZE);
-      if(rv != CKR_OK)
 	{
-	  CI_LogEntry("C_OpenSession", "creating session object list", rv, 1);
-	  CI_DestroyMutex(mutex);
-	  return rv;
+		rv = CI_InitHashtable(&(new_session->object_list),CK_I_OBJ_LIST_SIZE);
+		if(rv != CKR_OK)
+		{
+			CI_LogEntry("C_OpenSession", "creating session object list", rv, 1);
+			CI_DestroyMutex(mutex);
+			return rv;
+		}
 	}
-    }
-
+	
   new_session->session_info->slotID = slotID;
   new_session->session_info->flags = session_flags;
   new_session->session_info->state = state;	  
-
+	
   new_session->pApplication = pApplication;
   new_session->Notify = Notify;
-
+	
   new_session->slot_data = slot_data;
-
+	
   /* post creation processing by the token */
   {
     CIP_OpenSession CK_I_Method_P = slot_data->methods->OpenSession;
@@ -329,54 +333,56 @@ CK_DEFINE_FUNCTION(CK_RV, C_OpenSession)(
     else rv = CK_I_Method_P (new_session);
   }
   if(rv != CKR_OK) 
-    {
-       CI_LogEntry("C_OpenSession",
-		  "call to token method failed",rv,0);
-       
-      TC_free(new_session->session_info);
-      TC_free(new_session);
-      _UNLOCK(mutex);  
-      CI_DestroyMutex(mutex);
-      return rv;
-    }
-
+	{
+		CI_LogEntry("C_OpenSession",
+			"call to token method failed",rv,0);
+		
+		TC_free(new_session->session_info);
+		TC_free(new_session);
+		_UNLOCK(mutex);  
+		CI_DestroyMutex(mutex);
+		return rv;
+	}
+	
   /* assign new handle */
   rv= CI_NewHandle(phSession);
   if(rv != CKR_OK)
-    {
-      TC_free(new_session->session_info);
-      TC_free(new_session);
-      _UNLOCK(mutex);  
-      CI_DestroyMutex(mutex);
-      return rv; 
-    }
-
+	{
+		TC_free(new_session->session_info);
+		TC_free(new_session);
+		_UNLOCK(mutex);  
+		CI_DestroyMutex(mutex);
+		return rv; 
+	}
+	
   /* remember for the callback function in rsa_key_gen */
   new_session->session_handle = *phSession;
-
+	
   ++(token_data->token_info->ulSessionCount);
   if(state >= CKS_RW_PUBLIC_SESSION)
     ++(token_data->token_info->ulRwSessionCount);
-
-
+	
+	
   rv = CI_HashPutEntry(CK_I_app_table.session_table,*phSession,(CK_VOID_PTR)new_session);
   if(rv != CKR_OK)
-    {
-      TC_free(new_session->session_info);
-      TC_free(new_session);
-      --(token_data->token_info->ulSessionCount);
-      if(state >= CKS_RW_PUBLIC_SESSION)
-	--(token_data->token_info->ulRwSessionCount);
-      _UNLOCK(mutex);  
-      CI_DestroyMutex(mutex);
-      return rv; 
-    }
-
+	{
+		TC_free(new_session->session_info);
+		TC_free(new_session);
+		--(token_data->token_info->ulSessionCount);
+		if(state >= CKS_RW_PUBLIC_SESSION)
+			--(token_data->token_info->ulRwSessionCount);
+		_UNLOCK(mutex);  
+		CI_DestroyMutex(mutex);
+		return rv; 
+	}
+	
   CI_VarLogEntry("C_OpenSession", "for Session %lu...complete", rv, 1,*phSession);
   _UNLOCK(mutex);  
   CI_DestroyMutex(mutex);
   return rv;
 }
+
+
 /* }}} */
 /* {{{ CI_InternalCloseSession*/
 CK_DEFINE_FUNCTION(CK_RV, CI_InternalCloseSession)(
@@ -399,7 +405,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_InternalCloseSession)(
       return rv;
     }
 
-#ifdef EBUG
+#ifdef _DEBUG
   /* make sure that the token has deleted all internal objects. */
   if(session_data->digest_state  || session_data->encrypt_state || 
      session_data->decrypt_state || session_data->sign_state    || 
@@ -421,7 +427,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_InternalCloseSession)(
       return rv;
     }
 
-#endif /* EBUG */
+#endif /* _DEBUG */
   
 
   /* free memory of remaining objects */
@@ -582,7 +588,9 @@ CK_DEFINE_FUNCTION(CK_RV, C_CloseAllSessions)
 
   /* TODO: the token knows about its sessions. use that info to clean up */
   /* go through all sessions in the session table and select those with same token_data */
-  if(CK_I_app_table.session_table == NULL_PTR) goto ende;
+  
+  //if(CK_I_app_table.session_table == NULL_PTR) goto ende;
+  if(CK_I_app_table.session_table == NULL_PTR) return rv;
 
   rv = CI_HashIterateInit(CK_I_app_table.session_table,&iter);
   if(rv != CKR_OK) 
@@ -768,16 +776,25 @@ CK_DEFINE_FUNCTION(CK_RV, C_Login)
 #endif /* PRINT_PINS */
 
   CI_LogEntry("C_Login", "starting...", rv, 1);
-  CI_CodeFktEntry("C_Login", "%lu,%x,%s,%lu", 
-                  hSession,
-		  userType,
+
 #ifndef PRINT_PINS
-                  "<opaque PIN>",
+  CI_CodeFktEntry("C_Login", "%lu,%x,%s,%lu", 
+      hSession,
+		  userType,
+     "<opaque PIN>",
 		  ulPinLen);
 #else /* PRINT_PINS */
-                  tmp = CI_ScanableByteStream(pPin,ulPinLen),
-		  ulPinLen);
-   TC_free(tmp);
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_Login", "%lu,%x,%s,%lu", 
+    hSession,
+    userType,
+    tmp = CI_ScanableByteStream(pPin,ulPinLen),
+	  ulPinLen);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 #endif /* PRINT_PINS */
   
   /* make sure we are initialized */
@@ -821,6 +838,7 @@ CK_DEFINE_FUNCTION(CK_RV, C_Login)
     }
 
   /* actually set the new state */
+  // session_data->user_type = userType;
   if(userType == CKU_SO)
     {
       session_data->session_info->state= CKS_RW_SO_FUNCTIONS; 
@@ -830,9 +848,9 @@ CK_DEFINE_FUNCTION(CK_RV, C_Login)
     {
       session_data->slot_data->flags |= CK_I_SIF_USER_SESSION;
       if(session_data->session_info->state== CKS_RW_PUBLIC_SESSION)
-	session_data->session_info->state=CKS_RW_USER_FUNCTIONS;
+	      session_data->session_info->state=CKS_RW_USER_FUNCTIONS;
       else
-	session_data->session_info->state=CKS_RO_USER_FUNCTIONS;
+	      session_data->session_info->state=CKS_RO_USER_FUNCTIONS;
     }
 
   /* now propagate this accross all sessions (see 6.6.4) */

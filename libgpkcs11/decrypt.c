@@ -93,10 +93,18 @@ CK_DEFINE_FUNCTION(CK_RV, C_DecryptInit)(
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
 
   CI_VarLogEntry("C_DecryptInit", "starting...Session: %i", rv, 0, hSession);	  
-  CI_CodeFktEntry("C_DecryptInit", "%i,%s,%i", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_DecryptInit", "%i,%s,%i", 
 		  hSession,
-		  CI_ScanableMechanism(pMechanism),
+		  tmp = CI_ScanableMechanism(pMechanism),
 		  hKey);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
+
 
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
@@ -173,12 +181,18 @@ CK_DEFINE_FUNCTION(CK_RV, C_Decrypt)(
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
 
   CI_VarLogEntry("C_Decrypt", "starting... Session: %i", rv , 0, hSession);  
+
+#ifndef NO_LOGGING
+  {
   CI_CodeFktEntry("C_Decrypt", "%i,%s,%i,%p,%p", 
 		  hSession,
 		  pEncryptedData,
 		  ulEncryptedDataLen,
 		  pData,
 		  pulDataLen);
+  }
+#endif // NO_LOGGING
+
   CI_VarLogEntry("C_Decrypt", "*pulDataLen: %i", rv , 0, *pulDataLen);  
 
   /* make sure we are initialized */
@@ -222,12 +236,18 @@ CK_DEFINE_FUNCTION(CK_RV, C_DecryptUpdate)(
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
 
   CI_VarLogEntry("C_DecryptUpdate", "starting... Session: %i", rv , 0, hSession);
+
+#ifndef NO_LOGGING
+  {
   CI_CodeFktEntry("C_DecryptUpdate", "%i,%s,%i,%p,%p", 
 		  hSession,
 		  pEncryptedPart,
 		  ulEncryptedPartLen,
 		  pPart,
 		  pulPartLen);
+  }
+#endif // NO_LOGGING
+
   CI_VarLogEntry("C_DecryptUpdate", "*pulPartLen: %i", rv , 0, *pulPartLen);
 
   /* make sure we are initialized */
@@ -269,10 +289,16 @@ CK_DEFINE_FUNCTION(CK_RV, C_DecryptFinal)(
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
 
   CI_VarLogEntry("C_DecryptFinal", "starting... Session: %i", rv , 0, hSession);
-  CI_CodeFktEntry("C_DecryptFinal", "%i,%p,%p", 
+
+#ifndef NO_LOGGING
+  {
+    CI_CodeFktEntry("C_DecryptFinal", "%i,%p,%p", 
 		  hSession,
 		  pLastPart,
 		  pulLastPartLen);
+  }
+#endif // NO_LOGGING
+
   CI_VarLogEntry("C_DecryptFinal", "*pulLastPartLen: %i", rv , 0, *pulLastPartLen);
 
   /* make sure we are initialized */

@@ -86,15 +86,20 @@ CK_DEFINE_FUNCTION(CK_RV, C_EncryptInit)(
   CK_RV rv = CKR_OK;
   CK_I_OBJ_PTR key_obj = NULL_PTR;  /* key to be used */
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
-  CK_BYTE_PTR tmp = NULL_PTR;
 
   CI_VarLogEntry("C_EncryptInit", "starting... Session: %i, Key: %i", rv, 1, 
 		 hSession,hKey);
-  CI_CodeFktEntry("C_EncryptInit", "%i,%s,%i", 
-		  hSession,
+  
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_EncryptInit", "%i,%s,%i", 
+	 	  hSession,
 		  tmp = CI_ScanableMechanism(pMechanism),
 		  hKey);
-  TC_free(tmp);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
@@ -164,17 +169,25 @@ CK_DEFINE_FUNCTION(CK_RV, C_Encrypt)(
 {
   CK_RV rv = CKR_OK;
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
-  CK_BYTE_PTR tmp = NULL_PTR;
 
   CI_VarLogEntry("C_Encrypt", "starting... Session: %i", rv, 1, hSession);
-  CI_CodeFktEntry("C_Encrypt", "%i,%s,%i,%p,%p", 
+
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_Encrypt", "%i,%s,%i,%p,%p", 
 		  hSession,
 		  tmp = CI_ScanableByteStream(pData, ulDataLen),
 		  ulDataLen,
 		  pEncryptedData,
 		  pulEncryptedDataLen);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
+
   CI_VarLogEntry("C_Encrypt", "*pulEncryptedDataLen: %i", rv, 1, *pulEncryptedDataLen);
-  TC_free(tmp);
+
 
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
@@ -215,18 +228,24 @@ CK_DEFINE_FUNCTION(CK_RV, C_EncryptUpdate)(
 {
   CK_RV rv = CKR_OK;
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
-  CK_BYTE_PTR tmp = NULL_PTR;
 
   CI_VarLogEntry("C_EncryptUpdate", "starting... Session: %i", rv, 1, hSession);
-  CI_CodeFktEntry("C_EncryptUpdate", "%i,%s,%i,%p,%p", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_EncryptUpdate", "%i,%s,%i,%p,%p", 
 		  hSession,
 		  tmp = CI_ScanableByteStream(pPart, ulPartLen),
 		  ulPartLen,
 		  pEncryptedPart,
 		  pulEncryptedPartLen);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
+
   CI_VarLogEntry("C_EncryptUpdate", "*pulEncryptedPartLen: %i", rv, 1,
 		 *pulEncryptedPartLen);
-  TC_free(tmp);
 
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
@@ -271,6 +290,7 @@ CK_DEFINE_FUNCTION(CK_RV, C_EncryptFinal)(
 		  hSession,
 		  pLastEncryptedPart,
 		  pulLastEncryptedPartLen);
+  
   CI_VarLogEntry("C_EncryptFinal", "*pulLastEncryptedPartLen: %i", rv, 1,
 		 *pulLastEncryptedPartLen);
 

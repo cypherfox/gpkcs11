@@ -375,6 +375,14 @@ CK_DEFINE_FUNCTION(CK_RV, CI_TokenObjCommit)(
   CK_OBJECT_HANDLE phObject 
 );
 
+/** Completes an object with default values.
+ * The default values for completion are determined by CKA_CLASS, CKA_CERTIFICATE_TYPE and CKA_KEY_TYPE.
+ */
+CK_DECLARE_FUNCTION(CK_RV, CI_ObjCompleteWithDefaults)
+(
+ CK_I_OBJ_PTR  pObject
+);
+
 
 #endif /* _OBJECTS_H_ */
 

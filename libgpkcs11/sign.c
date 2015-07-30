@@ -91,14 +91,19 @@ CK_DEFINE_FUNCTION(CK_RV, C_SignInit)(
   CK_RV rv = CKR_OK;
   CK_I_OBJ_PTR key_obj = NULL_PTR;  /* key to be used */
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
-  CK_BYTE_PTR tmp = NULL_PTR;
   
   CI_LogEntry("C_SignInit", "starting...",rv,1);
-  CI_CodeFktEntry("C_SignInit", "%i,%s,%i", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_SignInit", "%i,%s,%i", 
 		  hSession,
 		  tmp = CI_ScanableMechanism(pMechanism),
 		  hKey);
-  TC_free(tmp);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
@@ -165,16 +170,22 @@ CK_DEFINE_FUNCTION(CK_RV, C_Sign)(
 {
   CK_RV rv = CKR_OK;
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
-  CK_BYTE_PTR tmp = NULL_PTR;
   
   CI_VarLogEntry("C_Sign", "starting... Session: %i", rv, 1,hSession);
-  CI_CodeFktEntry("C_Sign", "%i,%s,%i,%p,%p", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_Sign", "%i,%s,%i,%p,%p", 
 		  hSession,
 		  tmp = CI_ScanableByteStream(pData, ulDataLen),
 		  ulDataLen,
 		  pSignature,
 		  pulSignatureLen);
-  TC_free(tmp);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
+
   if(pSignature != NULL_PTR)
     CI_VarLogEntry("C_Sign", "*pulSignatureLen: %i", rv, 1, *pulSignatureLen);
 
@@ -215,14 +226,19 @@ CK_DEFINE_FUNCTION(CK_RV, C_SignUpdate)(
 {
   CK_RV rv = CKR_OK;
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
-  CK_BYTE_PTR tmp = NULL_PTR;
 
   CI_LogEntry("C_SignUpdate", "starting...", rv, 1);
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
   CI_CodeFktEntry("C_SignUpdate", "%i,%s,%i", 
 		  hSession,
 		  tmp = CI_ScanableByteStream(pPart, ulPartLen),
 		  ulPartLen);
   TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
@@ -317,14 +333,19 @@ CK_DEFINE_FUNCTION(CK_RV, C_SignRecoverInit)
   CK_RV rv = CKR_OK;
   CK_I_OBJ_PTR key_obj = NULL_PTR;  /* key to be used */
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
-  CK_BYTE_PTR tmp = NULL_PTR;
 
   CI_LogEntry("C_SignRecoverInit", "starting", rv, 1);
-  CI_CodeFktEntry("C_SignRecoverInit", "%i,%s,%i", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_SignRecoverInit", "%i,%s,%i", 
 		  hSession,
 		  tmp = CI_ScanableMechanism(pMechanism),
 		  hKey);
-  TC_free(tmp);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
@@ -392,17 +413,23 @@ CK_DEFINE_FUNCTION(CK_RV, C_SignRecover)
 {
   CK_RV rv = CKR_OK;
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
-  CK_BYTE_PTR tmp = NULL_PTR;
 
   CI_LogEntry("C_SignRecover", "starting...", rv, 1);
-  CI_CodeFktEntry("C_SignRecover", "%i,%s,%i,%p,%p", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_SignRecover", "%i,%s,%i,%p,%p", 
 		  hSession,
 		  tmp = CI_ScanableByteStream(pData, ulDataLen),
 		  ulDataLen,
 		  pSignature,
 		  pulSignatureLen);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
+
   CI_VarLogEntry("C_SignRecover", "*pulSignatureLen: %i", rv, 1, *pulSignatureLen);
-  TC_free(tmp);
   
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 

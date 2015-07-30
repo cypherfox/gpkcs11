@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gdbm", "gdbm\gdbm.vcxproj", "{20180632-0186-7CEE-ADD6-7ED0098A2B57}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ceay_token", "ceay_token\ceay_token.vcxproj", "{8508FBF6-6AEC-ED7A-692A-6E44DD317EA9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{20180632-0186-7CEE-ADD6-7ED0098A2B57} = {20180632-0186-7CEE-ADD6-7ED0098A2B57}
+		{F8F9AEC0-C878-C91C-47AF-BC030924DB8C} = {F8F9AEC0-C878-C91C-47AF-BC030924DB8C}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgpkcs11", "libgpkcs11\libgpkcs11.vcxproj", "{F8F9AEC0-C878-C91C-47AF-BC030924DB8C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		final check|Win32 = final check|Win32
+		Release|Win32 = Release|Win32
+		Template|Win32 = Template|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{20180632-0186-7CEE-ADD6-7ED0098A2B57}.Debug|Win32.ActiveCfg = Debug|Win32
+		{20180632-0186-7CEE-ADD6-7ED0098A2B57}.Debug|Win32.Build.0 = Debug|Win32
+		{20180632-0186-7CEE-ADD6-7ED0098A2B57}.final check|Win32.ActiveCfg = final check|Win32
+		{20180632-0186-7CEE-ADD6-7ED0098A2B57}.final check|Win32.Build.0 = final check|Win32
+		{20180632-0186-7CEE-ADD6-7ED0098A2B57}.Release|Win32.ActiveCfg = Release|Win32
+		{20180632-0186-7CEE-ADD6-7ED0098A2B57}.Release|Win32.Build.0 = Release|Win32
+		{20180632-0186-7CEE-ADD6-7ED0098A2B57}.Template|Win32.ActiveCfg = Template|Win32
+		{20180632-0186-7CEE-ADD6-7ED0098A2B57}.Template|Win32.Build.0 = Template|Win32
+		{8508FBF6-6AEC-ED7A-692A-6E44DD317EA9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8508FBF6-6AEC-ED7A-692A-6E44DD317EA9}.Debug|Win32.Build.0 = Debug|Win32
+		{8508FBF6-6AEC-ED7A-692A-6E44DD317EA9}.final check|Win32.ActiveCfg = final check|Win32
+		{8508FBF6-6AEC-ED7A-692A-6E44DD317EA9}.final check|Win32.Build.0 = final check|Win32
+		{8508FBF6-6AEC-ED7A-692A-6E44DD317EA9}.Release|Win32.ActiveCfg = Release|Win32
+		{8508FBF6-6AEC-ED7A-692A-6E44DD317EA9}.Release|Win32.Build.0 = Release|Win32
+		{8508FBF6-6AEC-ED7A-692A-6E44DD317EA9}.Template|Win32.ActiveCfg = Template|Win32
+		{8508FBF6-6AEC-ED7A-692A-6E44DD317EA9}.Template|Win32.Build.0 = Template|Win32
+		{F8F9AEC0-C878-C91C-47AF-BC030924DB8C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F8F9AEC0-C878-C91C-47AF-BC030924DB8C}.Debug|Win32.Build.0 = Debug|Win32
+		{F8F9AEC0-C878-C91C-47AF-BC030924DB8C}.final check|Win32.ActiveCfg = final check|Win32
+		{F8F9AEC0-C878-C91C-47AF-BC030924DB8C}.final check|Win32.Build.0 = final check|Win32
+		{F8F9AEC0-C878-C91C-47AF-BC030924DB8C}.Release|Win32.ActiveCfg = Release|Win32
+		{F8F9AEC0-C878-C91C-47AF-BC030924DB8C}.Release|Win32.Build.0 = Release|Win32
+		{F8F9AEC0-C878-C91C-47AF-BC030924DB8C}.Template|Win32.ActiveCfg = Template|Win32
+		{F8F9AEC0-C878-C91C-47AF-BC030924DB8C}.Template|Win32.Build.0 = Template|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

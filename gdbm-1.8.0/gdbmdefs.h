@@ -25,7 +25,11 @@
                 Bellingham, WA 98226
 *************************************************************************/
 
+#ifdef WIN32
+#include "..\\win_gdbm\\systems.h"
+#else
 #include "systems.h"
+#endif
 #include "gdbmconst.h"
 
 /* The type definitions are next.  */

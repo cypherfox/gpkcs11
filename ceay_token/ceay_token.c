@@ -175,9 +175,13 @@ const char* ceay_token_c_version(){return RCSID;}
 
 /* to stop execution for debugging */
 #ifndef CK_Win32
-#include <signal.h>
-#include <sys/types.h>
-#include <unistd.h>
+	#include <unistd.h>
+	#include <signal.h>
+	#include <sys/types.h>
+	#include <unistd.h>
+#else
+	#include <sys\types.h>
+	#include <sys\timeb.h>
 #endif /* !CK_Win32 */
 
 /* for bn.h */
@@ -198,6 +202,8 @@ const char* ceay_token_c_version(){return RCSID;}
 
 /* TC-Utils RSA key gen */
 #include "TCCGenKey.h"
+
+#include "CI_Ceay.h"
 
 /* #define CK_I_RSA_PKCS_SIZE_OFFSET 11 */
 /* this variable is defined in the SSL routines, but needed to in here */
@@ -605,7 +611,37 @@ CK_MECHANISM_INFO ceay_mechanism_info_list[CK_I_CEAY_MECHANISM_NUM]= {
 };
 /* }}} */
 
-/* used in OpenSession to get the number of opened sessions */
+#ifdef CK_Win32
+BOOL APIENTRY DllMain(HANDLE hModule, 
+                      DWORD  ul_reason_for_call, 
+                      LPVOID lpReserved)
+{
+  switch( ul_reason_for_call ) 
+  {
+  case DLL_PROCESS_ATTACH:
+    CI_FindConfFile();
+    break;
+  case DLL_THREAD_ATTACH:
+    break;
+  case DLL_THREAD_DETACH:
+    break;
+  case DLL_PROCESS_DETACH:
+    break;
+  }
+  return TRUE;
+}
+#endif
+
+
+/**
+This variable is use in 
+- CI_Ceay_TokenInit() as local variable
+- CI_OpenSession() to get the number of opened sessions (why here ???)
+seems to be the init place holder
+
+@todo check us of variable in function CI_OpenSession(). If there is more than one token,
+the session count should be part of the list of token data.
+*/
 CK_TOKEN_INFO Ceay_token_info;
 
 /* {{{ CI_Ceay_GetTokenInfo */
@@ -692,8 +728,12 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_InitToken)(
 )
 {
   CK_RV rv = CKR_OK;
-  CK_CHAR_PTR db_file;
+  CK_CHAR_PTR db_file = NULL_PTR;
+	CK_CHAR_PTR p_path;
+	CK_CHAR_PTR setNewPersistentDataFile;
+	CK_CHAR_PTR deleteOldPersistentDataFile;
   CK_I_CRYPT_DB_PTR cryptdb;
+	CK_ULONG blank_pos;
 
   /* check if there is a session open with the token */
   if( (IMPL_DATA(session_list) != NULL_PTR) &&
@@ -705,40 +745,186 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_InitToken)(
 	return rv;
       }
   
+  // clear token obj list
+  if ( Ceay_token_data.object_list != NULL_PTR )
+  {
+    CI_LogEntry("CI_Ceay_InitToken", "clear token object list", rv ,3);
+    if (CI_ClearHashtable(Ceay_token_data.object_list) != CKR_OK )
+    {
+      rv = CKR_GENERAL_ERROR;
+      CI_LogEntry("CI_Ceay_InitToken", "could not clear token obj list", rv ,3);
+      return rv;
+    }
+  }
+      
+
   /* TODO: if the cache is loaded remove it wholesale. (there are no objects 
    * looking at it) 
    */
   /* for now just fail if there is a persistent cache, as the removal of objects from the
-   * application object list is not working properly 
+   * application object list is not working properly
    */
-  if(IMPL_DATA(persistent_cache) != NULL_PTR)
+//  if(IMPL_DATA(persistent_cache) != NULL_PTR)
+//    {
+//      CI_LogEntry("CI_Ceay_InitToken", "cache already loaded", rv ,3);
+//
+//      /* remove cache */
+//
+//      return CKR_GENERAL_ERROR;
+//    }
+
+		if(IMPL_DATA(persistent_cache) != NULL_PTR)
     {
-      CI_LogEntry("CI_Ceay_InitToken", "cache already loaded", rv ,3);
+      CI_LogEntry("CI_Ceay_InitToken", "clear persistent data cache", rv ,3);
 
-      /* remove cache */
-
-      return CKR_GENERAL_ERROR;
+      if (CI_DestroyHashtable(IMPL_DATA(persistent_cache)) != CKR_OK )
+			{
+				rv = CKR_GENERAL_ERROR;
+				CI_LogEntry("CI_Ceay_InitToken", "could not clear cache", rv ,3);
+				return rv;
+			}
+			IMPL_DATA(persistent_cache) = NULL_PTR;
     }
 
-  /* open/create the persistent storage */
-  rv = CI_GetConfigString(CEAY_CONFIG_SECTION, "PersistentDataFile",&db_file);
-  if(rv != CKR_OK)
+		rv = CI_GetConfigString(CEAY_CONFIG_SECTION, "SetNewPersistantDataFile", &setNewPersistentDataFile);
+	  if(rv != CKR_OK)
     {
-      CI_LogEntry("CI_Ceay_InitToken","Error reading field from config file.",rv,0);      
-      return rv;
+			rv = CKR_OK;
+			setNewPersistentDataFile = malloc (2);
+			setNewPersistentDataFile[0] = '0';
+			setNewPersistentDataFile[1] = 0;
     }
 
-  cryptdb = CDB_Open(db_file);
-  if(cryptdb == NULL_PTR)
+		rv = CI_GetConfigString(CEAY_CONFIG_SECTION, "DeleteOldPersistentDataFile", &deleteOldPersistentDataFile);
+	  if(rv != CKR_OK)
+		{	
+			rv = CKR_OK;
+			deleteOldPersistentDataFile = malloc(2);
+			deleteOldPersistentDataFile[0] = '0';
+			deleteOldPersistentDataFile[1] = 0;
+    }
+	
+#ifdef CK_Win32
+		if (strcmp(deleteOldPersistentDataFile, "1") == 0)
+		{
+      rv = CI_GetConfigString(CEAY_CONFIG_SECTION, "PersistentDataFile",&db_file);
+	  	if(rv != CKR_OK)
+      {
+        if (db_file != NULL_PTR)
+        {
+          TC_free(db_file);
+          db_file = NULL_PTR;
+        }
+        CI_LogEntry("CI_Ceay_InitToken","Error reading field from config file.",rv,0);      
+      }
+	    if (db_file != NULL_PTR && DeleteFile(db_file) != 0)
+			{
+			  CI_LogEntry("CI_Ceay_InitToken", "remove old token", rv, 1);
+			}else
+			{
+				DWORD LastError = GetLastError();
+				char *lpBuffer;
+				FormatMessage (FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER, 
+					0x0,
+					LastError, 
+					MAKELANGID (LANG_ENGLISH, SUBLANG_ENGLISH_US), 
+					( PVOID )(&lpBuffer), 1, NULL);
+				CI_VarLogEntry("CI_Ceay_InitToken", "could not remove old token: %s, because: %s", rv, 0, db_file, lpBuffer);
+				LocalFree (lpBuffer);
+			}
+      if (db_file != NULL_PTR)
+      {
+        TC_free(db_file);
+        db_file = NULL_PTR;
+      }
+			TC_free (deleteOldPersistentDataFile);
+		}
+#else
+		//not implemented
+#endif
+
+    if (strcmp(setNewPersistentDataFile, "1") == 0)  // use pLabel as filename
+    {
+      rv = CI_GetConfigString(CEAY_CONFIG_SECTION, "PersistentDataPath",&p_path);
+      if(rv != CKR_OK)
+      {
+        CI_LogEntry("CI_Ceay_InitToken","Error reading field from config file.",rv,0);      
+        return rv;
+      }
+      db_file = TC_malloc(strlen(p_path) + 1 + 32 + 4 + 1); 
+      if (db_file == NULL_PTR)
+      {
+        rv = CKR_HOST_MEMORY;
+        CI_LogEntry("CI_Ceay_InitToken", "memory error", rv ,3);
+        return rv;
+      }
+      // find the beginning of the padding blanks
+      blank_pos = 32;
+      while (blank_pos > 0)
+      {
+        if (pLabel[blank_pos - 1] != ' ')
+          break;
+        blank_pos--;
+      }
+      if (blank_pos == 0)  // no Label is specified, just blanks, so we can't use the Label as filename
+      {	  
+        strcpy(db_file, p_path);
+        strcat(db_file, "\\");
+        strcat(db_file, "Token");
+        strcat(db_file, ".tok");
+        rv = CI_SetConfigString(CEAY_CONFIG_SECTION, "PersistentDataFile", db_file);
+        if(rv != CKR_OK)
+        {
+          if (db_file != NULL_PTR)
+          {
+            TC_free(db_file);
+            db_file = NULL_PTR;
+          }
+          CI_LogEntry("CI_Ceay_InitToken","Error writing field to config file.",rv,0);      
+          return rv;
+        }
+      }else
+      {
+        strcpy(db_file, p_path);
+        strcat(db_file, "\\");
+        strncat(db_file, pLabel, blank_pos);
+        strcat(db_file, ".tok");
+        rv = CI_SetConfigString(CEAY_CONFIG_SECTION, "PersistentDataFile", db_file);
+        if(rv != CKR_OK)
+        {
+          if (db_file != NULL_PTR)
+          {
+            TC_free(db_file);
+            db_file = NULL_PTR;
+          }
+          CI_LogEntry("CI_Ceay_InitToken","Error writing field to config file.",rv,0);      
+          return rv;
+        }
+      }
+    }else
+    {
+      rv = CI_GetConfigString(CEAY_CONFIG_SECTION, "PersistentDataFile",&db_file);
+      if(rv != CKR_OK)
+      {
+        CI_LogEntry("CI_Ceay_InitToken","Error reading field from config file.",rv,0);      
+        return rv;
+      }
+    }
+    
+    /* create the persistent storage */
+    cryptdb = CDB_Create(db_file);
+    TC_free(db_file);
+    if(cryptdb == NULL_PTR)
     { 
       rv = CKR_GENERAL_ERROR;
       CI_LogEntry("CI_Ceay_TokenObjDelete","Could not open/create the database file", 
-		  rv ,0);
+        rv ,0);
       return rv;
     }
 
   /* remove all objects */
-  rv = CDB_DeleteAllObjects(cryptdb);
+/* not needed anymore, because, we now create a new table
+ rv = CDB_DeleteAllObjects(cryptdb);
   if (rv != CKR_OK)
     {
       CI_LogEntry("CI_Ceay_TokenObjDelete","Setting PIN failed", 
@@ -746,12 +932,30 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_InitToken)(
       TC_free(cryptdb);
       return rv;
     }
+*/ 
 
-  /* save SO PIN to cryptdb */
-  rv = CDB_SetPin(cryptdb, TRUE, pPin, ulPinLen);
+	/* set Label */
+	memcpy(Ceay_token_info.label, pLabel, 32);
+
+	/* generate a serialNumber */
+	CI_Ceay_GenerateSerialNumber(Ceay_token_info.serialNumber);
+
+	/* save tokenInfo to cryptdb */
+	rv = CDB_PutTokenInfo(cryptdb, &Ceay_token_info);
   if (rv != CKR_OK)
     {
-      CI_LogEntry("CI_Ceay_TokenObjDelete","Setting PIN failed", 
+      CI_LogEntry("CI_Ceay_TokenInit","saving TokenInfo failed", 
+		  rv ,0);
+      TC_free(cryptdb);
+      return rv;
+    }
+
+
+  /* save SO PIN to cryptdb */  
+  rv = CDB_NewPin(cryptdb, CK_TRUE, DefaultPin, DefaultPinLen, pPin, ulPinLen);
+  if (rv != CKR_OK)
+    {
+      CI_LogEntry("CI_Ceay_TokenInit","Setting PIN failed", 
 		  rv ,0);
       TC_free(cryptdb);
       return rv;
@@ -807,12 +1011,30 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_FinalizeToken)(
 }
 /* }}} */
 
-/* {{{ CI_Ceay_InitPIN */
-CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_InitPIN)(
- CK_I_SESSION_DATA_PTR session_data,  
- CK_CHAR_PTR       pPin,      /* the normal user's PIN */
- CK_ULONG          ulPinLen   /* length in bytes of the PIN */
-)
+/**
+@fn CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_InitPIN) (CK_I_SESSION_DATA_PTR, CK_CHAR_PTR, CK_ULONG) 
+Session handling is checked on PKCS#11 level.
+
+@returns
+<dl>
+  <dt>CKR_OK</dt>
+  <dd>if the new user PIN was sucessfully stored in the database</dd>
+  <dt>CKR_TOKEN_WRITE_PROTECTED</dt>
+  <dd>if the database file is read-only or stored in a read-only folder</dd>
+  <dt>CKR_GENERAL_ERROR</dt>
+  <dd>if the database file is not accessable</dd>
+  <dt>@see CI_LogEntry()</dt>
+  <dd>if the section in the ini file does not contain an "PersistentDataFile" entry</dd>
+  <dt>@see CDB_Close()</dt>
+  <dd>if the database file was not closable<dd>
+</dl>
+*/
+
+CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_InitPIN)
+                   (CK_I_SESSION_DATA_PTR session_data, ///< [in] Pointer to session data
+                    CK_CHAR_PTR           pPin,         ///< [in] Array of char to normal user's PIN
+                    CK_ULONG              ulPinLen      ///< [in] Length of the PIN in byte
+                    )
 {
   CK_RV rv = CKR_OK;
   CK_CHAR_PTR db_file;
@@ -820,29 +1042,38 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_InitPIN)(
 
   CI_LogEntry("CI_Ceay_InitPIN","InitPin start.....", rv ,0);
 
-  /* open/create the persistent storage */
+  /* open the persistent storage */
   rv = CI_GetConfigString(CEAY_CONFIG_SECTION, "PersistentDataFile",&db_file);
   if(rv != CKR_OK)
     {
       CI_LogEntry("CI_Ceay_InitPIN","Error reading field from config file.",rv,0);      
       return rv;
     }
-
-  cryptdb = CDB_Open(db_file);
+  if (CDB_IsFileReadOnly (db_file)==CK_TRUE)
+    {
+      CI_LogEntry("CI_Ceay_InitPIN","Could access the database file writable", rv ,0);
+    return CKR_TOKEN_WRITE_PROTECTED;
+    }
+  cryptdb = CDB_Open(db_file, GDBM_WRITER);
   if(cryptdb == NULL_PTR)
     { 
       rv = CKR_GENERAL_ERROR;
-      CI_LogEntry("CI_Ceay_InitPIN","Could not open/create the database file", 
-		  rv ,0);
+      CI_LogEntry("CI_Ceay_InitPIN","Could not open the database file", rv ,0);
       return rv;
     }
 
   /* save normal user's PIN to cryptdb */
-  rv = CDB_NewPin(cryptdb, FALSE, NULL, 0, pPin, ulPinLen);
-
+  rv = CDB_NewPin(cryptdb, CK_FALSE, NULL, 0, pPin, ulPinLen);
   if (rv != CKR_OK)
     {
       CI_LogEntry("CI_Ceay_InitPIN","Setting PIN failed", rv ,0);
+			rv = CDB_Close(cryptdb);
+			if (rv != CKR_OK)
+			{
+				CI_LogEntry("CI_Ceay_InitPIN","Closing of database failed.", rv ,0);
+				TC_free(cryptdb);
+				return rv;
+			}
       TC_free(cryptdb);
       return rv;
     }
@@ -869,44 +1100,83 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_InitPIN)(
   return CKR_OK;
 }
 /* }}} */
+
+/**
+Session handling is checked on PKCS#11 level.
+
+@returns
+<dl>
+  <dt>CKR_OK</dt>
+  <dd>if the new user PIN was sucessfully stored in the database</dd>
+  <dt>CKR_TOKEN_WRITE_PROTECTED</dt>
+  <dd>if the database file is read-only or stored in a read-only folder</dd>
+  <dt>CKR_GENERAL_ERROR</dt>
+  <dd>if the database file is not accessable</dd>
+  <dt>@see CI_LogEntry()</dt>
+  <dd>if the section in the ini file does not contain an "PersistentDataFile" entry</dd>
+  <dt>@see CDB_Close()</dt>
+  <dd>if the database file was not closable<dd>
+</dl>
+*/
+
 /* {{{ CI_Ceay_SetPIN */
-CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_SetPIN)(
- CK_I_SESSION_DATA_PTR session_data,  
- CK_CHAR_PTR       pOldPin,   /* the old PIN */
- CK_ULONG          ulOldLen,  /* length of the old PIN */
- CK_CHAR_PTR       pNewPin,   /* the new PIN */
- CK_ULONG          ulNewLen   /* length of the new PIN */
-)
+CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_SetPIN)
+                   (CK_I_SESSION_DATA_PTR session_data, ///< [in] Pointer to session data
+                    CK_CHAR_PTR           pOldPin,      ///< [in] Pointer to the old PIN
+                    CK_ULONG              ulOldLen,     ///< [in] Length of the old PIN in Byte
+                    CK_CHAR_PTR           pNewPin,      ///< [in] Pointer to the new PIN
+                    CK_ULONG              ulNewLen      ///< [in] Length of the new PIN in Byte
+                    )
 {
   CK_RV rv = CKR_OK;
+	CK_RV rv_2 = CKR_OK;
   CK_CHAR_PTR db_file;
   CK_I_CRYPT_DB_PTR cryptdb;
 
   CI_LogEntry("CI_Ceay_SetPIN","SetPin start.....", rv ,0);
 
-  /* open/create the persistent storage */
-  rv = CI_GetConfigString(CEAY_CONFIG_SECTION, "PersistentDataFile",&db_file);
+  /* open the persistent storage */
+  rv = CI_GetConfigString(CEAY_CONFIG_SECTION, "PersistentDataFile", &db_file);
   if(rv != CKR_OK)
     {
       CI_LogEntry("CI_Ceay_SetPIN","Error reading field from config file.",rv,0);      
       return rv;
     }
-
-  cryptdb = CDB_Open(db_file);
+  if (CDB_IsFileReadOnly (db_file)==CK_TRUE)
+    {
+      CI_LogEntry("CI_Ceay_SetPIN","Could not access the database file writable", rv ,0);
+    return CKR_TOKEN_WRITE_PROTECTED;
+    }
+  cryptdb = CDB_Open(db_file, GDBM_WRITER);
   if(cryptdb == NULL_PTR)
     { 
       rv = CKR_GENERAL_ERROR;
-      CI_LogEntry("CI_Ceay_SetPIN","Could not open/create the database file", 
+      CI_LogEntry("CI_Ceay_SetPIN","Could not open the database file", 
 		  rv ,0);
       return rv;
     }
 
-  /* modify normal user's PIN and save to cryptdb */
-  rv = CDB_NewPin(cryptdb, FALSE,  pOldPin, ulOldLen, pNewPin, ulNewLen);
+  /* modify so's  or userPIN and save to cryptdb */
+  if ( (session_data->session_info->state & CKS_RW_SO_FUNCTIONS) != 0 )
+       {
+       rv = CDB_NewPin(cryptdb, CK_TRUE,  pOldPin, ulOldLen, pNewPin, ulNewLen);
+       }
+  else
+       {
+       rv = CDB_NewPin(cryptdb, CK_FALSE,  pOldPin, ulOldLen, pNewPin, ulNewLen);
+       }
   
   if (rv != CKR_OK)
     {
       CI_LogEntry("CI_Ceay_SetPIN","Setting PIN failed", rv ,0);
+			rv_2 = CDB_Close(cryptdb);
+			if (rv_2 != CKR_OK)
+			{
+				CI_LogEntry("CI_Ceay_SetPIN","Closing of database failed.", rv ,0);
+				TC_free(cryptdb);
+				return rv_2;
+			}
+
       TC_free(cryptdb);
       return rv;
     }
@@ -1121,7 +1391,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_CloseSession)(
 			  (CK_ULONG)session_data);
   if(rv != CKR_OK)
     {
-      CI_LogEntry("CI_Ceay_CloseSession","Failure to remove session_data from sessio list",rv,2);
+      CI_LogEntry("CI_Ceay_CloseSession","Failure to remove session_data from session list",rv,2);
       return rv;
     }
 
@@ -1175,7 +1445,7 @@ CK_DECLARE_FUNCTION(CK_RV, CI_Ceay_Login)(
       return rv;
     }
 
-  cryptdb = CDB_Open(db_file);
+  cryptdb = CDB_Open(db_file, GDBM_READER);
   if(cryptdb == NULL_PTR)
     { 
       rv = CKR_GENERAL_ERROR;
@@ -1218,7 +1488,6 @@ CK_DECLARE_FUNCTION(CK_RV, CI_Ceay_Login)(
       IMPL_DATA(user_pin_len) = ulPinLen;
     }
 
-  /* TODO: this might load public objects more than once */
   CI_Ceay_ReadPrivate(session_data, cryptdb);
 
   rv = CDB_Close(cryptdb);
@@ -3109,7 +3378,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Verify)(
       {
 	CK_BYTE_PTR tmp_buf = NULL_PTR;
 	CK_ULONG sign_len;
-	long processed; /* number of bytes processed by the crypto routine */
+	CK_ULONG processed; /* number of bytes processed by the crypto routine */
 
 	sign_len = CI_Ceay_RSA_size((RSA CK_PTR)session_data->verify_state);
 	if(sign_len != ulSignatureLen)
@@ -3151,7 +3420,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Verify)(
       {
 	CK_BYTE_PTR tmp_buf = NULL_PTR;
 	CK_ULONG sign_len;
-	long processed; /* number of bytes processed by the crypto routine */
+	CK_ULONG processed; /* number of bytes processed by the crypto routine */
 
 	sign_len = CI_Ceay_RSA_size((RSA CK_PTR)session_data->verify_state);
 	if(sign_len != ulSignatureLen)
@@ -4783,8 +5052,9 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_WrapKey)(
 	    PKCS8_PRIV_KEY_INFO *p8;
 	    RSA *rsa= NULL;
 	    EVP_PKEY *pkey = NULL;	
-	    unsigned char *in, *p;
-	    int inlen;
+//	    unsigned char *in, *p;
+	    unsigned char *p;
+//	    int inlen;
 	    
 	    /* code provided by Felix Baessler <Felix.Baessler@swisscom.com> */
 	    
@@ -5782,7 +6052,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_ReadPersistent)(
       return rv;
     }
 
-  cryptdb = CDB_Open(db_file);
+  cryptdb = CDB_Open(db_file, GDBM_READER);
   if(cryptdb == NULL_PTR) 
     {
       rv = CKR_GENERAL_ERROR;
@@ -5793,7 +6063,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_ReadPersistent)(
 
   /* get the pin */
   /* TODO: enable this for multiple application support */
-  if(session_data->user_type == CKU_SO)
+/*  if(session_data->user_type == CKU_SO)
     CDB_SetPin(cryptdb, TRUE, 
 	       IMPL_DATA(so_pin), 
 	       IMPL_DATA(so_pin_len));
@@ -5801,7 +6071,22 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_ReadPersistent)(
     CDB_SetPin(cryptdb, FALSE, 
 	       IMPL_DATA(user_pin), 
 	       IMPL_DATA(user_pin_len));
-  
+*/
+
+	// Check Session type
+	if ( session_data->session_info->state == CKS_RW_SO_FUNCTIONS )
+		{
+		CDB_SetPin(cryptdb, TRUE, 
+			IMPL_DATA(so_pin), 
+			IMPL_DATA(so_pin_len));
+		}else if ( session_data->session_info->state == CKS_RO_USER_FUNCTIONS
+						|| session_data->session_info->state == CKS_RW_USER_FUNCTIONS	)
+		{
+			CDB_SetPin(cryptdb, FALSE,
+	       IMPL_DATA(user_pin), 
+				 IMPL_DATA(user_pin_len));
+		}
+
   rv = CDB_GetObjectInit(cryptdb);
   if(rv != CKR_OK)
     {
@@ -5812,28 +6097,28 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_ReadPersistent)(
     }    
 
   while(((rv = CDB_GetObjectUpdate( cryptdb, &curr_obj)) == CKR_OK) && 
-	(curr_obj != NULL_PTR))
-    {
-      CI_NewHandle(&handle); /* Wir ignorieren hier mal den Fehler */
-      CI_VarLogEntry("CI_Ceay_ReadPersistentFile","Adding Object no %d (handle: %lu)",
-		     rv,0,obj_count++,handle);
-      rv = CI_ContainerAddObj(*ppCache,handle,curr_obj);
-      if(rv != CKR_OK)
+		(curr_obj != NULL_PTR))
 	{
-	  CI_ObjDestroyObj(curr_obj);
-	  CI_LogEntry("CI_Ceay_ReadPersistentFile","Writing object to container failed",
+		CI_NewHandle(&handle); /* Wir ignorieren hier mal den Fehler */
+		CI_VarLogEntry("CI_Ceay_ReadPersistentFile","Adding Object no %d (handle: %lu)",
+			rv,0,obj_count++,handle);
+		rv = CI_ContainerAddObj(*ppCache,handle,curr_obj);
+		if(rv != CKR_OK)
+		{
+			CI_ObjDestroyObj(curr_obj);
+			CI_LogEntry("CI_Ceay_ReadPersistentFile","Writing object to container failed",
 		      rv,0);
-	  CDB_Close(cryptdb);
-	  return rv;
-	}    
-    }
+			CDB_Close(cryptdb);
+			return rv;
+		}    
+	}
   if(rv != CKR_OK)
-    {
-      CI_LogEntry("CI_Ceay_ReadPersistentFile","error when reading from database",
-		  rv,0);
-      CDB_Close(cryptdb);
-      return rv;
-    }    
+	{
+		CI_LogEntry("CI_Ceay_ReadPersistentFile","error when reading from database",
+			rv,0);
+		CDB_Close(cryptdb);
+		return rv;
+	}    
 
   rv = CDB_GetObjectFinal(cryptdb);
   if(rv != CKR_OK)
@@ -6018,7 +6303,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_TokenObjAdd)(
       return rv;
     }
 
-  cryptdb = CDB_Open(db_file);
+  cryptdb = CDB_Open(db_file, GDBM_WRITER);
   if(cryptdb == NULL_PTR) 
     {
       rv = CKR_GENERAL_ERROR;
@@ -6085,7 +6370,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_TokenObjCommit)(
       return rv;
     }
 
-  cryptdb = CDB_Open(db_file);
+  cryptdb = CDB_Open(db_file, GDBM_WRITER);
   if(cryptdb == NULL_PTR) return CKR_GENERAL_ERROR;
 
   /* get the pin */
@@ -6142,7 +6427,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_TokenObjDelete)(
       return rv;
     }
 
-  cryptdb = CDB_Open(db_file);
+  cryptdb = CDB_Open(db_file, GDBM_WRITER);
   if(cryptdb == NULL_PTR) return CKR_GENERAL_ERROR;
 
   /* get the pin */
@@ -6287,15 +6572,16 @@ CK_I_TOKEN_METHODS Ceay_token_methods = {
 #define CK_I_MIN_PIN_LEN 8
 #define CK_I_MAX_PIN_LEN 255
 
+/**
+@note Why is flag CKF_USER_PIN_INITIALIZED set?
+*/
 /* {{{ CK_TOKEN_INFO Ceay_token_info */
 CK_TOKEN_INFO Ceay_token_info = {
-"OpenSSL Wrap Token              ", /* label (32 Characters) */
+"uninitialized Token             ", /* label (32 Characters) */
 "TC TrustCenter GmbH, Hamburg    ", /* manufacturerID (32 Characters) */
 "OpenSSLWrap     ",                /* model (16 chars) */
-"1               ",                /* serial number (16 chars) 
-				    * TODO: sollten wir hier der Software S/N's per build geben? 
-				    * datum? epoch? 
-				    */
+"                ",                /* serial number (16 chars) */
+
 CKF_RNG|CKF_USER_PIN_INITIALIZED|CKF_DUAL_CRYPTO_OPERATIONS, /* flags */
 CK_I_MAX_SESSION_COUNT,            /* ulMaxSessionCount */
 0,                                 /* ulSessionCount */
@@ -6327,12 +6613,14 @@ CK_I_TOKEN_DATA Ceay_token_data = {
   &Ceay_impl_data
 };
 
-/* dynamically fill table of slots in init.c and slot.c
- * (using gpkcs11.rc and following data structures) 
- */
+/**
+dynamically fill table of slots in init.c and slot.c (using gpkcs11.rc and following data structures)
+
+@note This is a structure of PKCS#11 not CEAY-Token
+*/
 CK_SLOT_INFO Ceay_slot_info={
-  "GNU PKCS #11 Wrapper for SSLeay                        ",
-  "TrustCenter GmbH, Hamburg     ",
+  {'G', ' N', ' U', '  ', ' P', ' K', ' C', ' S', '  ', ' #', ' 1', ' 1', '  ', ' W', ' r', ' a', ' p', ' p', ' e', ' r', '  ', ' f', ' o', ' r', '  ', ' S', ' S', ' L', ' e', ' a', ' y', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+  {'T', 'r', 'u', 's', 't', 'C', 'e', 'n', 't', 'e', 'r', ' ', 'G', 'm', 'b', 'H', ',', ' ', 'H', 'a', 'm', 'b', 'u', 'r', 'g', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
   CKF_TOKEN_PRESENT, /* this token is allways present */
   {0,0},
   {0,1}
@@ -6346,13 +6634,50 @@ static CK_I_SLOT_DATA Ceay_slot_data={
   &Ceay_token_methods
  };
 
-/* {{{ ceayToken_init */
+
+/**
+@fn CK_DEFINE_FUNCTION (CK_RV, ceayToken_init) (CK_CHAR_PTR, CK_I_SLOT_DATA_PTR CK_PTR)
+
+The function ceayToken_init() opens database file of the token in RO mode,
+extracts the CK_TOKEN_INFO structure and stores it in the structure
+Ceay_token_data. After that it closes the database file. The function
+ceayToken_init() always gets a pointer to the static variable Ceay_slot_data.
+
+The function ceayToken_init() checks if the config entry "PersistentDataFile"
+is empty. In this case the CK_TOKEN_INFO flag CKF_TOKEN_INITIALIZED will be
+reset and the function returns.
+
+The function ceayToken_init() first opens the database file in read-only mode
+and reopens it in case of success in read-write mode to check the read-write
+ability. It sets the flag CKF_WRITE_PROTECTED in the
+ppSlotData->token_data->flags, if the database file is only readable.
+
+@returns The functions returns one of the following PKCS#11 return values:
+<dl>
+  <dt>CKR_OK:</dt>
+  <dd>if the database file was succesfully opend CK_TOKEN_INFO structure was succesfully extracted</dd>
+  <dt>CKR_HOST_MEMORY:</dt>
+  <dd>if in the configurating ini file  is a reference in the token list but no section for the CEAY token</dd>
+  <dt>@see CI_GetConfigString():</dt>
+  <dd>if the data base file was not openable</dd>
+  <dt>@see CDB_GetTokenInfo():</dt>
+  <dd>if there was no CK_TOKEN_INFO structure in the database file</dd>
+  <dt>@see CDB_Close():</dt>
+  <dd>if the closing of the database failed</dd>
+</dl>
+
+@see C_GetTokenInfo()
+*/
+
 CK_DEFINE_FUNCTION(CK_RV, ceayToken_init)(
- CK_CHAR_PTR token_name,
- CK_I_SLOT_DATA_PTR CK_PTR ppSlotData
+ CK_CHAR_PTR               token_name, ///< [in]  Name of the token
+ CK_I_SLOT_DATA_PTR CK_PTR ppSlotData  ///< [out] Pointer to slot data pointer
 )
 {
-  CK_RV rv = CKR_OK;
+  CK_RV rv = CKR_OK;  
+	CK_CHAR_PTR db_file;
+	CK_I_CRYPT_DB_PTR cryptdb;
+	CK_TOKEN_INFO_PTR p_db_token_info;
 
   CI_LogEntry("ceayToken_init", "starting...", rv, 2);
 
@@ -6360,6 +6685,64 @@ CK_DEFINE_FUNCTION(CK_RV, ceayToken_init)(
   Ceay_slot_data.flags = 0;
   Ceay_slot_data.slot_info = &Ceay_slot_info;
   Ceay_slot_data.token_data = &Ceay_token_data;
+
+  CEAY_CONFIG_SECTION = strdup(token_name);
+  if(CEAY_CONFIG_SECTION == NULL_PTR)
+	{
+	  rv = CKR_HOST_MEMORY;
+	  CI_VarLogEntry("ceayToken_init", "dupping token name", rv, 1,token_name);
+	  return rv;
+  }
+
+
+  /* Check TokenState */
+  rv = CI_GetConfigString(CEAY_CONFIG_SECTION, "PersistentDataFile",&db_file);
+  if(rv != CKR_OK)
+    {
+      /* Token without persistant data file will be declared as not initialized token */
+      Ceay_token_info.flags &= !CKF_TOKEN_INITIALIZED;
+      CI_LogEntry("ceayToken_init","Error reading field from config file.",rv,0);      
+      return rv;
+    }
+
+	/* Load TokenInfo from cryptdb ( especially done to get Label and serialNumber ) */
+  cryptdb = CDB_Open(db_file, GDBM_READER);
+  if(cryptdb != NULL_PTR)
+  { 
+    CI_LogEntry("ceayToken_init","there is an existing token", rv , 3);
+
+    rv = CDB_GetTokenInfo(cryptdb, &p_db_token_info);
+    if (rv != CKR_OK)
+    {
+      CI_LogEntry("ceayToken_init","get TokenInfo failed", rv ,0);
+      TC_free(cryptdb);
+      return rv;
+    }
+    memcpy(&Ceay_token_info, p_db_token_info, sizeof (CK_TOKEN_INFO));
+    
+    rv = CDB_Close(cryptdb);
+    if (rv != CKR_OK)
+    {
+      CI_LogEntry("ceayToken_init","Closing of database failed.", rv ,0);
+      TC_free(cryptdb);
+      return rv;
+    }
+    
+    /* Test RW ability of token */
+    if (CDB_IsFileReadOnly (db_file)==CK_TRUE)
+    {
+      Ceay_token_info.flags |= CKF_WRITE_PROTECTED;
+      Ceay_slot_data.token_data->token_info->flags |= CKF_WRITE_PROTECTED;
+    	CI_VarLogEntry("ceayToken_init", "Ceay_slot_data.token_data->token_info->flags=0x%x", rv, 2, Ceay_slot_data.token_data->token_info->flags);
+    }
+
+    TC_free(cryptdb);
+  }
+  else
+  {
+    rv = CKR_TOKEN_NOT_PRESENT;
+	  CI_VarLogEntry("ceayToken_init", "Error opening token", rv, 0,token_name);
+  }
 
   CI_LogEntry("ceayToken_init", "...complete", rv, 2);
   return rv;
@@ -6400,11 +6783,16 @@ CK_DEFINE_FUNCTION(RSA_PTR, CI_Ceay_Obj2RSA)(
   if(*((CK_OBJECT_CLASS CK_PTR)CI_ObjLookup(key_obj,CK_IA_CLASS)->pValue) == CKO_PRIVATE_KEY)
     {
       ctx=BN_CTX_new();
-      if (ctx == NULL) { internal_key_obj=NULL_PTR; goto rsa_err; }
-      r1=&(ctx->bn[0]);
-      r2=&(ctx->bn[1]);
-      ctx->tos+=2;
-      
+	  if (ctx == NULL) { internal_key_obj=NULL_PTR; goto rsa_err; }
+
+	  BN_CTX_start(ctx);
+//	  r1=&(ctx->bn[0]);
+//      r2=&(ctx->bn[1]);
+//      ctx->tos+=2;
+	  r1=BN_CTX_get(ctx);
+	  r2=BN_CTX_get(ctx);
+	  if (r1 == NULL || r1 == NULL) { internal_key_obj=NULL_PTR; goto rsa_err; }
+	  
       /* copy entries into internal key object (compute if missing) */
       rv = CI_Ceay_ObjEntry2BN(CI_ObjLookup(key_obj,CK_IA_PRIVATE_EXPONENT),&(internal_key_obj->d));
       if(rv != CKR_OK) { internal_key_obj = NULL_PTR; goto rsa_err; }
@@ -6462,7 +6850,11 @@ CK_DEFINE_FUNCTION(RSA_PTR, CI_Ceay_Obj2RSA)(
 	}
   
     rsa_err:
-	if(ctx != NULL_PTR ) BN_CTX_free(ctx);
+	if(ctx != NULL_PTR ) 
+	{
+		BN_CTX_end(ctx);
+		BN_CTX_free(ctx);
+	}
 	
 	return internal_key_obj;
     }
@@ -6510,71 +6902,101 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_RSA2Obj)(
       if(*((CK_OBJECT_CLASS CK_PTR)CI_ObjLookup(pKeyObj,CK_IA_CLASS)->pValue) != CKO_PRIVATE_KEY)
 	return CKR_OK;
 
-      ctx=BN_CTX_new();
-      if (ctx == NULL) { return CKR_HOST_MEMORY; }
-      r1=&(ctx->bn[0]);
-      r2=&(ctx->bn[1]);
-      ctx->tos+=2;
+     ctx=BN_CTX_new();
+	  if (ctx == NULL) { return CKR_HOST_MEMORY; }
+
+	  BN_CTX_start(ctx);
+	  r1=BN_CTX_get(ctx);
+	  r2=BN_CTX_get(ctx);
+	  if (r1 == NULL || r1 == NULL) { BN_CTX_end(ctx); BN_CTX_free(ctx); return CKR_FUNCTION_FAILED; }
+//      ctx=BN_CTX_new();
+//      if (ctx == NULL) { return CKR_HOST_MEMORY; }
+//      r1=&(ctx->bn[0]);
+//      r2=&(ctx->bn[1]);
+//      ctx->tos+=2;
       
-      if((rv = CI_Ceay_BN2ObjEntry(CKA_PRIVATE_EXPONENT,rsa_struct->d,
-			      pKeyObj, NULL_PTR)) 
-	 != CKR_OK) 
-	return rv;
-      if((rv = CI_Ceay_BN2ObjEntry(CKA_PRIME_1,rsa_struct->p,
-			      pKeyObj, NULL_PTR)) 
-	 != CKR_OK) 
-	return rv;
-      if((rv = CI_Ceay_BN2ObjEntry(CKA_PRIME_2,rsa_struct->q,
-			      pKeyObj, NULL_PTR)) 
-	 != CKR_OK) 
-	return rv;
+      if((rv = CI_Ceay_BN2ObjEntry(CKA_PRIVATE_EXPONENT,rsa_struct->d, pKeyObj, NULL_PTR)) 
+		  != CKR_OK) 
+	  {
+		  BN_CTX_end(ctx); 
+		  BN_CTX_free(ctx);
+		  return rv;
+	  }
+      
+	  if((rv = CI_Ceay_BN2ObjEntry(CKA_PRIME_1,rsa_struct->p, pKeyObj, NULL_PTR))
+		  != CKR_OK) 
+	  {
+		  BN_CTX_end(ctx); 
+		  BN_CTX_free(ctx);
+		  return rv;
+	  }
+
+      if((rv = CI_Ceay_BN2ObjEntry(CKA_PRIME_2,rsa_struct->q, pKeyObj, NULL_PTR))
+		  != CKR_OK) 
+	  {
+		  BN_CTX_end(ctx); 
+		  BN_CTX_free(ctx);
+		  return rv;
+	  }
 
       if(rsa_struct->dmp1 == NULL_PTR) /* compute the value */
 	{
 	  /* calculate d mod (p-1) */
 	  if (!BN_sub(r1,rsa_struct->p,BN_value_one()))        /* p-1 */
-	    { return CKR_HOST_MEMORY; }
+	    { BN_CTX_end(ctx); BN_CTX_free(ctx); return CKR_HOST_MEMORY; }
 	  rsa_struct->dmp1=BN_new();
-	  if (rsa_struct->dmp1 == NULL) { return CKR_HOST_MEMORY; }
+	  if (rsa_struct->dmp1 == NULL) { BN_CTX_end(ctx); BN_CTX_free(ctx); return CKR_HOST_MEMORY; }
 	  if (!BN_mod(rsa_struct->dmp1,rsa_struct->d,r1,ctx)) 
-	    { return CKR_HOST_MEMORY; }
+	    { BN_CTX_end(ctx); BN_CTX_free(ctx); return CKR_HOST_MEMORY; }
 	}
-      if((rv = CI_Ceay_BN2ObjEntry(CKA_EXPONENT_1,rsa_struct->dmp1,
-			      pKeyObj, NULL_PTR)) 
-	 != CKR_OK) 
-	return rv;
+      if((rv = CI_Ceay_BN2ObjEntry(CKA_EXPONENT_1,rsa_struct->dmp1, pKeyObj, NULL_PTR)) 
+		  != CKR_OK) 
+	  {
+		  BN_CTX_end(ctx); 
+		  BN_CTX_free(ctx);
+		  return rv;
+	  }
 
       if(rsa_struct->dmq1 == NULL_PTR) /* compute the value */
 	{
 	  /* calculate d mod (q-1) */
 	  if (!BN_sub(r2,rsa_struct->q,BN_value_one()))   /* q-1 */
-	    { return CKR_HOST_MEMORY; }
+	    { BN_CTX_end(ctx); BN_CTX_free(ctx); return CKR_HOST_MEMORY; }
 	  rsa_struct->dmq1=BN_new();
-	  if (rsa_struct->dmq1 == NULL) { return CKR_HOST_MEMORY; }
+	  if (rsa_struct->dmq1 == NULL) { BN_CTX_end(ctx); BN_CTX_free(ctx); return CKR_HOST_MEMORY; }
 	  if (!BN_mod(rsa_struct->dmq1,rsa_struct->d,r2,ctx)) 
-	    { return CKR_HOST_MEMORY; }
+	    { BN_CTX_end(ctx); BN_CTX_free(ctx); return CKR_HOST_MEMORY; }
 	}
-      if((rv = CI_Ceay_BN2ObjEntry(CKA_EXPONENT_2,rsa_struct->dmq1,
-			      pKeyObj, NULL_PTR)) 
-	 != CKR_OK) 
-	return rv;
+      if((rv = CI_Ceay_BN2ObjEntry(CKA_EXPONENT_2,rsa_struct->dmq1, pKeyObj, NULL_PTR)) 
+		  != CKR_OK) 
+	  {
+		  BN_CTX_end(ctx); 
+		  BN_CTX_free(ctx);
+		  return rv;
+	  }
+
 
       if(rsa_struct->iqmp == NULL_PTR) /* compute the value */
 	{
 	  /* calculate inverse of q mod p */
 	  rsa_struct->iqmp=BN_mod_inverse(NULL, rsa_struct->q,rsa_struct->p,ctx);
 	  if (rsa_struct->iqmp == NULL) 
-	    { return CKR_HOST_MEMORY; }
+	    { BN_CTX_end(ctx); BN_CTX_free(ctx); return CKR_HOST_MEMORY; }
 	}
-      if((rv = CI_Ceay_BN2ObjEntry(CKA_COEFFICIENT,rsa_struct->iqmp,
-			      pKeyObj, NULL_PTR)) 
-	 != CKR_OK) 
-	return rv;
+      if((rv = CI_Ceay_BN2ObjEntry(CKA_COEFFICIENT,rsa_struct->iqmp, pKeyObj, NULL_PTR)) 
+		  != CKR_OK) 
+	  {
+		  BN_CTX_end(ctx); 
+		  BN_CTX_free(ctx);
+		  return rv;
+	  }
 
+	  BN_CTX_end(ctx); 
+	  BN_CTX_free(ctx);
       return CKR_OK;
     }
 
-  return CKR_TEMPLATE_INCONSISTENT;
+	return CKR_TEMPLATE_INCONSISTENT;
 }
 /* }}} */
 
@@ -6618,22 +7040,25 @@ CK_DEFINE_FUNCTION(DSA_PTR, CI_Ceay_Obj2DSA)(
 }
 /* }}} */
 
-/* {{{ CI_Ceay_MakeKeyString */
-/** Erzeugen eines DER-Strings aus einem Public- oder Private Key.
- * Die Funktion nutzt die Puffer- und Returncode-Konventionen wie in 
- * PKCS#11 V2.01 Section&nbsp;10.1 und Section&nbsp;10.2 beschrieben.
- * @param key_obj      Schlüssel der in einen DER-String gewandelt werden 
- *                     soll
- * @param pBuffer      Platz für den zurückgegeben String
- * @param pulBufferLen Länge des zur Verfügung gestellten / benötigten 
- *                     Puffers.
- * @return CKR_OK, CKR_HOST_MEMORY, CKR_KEY_TYPE_INVALID
- * @see PKCS11 S10.1 S10.2
- */
+/**
+@fn CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_MakeKeyString (CK_I_OBJ_PTR, CK_CHAR_PTR, 
+
+Die Funktion nutzt die Puffer- und Returncode-Konventionen wie in 
+PKCS#11 V2.01 Section&nbsp;10.1 und Section&nbsp;10.2 beschrieben.
+
+@return
+<dl>
+  <dt>CKR_OK</dt>
+  <dt>CKR_HOST_MEMORY</dt>
+  <dt>CKR_KEY_TYPE_INVALID</dt>
+</dl>
+@see PKCS11 S10.1 S10.2
+
+*/
 CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_MakeKeyString)(
- CK_I_OBJ_PTR key_obj,
- CK_CHAR_PTR pBuffer,
- CK_ULONG_PTR pulBufferLen
+ CK_I_OBJ_PTR key_obj,     ///< Schlüssel der in einen DER-String gewandelt werden soll
+ CK_CHAR_PTR  pBuffer,     ///< Platz für den zurückgegeben String
+ CK_ULONG_PTR pulBufferLen ///< Länge des zur Verfügung gestellten / benötigten Puffers.
 )
 {
   CK_ULONG string_len;
@@ -6936,6 +7361,93 @@ CK_DEFINE_FUNCTION(void, CI_Ceay_RSA_Callback)(
   return;
 }
 /* }}} */
+
+
+
+CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_GenerateSerialNumber)(
+	CK_CHAR_PTR p_serialNumber
+)
+{
+	CK_RV rv = CKR_OK;
+	CK_CHAR serialNumber[CK_I_SERIAL_LENGTH + 1]; //NULL-termination
+
+ 	memset(serialNumber, '0', CK_I_SERIAL_LENGTH); //fill with 0
+	serialNumber[16]=0;
+
+#ifdef CK_Win32
+{ 
+  struct _timeb timebuffer;
+	CK_LONG pos = CK_I_SERIAL_LENGTH-1;
+	CK_ULONG tmp = 0;
+
+	// get a representation of the current time in sec.msec to the base 36 (a-z + 0-9)
+	_ftime( &timebuffer );
+	
+	//first get the milli-seconds
+	while (pos >=0 && timebuffer.millitm > 0)
+	{
+		tmp = timebuffer.millitm % 36;
+		if ( 0 <= tmp && tmp <= 9 )
+		{
+			serialNumber[pos] = (CK_CHAR)(tmp + '0');
+		}else if (10 <= tmp && tmp <= 35 )
+		{
+			serialNumber[pos] = (CK_CHAR)(tmp + 'a' - 10);
+		}else
+		{
+			rv = CKR_FUNCTION_FAILED;
+			CI_LogEntry("CI_Ceay_TokenInit","generate SerialNumber failed", 
+				rv ,0);
+			return rv;
+		}
+		timebuffer.millitm = timebuffer.millitm / 36;
+		pos--;
+	}
+
+	serialNumber[pos] = '.';
+	pos--;
+
+	//and now the seconds
+	while (pos >=0 && timebuffer.time > 0)
+	{
+		tmp = timebuffer.time % 36;
+		if ( 0 <= tmp && tmp <= 9 )
+		{
+			serialNumber[pos] = (CK_CHAR)(tmp + '0');
+		}else if (10 <= tmp && tmp <= 35 )
+		{
+			serialNumber[pos] = (CK_CHAR)(tmp + 'a' - 10);
+		}else
+		{
+			rv = CKR_FUNCTION_FAILED;
+			CI_LogEntry("CI_Ceay_TokenInit","generate SerialNumber failed", 
+		  rv ,1);
+			return rv;
+		}
+		timebuffer.time = timebuffer.time / 36;
+		pos--;
+	}
+
+	if (pos < 0)
+	{
+		rv = CKR_FUNCTION_FAILED;
+		CI_LogEntry("CI_Ceay_TokenInit","generate SerialNumber failed", 
+			rv ,0);
+		return rv;
+	}
+}
+#else
+ //not implemented
+#endif
+	serialNumber[0] = 'c';
+	serialNumber[1] = 'e';
+	serialNumber[2] = 'a';
+	serialNumber[3] = 'y';
+	memcpy(p_serialNumber, serialNumber, CK_I_SERIAL_LENGTH);
+
+	CI_VarLogEntry("CI_Ceay_TokenInit","generate SerialNumber: <%s>", rv , 3, serialNumber);
+	return rv;
+}
 
 /*
  * Local variables:

@@ -103,6 +103,10 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetInfo)(
   CI_CodeFktEntry("C_GetInfo", "%p", 
                   pInfo);
 
+  /* make sure we can provide an info */
+  if (pInfo==NULL_PTR)
+    return CKR_ARGUMENTS_BAD;
+
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
     return CKR_CRYPTOKI_NOT_INITIALIZED;
@@ -110,7 +114,7 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetInfo)(
   pInfo->cryptokiVersion.major=0x2;
   pInfo->cryptokiVersion.minor=0x1;
 
-  strncpy((char*)pInfo->manufacturerID, "TrustCenter GmbH Hamburg       ", 32);
+  strncpy((char*)pInfo->manufacturerID, "TrustCenter GmbH Hamburg        ", 32);
 
   pInfo->flags = 0;
 

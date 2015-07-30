@@ -70,6 +70,8 @@ const char* ctok_mem_c_version(){return RCSID;}
 
 #include <stdlib.h>
 
+#include "CI_Ceay.h"
+
 /* the functions in this file allocate memory for the use in ceay_tok.c */
 /* all allocation should take place in this file */
 

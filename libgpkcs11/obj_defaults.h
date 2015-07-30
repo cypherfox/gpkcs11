@@ -62,23 +62,81 @@
 
 #include "objects.h"
 
-CK_ATTRIBUTE CK_I_obj_default_arr[] = {
-  {CKA_TOKEN, &CK_I_false, sizeof(CK_I_false)},
-  {CKA_PRIVATE, &CK_I_true, sizeof(CK_I_true)},
-  {CKA_MODIFIABLE, &CK_I_true, sizeof(CK_I_true)},
-  {CKA_LABEL, CK_I_empty_str, sizeof(CK_I_empty_str)},
-  {CKA_APPLICATION, CK_I_empty_str, sizeof(CK_I_empty_str)},
-  {CKA_VALUE, CK_I_empty_bytes, sizeof(CK_I_empty_bytes)},
-  {CKA_ID, CK_I_empty_bytes, sizeof(CK_I_empty_bytes)},
-  {CKA_ISSUER, CK_I_empty_bytes, sizeof(CK_I_empty_bytes)},
-  {CKA_DERIVE, &CK_I_false, sizeof(CK_I_false)},
-  {CKA_SUBJECT, CK_I_empty_bytes, sizeof(CK_I_empty_bytes)},
-  {CKA_SENSITIVE, &CK_I_false, sizeof(CK_I_false)},
-  {CKA_ALWAYS_SENSITIVE, &CK_I_false, sizeof(CK_I_false)}
+CK_ATTRIBUTE CK_I_obj_attr_defaults_common[] =
+{
+  {CKA_TOKEN,       &CK_I_false,    sizeof(CK_I_false)},
+  {CKA_PRIVATE,     &CK_I_true,     sizeof(CK_I_true)},          
+  {CKA_MODIFIABLE,  &CK_I_true,     sizeof(CK_I_true)},
+  {CKA_LABEL,       CK_I_empty_str, sizeof(CK_I_empty_str)}
 };
+#define CK_I_OBJ_ATTR_DEFAULTS_COMMON_SIZE 4
 
-#define CK_I_OBJ_DEFAULTS_SIZE 12
-CK_I_OBJ_PTR CK_I_obj_default = NULL_PTR;
+
+CK_ATTRIBUTE CK_I_obj_attr_defaults_data[] =
+{
+  {CKA_APPLICATION, CK_I_empty_str,   sizeof(CK_I_empty_str)},
+  {CKA_VALUE,       CK_I_empty_bytes, sizeof(CK_I_empty_bytes)}
+};
+#define CK_I_OBJ_ATTR_DEFAULTS_DATA_SIZE 2
+          
+
+CK_ATTRIBUTE CK_I_obj_attr_defaults_certificate_x509[] =
+{
+  {CKA_ID,            CK_I_empty_bytes, sizeof(CK_I_empty_bytes)},
+  {CKA_ISSUER,        CK_I_empty_bytes, sizeof(CK_I_empty_bytes)},
+  {CKA_SERIAL_NUMBER, CK_I_empty_bytes, sizeof(CK_I_empty_bytes)}
+};
+#define CK_I_OBJ_ATTR_DEFAULTS_CERTIFICATE_X509_SIZE 3
+
+
+CK_ATTRIBUTE CK_I_obj_attr_defaults_key_common[] =
+{
+  {CKA_ID,           CK_I_empty_bytes,   sizeof(CK_I_empty_bytes)},
+  {CKA_START_DATE,   &CK_I_empty_date,   sizeof(CK_I_empty_date)},
+  {CKA_END_DATE,     &CK_I_empty_date,   sizeof(CK_I_empty_date)},
+  {CKA_DERIVE,       &CK_I_false,        sizeof(CK_I_false)},
+  {CKA_LOCAL,        &CK_I_false,        sizeof(CK_I_false)}
+};
+#define CK_I_OBJ_ATTR_DEFAULTS_KEY_COMMON_SIZE 5
+
+
+CK_ATTRIBUTE CK_I_obj_attr_defaults_key_public_common[] =
+{
+  {CKA_SUBJECT,         CK_I_empty_bytes,   sizeof(CK_I_empty_bytes)},
+  {CKA_ENCRYPT,         &CK_I_true,         sizeof(CK_I_true)},
+  {CKA_VERIFY,          &CK_I_true,         sizeof(CK_I_true)},
+  {CKA_VERIFY_RECOVER,  &CK_I_false,        sizeof(CK_I_false)},
+  {CKA_WRAP,            &CK_I_true,         sizeof(CK_I_true)}
+};
+#define CK_I_OBJ_ATTR_DEFAULTS_KEY_PUBLIC_COMMON_SIZE 5
+
+
+CK_ATTRIBUTE CK_I_obj_attr_defaults_key_private_common[] =
+{
+  {CKA_SUBJECT,           CK_I_empty_bytes,   sizeof(CK_I_empty_bytes)},
+  {CKA_SENSITIVE,         &CK_I_false,        sizeof(CK_I_false)},
+  {CKA_DECRYPT,           &CK_I_true,         sizeof(CK_I_true)},
+  {CKA_SIGN,              &CK_I_true,         sizeof(CK_I_true)},
+  {CKA_SIGN_RECOVER,      &CK_I_false,        sizeof(CK_I_false)},
+  {CKA_UNWRAP,            &CK_I_true,         sizeof(CK_I_true)},
+  {CKA_EXTRACTABLE,       &CK_I_true,         sizeof(CK_I_true)}
+};
+#define CK_I_OBJ_ATTR_DEFAULTS_KEY_PRIVATE_COMMON_SIZE 7
+
+
+CK_ATTRIBUTE CK_I_obj_attr_defaults_key_secret_common[] =
+{
+  {CKA_SENSITIVE,         &CK_I_false,        sizeof(CK_I_false)},
+  {CKA_ENCRYPT,           &CK_I_true,         sizeof(CK_I_true)},
+  {CKA_DECRYPT,           &CK_I_true,         sizeof(CK_I_true)},
+  {CKA_SIGN,              &CK_I_true,         sizeof(CK_I_true)},
+  {CKA_VERIFY,            &CK_I_true,         sizeof(CK_I_true)},
+  {CKA_WRAP,              &CK_I_true,         sizeof(CK_I_true)},
+  {CKA_UNWRAP,            &CK_I_true,         sizeof(CK_I_true)},
+  {CKA_EXTRACTABLE,       &CK_I_true,         sizeof(CK_I_true)}
+};
+#define CK_I_OBJ_ATTR_DEFAULTS_KEY_SECRET_COMMON_SIZE 8
+
 
 #endif /* _OBJ_DEFAULTS_H */
 /*

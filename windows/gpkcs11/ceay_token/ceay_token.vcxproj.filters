@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{a0311851-fabc-4a32-858b-7f72d9c9d4f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{400c9954-042a-4f78-b54c-82ce298bb41d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Build">
+      <UniqueIdentifier>{91f638e3-fca1-4e6e-9462-eac35654a5bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Library %28Release%29">
+      <UniqueIdentifier>{0a497b69-fab7-4677-a7be-900546b2c614}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Library %28Debug%29">
+      <UniqueIdentifier>{8e4a05d1-f330-4a4b-be4c-7eb0565f2104}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Developer">
+      <UniqueIdentifier>{b88f2e93-4e23-4c5a-9942-c964a04ed803}</UniqueIdentifier>
+      <Extensions>*.cfg</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\ceay_token\ceay_token.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\ceay_token\cryptdb.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\ceay_token\ctok_decrypt.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\ceay_token\ctok_encrypt.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\ceay_token\ctok_mem.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\ceay_token\TCCGenKey.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\ceay_token\ceay_token.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\ceay_token\CI_Ceay.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\ceay_token\cryptdb.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\ceay_token\ctok_mem.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\ceay_token\TCCGenKey.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Build\buildnumber.h">
+      <Filter>Build</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Build\constants.h">
+      <Filter>Build</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\..\Build\ViPKCS11SoftToken_package.xml">
+      <Filter>Build</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\Build\ViPKCS11SoftToken_requires.xml">
+      <Filter>Build</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\ceay_token\Developer\CEAY_Token_doxygen.cfg">
+      <Filter>Developer</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\lib_nt\gdbm.lib" />
+    <Library Include="..\lib_nt\gdbm_dbg.lib" />
+    <Library Include="..\lib_nt\gpkcs11.lib" />
+    <Library Include="..\lib_nt\gpkcs11_dbg.lib" />
+    <Library Include="..\..\..\ceay_token\openssl\libeay32.lib" />
+    <Library Include="..\..\..\ceay_token\openssl\libeay32_dbg.lib" />
+  </ItemGroup>
+</Project>

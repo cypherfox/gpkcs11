@@ -145,10 +145,17 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_DecryptInit)(
   CK_RV rv = CKR_OK;
 
   CI_VarLogEntry("C_DecryptInit", "starting...Session: %i", rv, 0, hSession);	  
-  CI_CodeFktEntry("C_DecryptInit", "%i,%s,%i", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_DecryptInit", "%i,%s,%i", 
 		  hSession,
-		  CI_ScanableMechanism(pMechanism),
+		  tmp = CI_ScanableMechanism(pMechanism),
 		  hKey);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
 
@@ -243,9 +250,16 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_DigestInit)(
   CK_RV rv = CKR_OK;
 
   CI_VarLogEntry("C_DigestInit", "starting...Session:%i", rv, 1,hSession);
-  CI_CodeFktEntry("C_DigestInit", "%i,%s", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_DigestInit", "%i,%s", 
 		  hSession,
-		  CI_ScanableMechanism(pMechanism));
+		  tmp = CI_ScanableMechanism(pMechanism));
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
   
@@ -266,12 +280,20 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_Digest)(
   CK_RV rv = CKR_OK;
   
   CI_LogEntry("C_Digest", "starting...", rv, 1);
-  CI_CodeFktEntry("C_Digest", "%i,%s,%i,%p,%p", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_Digest", "%i,%s,%i,%p,%p", 
 		  hSession,
-		  CI_ScanableByteStream(pData,ulDataLen),
+		  tmp = CI_ScanableByteStream(pData,ulDataLen),
 		  ulDataLen,
 		  pDigest,
 		  pulDigestLen);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
+  
   CI_VarLogEntry("C_Digest", "*pulDigestLen: %i", rv, 1,*pulDigestLen);
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
@@ -291,10 +313,17 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_DigestUpdate)(
   CK_RV rv = CKR_OK;
 
   CI_LogEntry("C_DigestUpdate", "starting...", rv, 1);
-  CI_CodeFktEntry("C_DigestUpdate", "%i,%s,%i", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_DigestUpdate", "%i,%s,%i", 
 		  hSession,
-		  CI_ScanableByteStream(pPart,ulPartLen),
+		  tmp = CI_ScanableByteStream(pPart,ulPartLen),
 		  ulPartLen);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
 
@@ -363,16 +392,22 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_DigestEncryptUpdate)
 )
 {
   CK_RV rv = CKR_OK;
-  CK_BYTE_PTR tmp1 = NULL_PTR;
 
   CI_LogEntry("C_DigestEncryptUpdate", "starting...", rv, 1);
-  CI_CodeFktEntry("C_DigestEncryptUpdate", "%i,%s,%i,%p,%p", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_DigestEncryptUpdate", "%i,%s,%i,%p,%p", 
 		  hSession,
-		  tmp1 = CI_ScanableByteStream(pPart, ulPartLen),
+		  tmp = CI_ScanableByteStream(pPart, ulPartLen),
 		  ulPartLen,
 		  pEncryptedPart,
 		  pulEncryptedPartLen);
-  TC_free(tmp1);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
+
   CI_VarLogEntry("C_DigestEncryptUpdate", "*pulEncryptedPartLen: %i", rv, 1, *pulEncryptedPartLen);
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
@@ -396,16 +431,22 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_DecryptDigestUpdate)
 )
 {
   CK_RV rv = CKR_OK;
-  CK_BYTE_PTR tmp1 = NULL_PTR;
 
   CI_LogEntry("C_DecryptDigestUpdate", "starting...", rv, 1);
-  CI_CodeFktEntry("C_DecryptDigestUpdate", "%i,%s,%i,%p,%p", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_DecryptDigestUpdate", "%i,%s,%i,%p,%p", 
 		  hSession,
-		  tmp1 = CI_ScanableByteStream(pEncryptedPart, ulEncryptedPartLen),
+		  tmp = CI_ScanableByteStream(pEncryptedPart, ulEncryptedPartLen),
 		  ulEncryptedPartLen,
 		  pPart,
 		  pulPartLen);
-  TC_free(tmp1);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
+
   CI_VarLogEntry("C_DecryptDigestUpdate", "*pulPartLen: %i", rv, 1, *pulPartLen);
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
@@ -429,16 +470,22 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_SignEncryptUpdate)
 )
 {
   CK_RV rv = CKR_OK;
-  CK_BYTE_PTR tmp1 = NULL_PTR;
 
   CI_LogEntry("C_SignEncryptUpdate", "starting...", rv, 1);
-  CI_CodeFktEntry("C_SignEncryptUpdate", "%i,%s,%i,%p,%p", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_SignEncryptUpdate", "%i,%s,%i,%p,%p", 
 		  hSession,
-		  tmp1 = CI_ScanableByteStream(pPart, ulPartLen),
+		  tmp = CI_ScanableByteStream(pPart, ulPartLen),
 		  ulPartLen,
 		  pEncryptedPart,
 		  pulEncryptedPartLen);
-  TC_free(tmp1);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
+
   CI_VarLogEntry("C_SignEncryptUpdate", "*pulEncryptedPartLen: %i", rv, 1, *pulEncryptedPartLen);
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
@@ -461,16 +508,22 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_DecryptVerifyUpdate)
 )
 {
   CK_RV rv = CKR_OK;
-  CK_BYTE_PTR tmp1 = NULL_PTR;
 
   CI_LogEntry("C_DecryptVerifyUpdate", "starting...", rv, 1);
-  CI_CodeFktEntry("C_DecryptVerifyUpdate", "%i,%s,%i,%p,%p", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_DecryptVerifyUpdate", "%i,%s,%i,%p,%p", 
 		  hSession,
-		  tmp1 = CI_ScanableByteStream(pEncryptedPart, ulEncryptedPartLen),
+		  tmp = CI_ScanableByteStream(pEncryptedPart, ulEncryptedPartLen),
 		  ulEncryptedPartLen,
 		  pPart,
 		  pulPartLen);
-  TC_free(tmp1);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
+
   CI_VarLogEntry("C_DecryptVerifyUpdate", "*pulPartLen: %i", rv, 1, *pulPartLen);
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
@@ -488,15 +541,20 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_EncryptInit)(
       )
 {
   CK_RV rv = CKR_OK;
-  CK_BYTE_PTR tmp = NULL_PTR;
 
   CI_VarLogEntry("C_EncryptInit", "starting... Session: %i, Key: %i", rv, 1, 
 		 hSession,hKey);
-  CI_CodeFktEntry("C_EncryptInit", "%i,%s,%i", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_EncryptInit", "%i,%s,%i", 
 		  hSession,
 		  tmp = CI_ScanableMechanism(pMechanism),
 		  hKey);
-  TC_free(tmp);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
   
@@ -515,17 +573,23 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_Encrypt)(
       )
 {
   CK_RV rv = CKR_OK;
-  CK_BYTE_PTR tmp = NULL_PTR;
 
   CI_VarLogEntry("C_Encrypt", "starting... Session: %i", rv, 1, hSession);
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
   CI_CodeFktEntry("C_Encrypt", "%i,%s,%i,%p,%p", 
 		  hSession,
 		  tmp = CI_ScanableByteStream(pData, ulDataLen),
 		  ulDataLen,
 		  pEncryptedData,
 		  pulEncryptedDataLen);
-  CI_VarLogEntry("C_Encrypt", "*pulEncryptedDataLen: %i", rv, 1, *pulEncryptedDataLen);
   TC_free(tmp);
+  }
+#endif // NO_LOGGING
+
+  CI_VarLogEntry("C_Encrypt", "*pulEncryptedDataLen: %i", rv, 1, *pulEncryptedDataLen);
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
 
@@ -544,18 +608,24 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_EncryptUpdate)(
       )
 {
   CK_RV rv = CKR_OK;
-  CK_BYTE_PTR tmp = NULL_PTR;
 
   CI_VarLogEntry("C_EncryptUpdate", "starting... Session: %i", rv, 1, hSession);
-  CI_CodeFktEntry("C_EncryptUpdate", "%i,%s,%i,%p,%p", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_EncryptUpdate", "%i,%s,%i,%p,%p", 
 		  hSession,
 		  tmp = CI_ScanableByteStream(pPart, ulPartLen),
 		  ulPartLen,
 		  pEncryptedPart,
 		  pulEncryptedPartLen);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
+
   CI_VarLogEntry("C_EncryptUpdate", "*pulEncryptedPartLen: %i", rv, 1,
 		 *pulEncryptedPartLen);
-  TC_free(tmp);
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
 
@@ -616,19 +686,24 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_GenerateKey)(
       )
 {
   CK_RV rv = CKR_OK;
-  CK_BYTE_PTR tmp1 = NULL_PTR,tmp2 = NULL_PTR;
 
   CI_LogEntry("C_GenerateKey", "starting...", rv, 1);
-  CI_CodeFktEntry("C_GenerateKey", "%i,%s,%s,%i,%p", 
-                  hSession,
-                  tmp1 = CI_ScanableMechanism(pMechanism),
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CK_CHAR_PTR tmp2 = NULL;
+    CI_CodeFktEntry("C_GenerateKey", "%i,%s,%s,%i,%p", 
+      hSession,
+      tmp = CI_ScanableMechanism(pMechanism),
 		  tmp2 = CI_PrintTemplate(pTemplate,ulCount),
 		  ulCount,
 		  phKey);
+    TC_free(tmp);
+    TC_free(tmp2);
+  }
+#endif // NO_LOGGING
 
-  TC_free(tmp1);
-  TC_free(tmp2);
-  
   rv = CKR_FUNCTION_NOT_SUPPORTED;
 
   CI_VarLogEntry("C_GenerateKey", "new key object: %i", rv, 1,*phKey);
@@ -650,21 +725,28 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_GenerateKeyPair)(
 	)
 {
   CK_RV rv = CKR_OK;
-  CK_CHAR_PTR tmp1, tmp2, tmp3;
   
   CI_LogEntry("C_GenerateKeyPair", "starting...", rv, 1);
-  CI_CodeFktEntry("C_GenerateKeyPair", "%i,%s,%s,%i,%s,%i,%p,%p", 
-                  hSession,
-                  tmp1 = CI_ScanableMechanism(pMechanism),
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CK_CHAR_PTR tmp2 = NULL;
+    CK_CHAR_PTR tmp3 = NULL;
+    CI_CodeFktEntry("C_GenerateKeyPair", "%i,%s,%s,%i,%s,%i,%p,%p", 
+      hSession,
+      tmp = CI_ScanableMechanism(pMechanism),
 		  tmp2 = CI_PrintTemplate(pPublicKeyTemplate,ulPublicKeyAttributeCount),
 		  ulPublicKeyAttributeCount,
 		  tmp3 = CI_PrintTemplate(pPrivateKeyTemplate,ulPrivateKeyAttributeCount),
 		  ulPrivateKeyAttributeCount,
 		  phPublicKey,
 		  phPrivateKey);
-  TC_free(tmp1);
-  TC_free(tmp2);
-  TC_free(tmp3);
+    TC_free(tmp);
+    TC_free(tmp2);
+    TC_free(tmp3);
+  }
+#endif // NO_LOGGING
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
 
@@ -685,17 +767,22 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_WrapKey)
 )
 {
   CK_RV rv = CKR_OK;
-  CK_BYTE_PTR tmp = NULL_PTR;
 
   CI_LogEntry("C_WrapKey", "starting...", rv, 1);
-  CI_CodeFktEntry("C_WrapKey", "%i,%s,%i,%i,%p,%p", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_WrapKey", "%i,%s,%i,%i,%p,%p", 
                   hSession,
 		  tmp = CI_ScanableMechanism(pMechanism),
 		  hWrappingKey,
 		  hKey,
 		  pWrappedKey,
 		  pulWrappedKeyLen);
-  TC_free(tmp);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   CI_VarLogEntry("C_WrapKey", "*pulWrappedKeyLen: %i", rv, 1, *pulWrappedKeyLen);
 		  
@@ -722,21 +809,28 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_UnwrapKey)
 )
 {
   CK_RV rv = CKR_OK;
-  CK_CHAR_PTR tmp1, tmp2, tmp3;
 
   CI_LogEntry("C_UnwrapKey", "starting...", rv, 1);
-  CI_CodeFktEntry("C_UnwrapKey", "%i,%s,%i,%s,%i,%s,%i,%p", 
-                  hSession,
-                  tmp1 = CI_ScanableMechanism(pMechanism),
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CK_CHAR_PTR tmp2 = NULL;
+    CK_CHAR_PTR tmp3 = NULL;
+    CI_CodeFktEntry("C_UnwrapKey", "%i,%s,%i,%s,%i,%s,%i,%p", 
+      hSession,
+      tmp = CI_ScanableMechanism(pMechanism),
 		  hUnwrappingKey,
 		  tmp2 = CI_ScanableByteStream(pWrappedKey,ulWrappedKeyLen),
 		  ulWrappedKeyLen,
 		  tmp3 = CI_PrintTemplate(pTemplate,ulAttributeCount),
 		  ulAttributeCount,
 		  phKey);
-  TC_free(tmp1);
-  TC_free(tmp2);
-  TC_free(tmp3);
+    TC_free(tmp);
+    TC_free(tmp2);
+    TC_free(tmp3);
+  }
+#endif // NO_LOGGING
   
   rv = CKR_FUNCTION_NOT_SUPPORTED;
 
@@ -759,20 +853,23 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_DeriveKey)
 )
 {
   CK_RV rv = CKR_OK;
-  CK_BYTE_PTR tmp1 = NULL_PTR;
-  CK_BYTE_PTR tmp2 = NULL_PTR;
 
   CI_LogEntry("C_DeriveKey", "starting...", rv, 1);
-  CI_CodeFktEntry("C_DeriveKey", "%i,%s,%i,%s,%i,%p", 
-                  hSession,
-                  tmp1 = CI_ScanableMechanism(pMechanism),
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CK_CHAR_PTR tmp2 = NULL;
+    CI_CodeFktEntry("C_DeriveKey", "%i,%s,%i,%s,%i,%p", 
+      hSession,
+      tmp = CI_ScanableMechanism(pMechanism),
 		  hBaseKey,
 		  tmp2 = CI_PrintTemplate(pTemplate,ulAttributeCount),
 		  ulAttributeCount,
 		  phKey);
-
-  TC_free(tmp1);
-  TC_free(tmp2);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
   
 rv = CKR_FUNCTION_NOT_SUPPORTED;
 
@@ -790,16 +887,20 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_CreateObject)(
       )
 {
   CK_RV rv = CKR_OK;
-  CK_BYTE_PTR tmp_str = NULL_PTR;
 
   CI_LogEntry("C_CreateObject", "starting...", rv, 1);
-  CI_CodeFktEntry("C_CreateObject", "%lu,%s,%lu,%p", 
-                  hSession,
-		  tmp_str = CI_PrintTemplate(pTemplate,ulCount),
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_CreateObject", "%lu,%s,%lu,%p", 
+      hSession,
+		  tmp = CI_PrintTemplate(pTemplate,ulCount),
 		  ulCount,
 		  phObject);
-
-  if(tmp_str)TC_free(tmp_str);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
 
@@ -840,17 +941,21 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_CopyObject)(
       )
 {
   CK_RV rv = CKR_OK;
-  CK_BYTE_PTR tmp_str = NULL_PTR;
 
   CI_LogEntry("C_CopyObject", "starting...", rv , 1);
-  CI_CodeFktEntry("C_CopyObject", "%lu,%lu,%s,%lu,%p", 
-                  hSession,
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_CopyObject", "%lu,%lu,%s,%lu,%p", 
+      hSession,
 		  hObject,
-		  tmp_str = CI_PrintTemplate(pTemplate,ulCount),
+		  tmp = CI_PrintTemplate(pTemplate,ulCount),
 		  ulCount,
 		  phNewObject);
-
-  TC_free(tmp_str);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
 
@@ -868,16 +973,20 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_GetAttributeValue)(
       )
 {
   CK_RV rv = CKR_OK;
-  CK_BYTE_PTR tmp_str = NULL_PTR;
 
   CI_LogEntry("C_GetAttributeValue", "starting...", rv , 1);	  
-  CI_CodeFktEntry("C_GetAttributeValue", "%lu,%lu,%s,%lu", 
-                  hSession,
+  
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_GetAttributeValue", "%lu,%lu,%s,%lu", 
+      hSession,
 		  hObject,
-		  tmp_str = CI_PrintTemplate(pTemplate, ulCount),
+		  tmp = CI_PrintTemplate(pTemplate, ulCount),
 		  ulCount);
-
-  TC_free(tmp_str);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
   
@@ -895,16 +1004,20 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_SetAttributeValue)(
 	)
 {
   CK_RV rv = CKR_OK;
-  CK_BYTE_PTR tmp_str = NULL_PTR;
   
   CI_LogEntry("C_SetAttributeValue", "starting...", rv , 1);	  
-  CI_CodeFktEntry("C_SetAttributeValue", "%lu,%lu,%s%,%lu", 
-                  hSession,
-		  hObject,
-		  tmp_str = CI_PrintTemplate(pTemplate,ulCount),
-		  ulCount);
 
-  TC_free(tmp_str);
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_SetAttributeValue", "%lu,%lu,%s%,%lu", 
+      hSession,
+		  hObject,
+		  tmp = CI_PrintTemplate(pTemplate,ulCount),
+		  ulCount);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
 
@@ -925,15 +1038,19 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_FindObjectsInit)
       )
 {
   CK_RV rv =CKR_OK;
-  CK_BYTE_PTR tmp_str = NULL_PTR;
 
   CI_LogEntry("C_FindObjectsInit", "starting...", rv , 1);	  
-  CI_CodeFktEntry("C_FindObjectsInit", "%lu,%s,%lu", 
-                  hSession,
-		  tmp_str = CI_PrintTemplate(pTemplate,ulCount),
-		  ulCount);
 
-  TC_free(tmp_str);
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_FindObjectsInit", "%lu,%s,%lu", 
+      hSession,
+		  tmp = CI_PrintTemplate(pTemplate,ulCount),
+		  ulCount);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
 
@@ -1192,15 +1309,20 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_Login)
 )
 {
   CK_RV rv = CKR_OK;
-  CK_CHAR_PTR tmp;
 
   CI_LogEntry("C_Login", "starting...", rv, 1);
-  CI_CodeFktEntry("C_DigestInit", "%lu,%x,%s,%lu", 
-                  hSession,
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_DigestInit", "%lu,%x,%s,%lu", 
+      hSession,
 		  userType,
-                  tmp = CI_ScanableByteStream(pPin,ulPinLen),
+      tmp = CI_ScanableByteStream(pPin,ulPinLen),
 		  ulPinLen);
-  TC_free(tmp);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
   
@@ -1280,14 +1402,19 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_SignInit)(
       )
 {
   CK_RV rv = CKR_OK;
-  CK_BYTE_PTR tmp = NULL_PTR;
   
   CI_LogEntry("C_SignInit", "starting...",rv,1);
-  CI_CodeFktEntry("C_SignInit", "%i,%s,%i", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_SignInit", "%i,%s,%i", 
 		  hSession,
 		  tmp = CI_ScanableMechanism(pMechanism),
 		  hKey);
-  TC_free(tmp);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
 
@@ -1306,18 +1433,24 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_Sign)(
       )
 {
   CK_RV rv = CKR_OK;
-  CK_BYTE_PTR tmp = NULL_PTR;
   
   CI_VarLogEntry("C_Sign", "starting... Session: %i", rv, 1,hSession);
-  CI_CodeFktEntry("C_Sign", "%i,%s,%i,%p,%p", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_Sign", "%i,%s,%i,%p,%p", 
 		  hSession,
 		  tmp = CI_ScanableByteStream(pData, ulDataLen),
 		  ulDataLen,
 		  pSignature,
 		  pulSignatureLen);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
+  
   CI_VarLogEntry("C_Sign", "*pulSignatureLen: %i", rv, 1, *pulSignatureLen);
-  TC_free(tmp);
-
+  
   rv = CKR_FUNCTION_NOT_SUPPORTED;
 
   CI_LogEntry("C_Sign", "...complete", rv, 1);
@@ -1333,14 +1466,19 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_SignUpdate)(
       )
 {
   CK_RV rv = CKR_OK;
-  CK_BYTE_PTR tmp = NULL_PTR;
 
   CI_LogEntry("C_SignUpdate", "starting...", rv, 1);
-  CI_CodeFktEntry("C_SignUpdate", "%i,%s,%i", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_SignUpdate", "%i,%s,%i", 
 		  hSession,
 		  tmp = CI_ScanableByteStream(pPart, ulPartLen),
 		  ulPartLen);
-  TC_free(tmp);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
 
@@ -1384,14 +1522,19 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_SignRecoverInit)
 )
 {
   CK_RV rv = CKR_OK;
-  CK_BYTE_PTR tmp = NULL_PTR;
 
   CI_LogEntry("C_SignRecoverInit", "starting", rv, 1);
-  CI_CodeFktEntry("C_SignRecoverInit", "%i,%s,%i", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_SignRecoverInit", "%i,%s,%i", 
 		  hSession,
 		  tmp = CI_ScanableMechanism(pMechanism),
 		  hKey);
-  TC_free(tmp);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
   
@@ -1414,17 +1557,22 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_SignRecover)
 )
 {
   CK_RV rv = CKR_OK;
-  CK_BYTE_PTR tmp = NULL_PTR;
 
   CI_LogEntry("C_SignRecover", "starting...", rv, 1);
-  CI_CodeFktEntry("C_SignRecover", "%i,%s,%i,%p,%p", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_SignRecover", "%i,%s,%i,%p,%p", 
 		  hSession,
 		  tmp = CI_ScanableByteStream(pData, ulDataLen),
 		  ulDataLen,
 		  pSignature,
 		  pulSignatureLen);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
   CI_VarLogEntry("C_SignRecover", "*pulSignatureLen: %i", rv, 1, *pulSignatureLen);
-  TC_free(tmp);
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
   
@@ -1551,14 +1699,8 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_InitPIN)
 )
 {
   CK_RV rv = CKR_OK;
-  CK_CHAR_PTR tmp;
 
   CI_LogEntry("C_InitPIN", "starting...", rv, 1);
-  CI_CodeFktEntry("C_InitPin", "%i,%s,%i", 
-                  hSession,
-                  tmp = CI_ScanableByteStream(pPin,ulPinLen),
-		  ulPinLen);
-  TC_free(tmp);
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
 
@@ -1581,12 +1723,6 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_SetPIN)
   CK_RV rv = CKR_OK;
 
   CI_LogEntry("C_SetPIN", "starting...", rv, 1);
-  CI_CodeFktEntry("C_SetPIN", "%i,%s,%i,%s,%i", 
-                  hSession,
-                  CI_ScanableByteStream(pOldPin,ulOldLen),
-		  ulOldLen,
-                  CI_ScanableByteStream(pNewPin,ulNewLen),
-		  ulNewLen);
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
 
@@ -1603,15 +1739,20 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_VerifyInit)(
       )
 {
   CK_RV rv = CKR_OK;
-  CK_BYTE_PTR tmp = NULL_PTR;
 
   CI_VarLogEntry("C_VerifyInit", "starting... Session: %i, Key: %i", 
 		 rv, 1, hSession,hKey);
-  CI_CodeFktEntry("C_VerifyInit", "%i,%s,%i", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_VerifyInit", "%i,%s,%i", 
 		  hSession,
 		  tmp = CI_ScanableMechanism(pMechanism),
 		  hKey);
-  TC_free(tmp);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
   
   rv = CKR_FUNCTION_NOT_SUPPORTED;
   
@@ -1630,17 +1771,23 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_Verify)(
       )
 {
   CK_RV rv = CKR_OK;
-  CK_BYTE_PTR tmp_str1 = NULL_PTR, tmp_str2 = NULL_PTR;
 
   CI_VarLogEntry("C_Verify", "starting... Session: %i", rv, 1, hSession);
-  CI_CodeFktEntry("C_Verify", "%i,%s,%i,%s,%i", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CK_CHAR_PTR tmp2 = NULL;
+    CI_CodeFktEntry("C_Verify", "%i,%s,%i,%s,%i", 
 		  hSession,
-		  tmp_str1 = CI_ScanableByteStream(pData,ulDataLen),
+		  tmp = CI_ScanableByteStream(pData,ulDataLen),
 		  ulDataLen,
-		  tmp_str2 = CI_ScanableByteStream(pSignature,ulSignatureLen),
+		  tmp2 = CI_ScanableByteStream(pSignature,ulSignatureLen),
 		  ulSignatureLen);
-  TC_free(tmp_str1);
-  TC_free(tmp_str2);
+    TC_free(tmp);
+    TC_free(tmp2);
+  }
+#endif // NO_LOGGING
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
 
@@ -1659,10 +1806,17 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_VerifyUpdate)(
   CK_RV rv = CKR_OK;
 
   CI_VarLogEntry("C_VerifyUpdate", "starting... Session: %i", rv, 1, hSession);
-  CI_CodeFktEntry("C_VerifyUpdate", "%i,%s,%i,", 
+  
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_VerifyUpdate", "%i,%s,%i,", 
 		  hSession,
-		  CI_PrintableByteStream(pPart,ulPartLen),
+		  tmp = CI_PrintableByteStream(pPart,ulPartLen),
 		  ulPartLen);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
 
@@ -1681,10 +1835,17 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_VerifyFinal)(
   CK_RV rv = CKR_OK;
 
   CI_VarLogEntry("C_VerifyFinal", "starting... Session: %i", rv, 1, hSession);
-  CI_CodeFktEntry("C_VerifyFinal", "%i,%s,%i,", 
+  
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_VerifyFinal", "%i,%s,%i,", 
 		  hSession,
-		  CI_PrintableByteStream(pSignature,ulSignatureLen),
+		  tmp = CI_PrintableByteStream(pSignature,ulSignatureLen),
 		  ulSignatureLen);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
 
@@ -1706,10 +1867,17 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_VerifyRecoverInit)
   CK_RV rv = CKR_OK;
 
   CI_VarLogEntry("C_VerifyRecoverInit", "starting... Session: %i", rv, 1, hSession);
-  CI_CodeFktEntry("C_VerifyRecoverInit", "%i,%s,%i", 
+  
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_VerifyRecoverInit", "%i,%s,%i", 
 		  hSession,
-		  CI_ScanableMechanism(pMechanism),
+		  tmp = CI_ScanableMechanism(pMechanism),
 		  hKey);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;
 
@@ -1733,12 +1901,20 @@ CK_DEFINE_FUNCTION(CK_RV, FdC_VerifyRecover)
   CK_RV rv = CKR_OK;
 
   CI_LogEntry("C_VerifyRecover", "starting...", rv, 1);
-  CI_CodeFktEntry("C_VerifyRecover", "%i,%s,%i,%p,%p", 
+  
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_VerifyRecover", "%i,%s,%i,%p,%p", 
 		  hSession,
-		  CI_ScanableByteStream(pSignature,ulSignatureLen),
+		  tmp = CI_ScanableByteStream(pSignature,ulSignatureLen),
 		  ulSignatureLen,
 		  pData,
 		  pulDataLen);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
+  
   CI_VarLogEntry("C_VerifyRecover", "*pulDataLen: %lu", rv, 1, *pulDataLen);
 
   rv = CKR_FUNCTION_NOT_SUPPORTED;

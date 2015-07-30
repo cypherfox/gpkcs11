@@ -26,9 +26,10 @@
        
 *************************************************************************/
 
+#error "arg"
 
 /* Include all system headers first. */
-#if HAVE_SYS_TYPES_H
+#if defined HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
 #include <stdio.h>
@@ -36,18 +37,18 @@
 #include <sys/file.h>
 #endif
 #include <sys/stat.h>
-#if HAVE_STDLIB_H
+#if defined HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
-#if HAVE_STRING_H
+#if defined HAVE_STRING_H
 #include <string.h>
 #else
 #include <strings.h>
 #endif
-#if HAVE_UNISTD_H
+#if defined HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#if HAVE_FCNTL_H
+#if defined HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
 
@@ -115,7 +116,7 @@
 
 /* Do we have bcopy?  */
 #if !HAVE_BCOPY
-#if HAVE_MEMORY_H
+#if defined HAVE_MEMORY_H
 #include <memory.h>
 #endif
 #define bcmp(d1, d2, n)	memcmp(d1, d2, n)

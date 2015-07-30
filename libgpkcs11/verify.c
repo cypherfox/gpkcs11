@@ -91,15 +91,20 @@ CK_DEFINE_FUNCTION(CK_RV, C_VerifyInit)(
   CK_RV rv = CKR_OK;
   CK_I_OBJ_PTR key_obj = NULL_PTR;  /* key to be used */
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
-  CK_BYTE_PTR tmp = NULL_PTR;
 
   CI_VarLogEntry("C_VerifyInit", "starting... Session: %i, Key: %i", 
 		 rv, 1, hSession,hKey);
-  CI_CodeFktEntry("C_VerifyInit", "%i,%s,%i", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_VerifyInit", "%i,%s,%i", 
 		  hSession,
 		  tmp = CI_ScanableMechanism(pMechanism),
 		  hKey);
-  TC_free(tmp);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
   
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
@@ -166,17 +171,23 @@ CK_DEFINE_FUNCTION(CK_RV, C_Verify)(
 {
   CK_RV rv = CKR_OK;
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
-  CK_BYTE_PTR tmp_str1 = NULL_PTR, tmp_str2 = NULL_PTR;
 
   CI_VarLogEntry("C_Verify", "starting... Session: %i", rv, 1, hSession);
-  CI_CodeFktEntry("C_Verify", "%i,%s,%i,%s,%i", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CK_CHAR_PTR tmp2 = NULL;
+    CI_CodeFktEntry("C_Verify", "%i,%s,%i,%s,%i", 
 		  hSession,
-		  tmp_str1 = CI_ScanableByteStream(pData,ulDataLen),
+		  tmp = CI_ScanableByteStream(pData,ulDataLen),
 		  ulDataLen,
-		  tmp_str2 = CI_ScanableByteStream(pSignature,ulSignatureLen),
+		  tmp2 = CI_ScanableByteStream(pSignature,ulSignatureLen),
 		  ulSignatureLen);
-  TC_free(tmp_str1);
-  TC_free(tmp_str2);
+    TC_free(tmp);
+    TC_free(tmp2);
+  }
+#endif // NO_LOGGING
 
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
@@ -216,10 +227,18 @@ CK_DEFINE_FUNCTION(CK_RV, C_VerifyUpdate)(
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
 
   CI_VarLogEntry("C_VerifyUpdate", "starting... Session: %i", rv, 1, hSession);
-  CI_CodeFktEntry("C_VerifyUpdate", "%i,%s,%i,", 
+  
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_VerifyUpdate", "%i,%s,%i,", 
 		  hSession,
-		  CI_PrintableByteStream(pPart,ulPartLen),
+		  tmp = CI_PrintableByteStream(pPart,ulPartLen),
 		  ulPartLen);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
+  
 
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
@@ -259,10 +278,17 @@ CK_DEFINE_FUNCTION(CK_RV, C_VerifyFinal)(
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
 
   CI_VarLogEntry("C_VerifyFinal", "starting... Session: %i", rv, 1, hSession);
-  CI_CodeFktEntry("C_VerifyFinal", "%i,%s,%i,", 
+  
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_VerifyFinal", "%i,%s,%i,", 
 		  hSession,
-		  CI_PrintableByteStream(pSignature,ulSignatureLen),
+		  tmp = CI_PrintableByteStream(pSignature,ulSignatureLen),
 		  ulSignatureLen);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
@@ -307,10 +333,17 @@ CK_DEFINE_FUNCTION(CK_RV, C_VerifyRecoverInit)
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
 
   CI_VarLogEntry("C_VerifyRecoverInit", "starting... Session: %i", rv, 1, hSession);
-  CI_CodeFktEntry("C_VerifyRecoverInit", "%i,%s,%i", 
+  
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_VerifyRecoverInit", "%i,%s,%i", 
 		  hSession,
-		  CI_ScanableMechanism(pMechanism),
+		  tmp = CI_ScanableMechanism(pMechanism),
 		  hKey);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
@@ -389,12 +422,20 @@ CK_DEFINE_FUNCTION(CK_RV, C_VerifyRecover)
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
 
   CI_LogEntry("C_VerifyRecover", "starting...", rv, 1);
-  CI_CodeFktEntry("C_VerifyRecover", "%i,%s,%i,%p,%p", 
+  
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_VerifyRecover", "%i,%s,%i,%p,%p", 
 		  hSession,
-		  CI_ScanableByteStream(pSignature,ulSignatureLen),
+		  tmp = CI_ScanableByteStream(pSignature,ulSignatureLen),
 		  ulSignatureLen,
 		  pData,
 		  pulDataLen);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
+  
   CI_VarLogEntry("C_VerifyRecover", "*pulDataLen: %lu", rv, 1, *pulDataLen);
 
   /* make sure we are initialized */

@@ -100,16 +100,22 @@ CK_DEFINE_FUNCTION(CK_RV, C_DigestEncryptUpdate)
 {
   CK_RV rv = CKR_OK;
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
-  CK_BYTE_PTR tmp1 = NULL_PTR;
 
   CI_LogEntry("C_DigestEncryptUpdate", "starting...", rv, 1);
-  CI_CodeFktEntry("C_DigestEncryptUpdate", "%i,%s,%i,%p,%p", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_DigestEncryptUpdate", "%i,%s,%i,%p,%p", 
 		  hSession,
-		  tmp1 = CI_ScanableByteStream(pPart, ulPartLen),
+		  tmp = CI_ScanableByteStream(pPart, ulPartLen),
 		  ulPartLen,
 		  pEncryptedPart,
 		  pulEncryptedPartLen);
-  TC_free(tmp1);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
+
   CI_VarLogEntry("C_DigestEncryptUpdate", "*pulEncryptedPartLen: %i", rv, 1, *pulEncryptedPartLen);
 
 
@@ -155,16 +161,22 @@ CK_DEFINE_FUNCTION(CK_RV, C_DecryptDigestUpdate)
 {
   CK_RV rv = CKR_OK;
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
-  CK_BYTE_PTR tmp1 = NULL_PTR;
 
   CI_LogEntry("C_DecryptDigestUpdate", "starting...", rv, 1);
-  CI_CodeFktEntry("C_DecryptDigestUpdate", "%i,%s,%i,%p,%p", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_DecryptDigestUpdate", "%i,%s,%i,%p,%p", 
 		  hSession,
-		  tmp1 = CI_ScanableByteStream(pEncryptedPart, ulEncryptedPartLen),
+		  tmp = CI_ScanableByteStream(pEncryptedPart, ulEncryptedPartLen),
 		  ulEncryptedPartLen,
 		  pPart,
 		  pulPartLen);
-  TC_free(tmp1);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
+
   CI_VarLogEntry("C_DecryptDigestUpdate", "*pulPartLen: %i", rv, 1, *pulPartLen);
 
   /* make sure we are initialized */
@@ -209,16 +221,22 @@ CK_DEFINE_FUNCTION(CK_RV, C_SignEncryptUpdate)
 {
   CK_RV rv = CKR_OK;
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
-  CK_BYTE_PTR tmp1 = NULL_PTR;
 
   CI_LogEntry("C_SignEncryptUpdate", "starting...", rv, 1);
-  CI_CodeFktEntry("C_SignEncryptUpdate", "%i,%s,%i,%p,%p", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_SignEncryptUpdate", "%i,%s,%i,%p,%p", 
 		  hSession,
-		  tmp1 = CI_ScanableByteStream(pPart, ulPartLen),
+		  tmp = CI_ScanableByteStream(pPart, ulPartLen),
 		  ulPartLen,
 		  pEncryptedPart,
 		  pulEncryptedPartLen);
-  TC_free(tmp1);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
+
   CI_VarLogEntry("C_SignEncryptUpdate", "*pulEncryptedPartLen: %i", rv, 1, *pulEncryptedPartLen);
 
   /* make sure we are initialized */
@@ -262,16 +280,23 @@ CK_DEFINE_FUNCTION(CK_RV, C_DecryptVerifyUpdate)
 {
   CK_RV rv = CKR_OK;
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
-  CK_BYTE_PTR tmp1 = NULL_PTR;
+
 
   CI_LogEntry("C_DecryptVerifyUpdate", "starting...", rv, 1);
-  CI_CodeFktEntry("C_DecryptVerifyUpdate", "%i,%s,%i,%p,%p", 
+  
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_DecryptVerifyUpdate", "%i,%s,%i,%p,%p", 
 		  hSession,
-		  tmp1 = CI_ScanableByteStream(pEncryptedPart, ulEncryptedPartLen),
+		  tmp = CI_ScanableByteStream(pEncryptedPart, ulEncryptedPartLen),
 		  ulEncryptedPartLen,
 		  pPart,
 		  pulPartLen);
-  TC_free(tmp1);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
+
   CI_VarLogEntry("C_DecryptVerifyUpdate", "*pulPartLen: %i", rv, 1, *pulPartLen);
 
   /* make sure we are initialized */

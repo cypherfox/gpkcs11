@@ -116,7 +116,8 @@ const char* Version_cryptdb_c(){return RCSID;}
 #include <time.h>
 
 #ifdef CK_Win32
-#include <winsock2.h>
+//#include <winsock2.h>
+#include <winsock.h>
 #include <gdbmerrno.h>
 #include <gdbm.h>
 #else
@@ -128,24 +129,52 @@ const char* Version_cryptdb_c(){return RCSID;}
 #endif /* HAVE_UNISTD_H */
 #endif /* !CK_Win32 */
 
-/* Entry types */
-#define CDB_E_VERSION 0
-#define CDB_E_SO_PIN 1
-#define CDB_E_USER_PIN 2
-#define CDB_E_OBJECT 3
+#include "CI_Ceay.h"
 
-/* Entry Flags */
-/* Entry is encrypted */
+/**
+Entry types
+*/
+/// Version of
+#define CDB_E_VERSION			0
+/// Security officer PIN
+#define CDB_E_SO_PIN			1
+/// User PIN
+#define CDB_E_USER_PIN		2
+/// Crypto object like private, public or secret key
+#define CDB_E_OBJECT			3
+/// Token information in PKCS#11 structure CK_TOKEN_INFO
+#define CDB_E_TOKEN_INFO	4
+
+/**
+Entry Flags
+*/
+/// Entry is encrypted
 #define CDB_F_ENCRYPTED 0x01
 
-/* table flags */
+/**
+Table flags
+*/
+/**
+@brief Token is empty
+
+This flag is strange.
+<ol>
+  <li>It is was originally only set at the end of CDB_DeleteAllObjects.</li>
+  <li>It was never reset at any storing function like CDB_NewPin or
+      CDB_PutTokenInformation or CDB_PutObject.</li>
+  <li>It is checked in CDB_NewPin, if a default SO PIN should be set and the
+      token is not empty.
+</ol>
+
+@todo Remove this flag or handle it correct.
+*/
 #define CDB_F_TOKEN_EMPTY 0x01
 
 /* 
    Define so's and user's initial PIN 
 */
-CK_CHAR_PTR    DefaultPin = "12345678";    /* default so's and user's PIN */  
-CK_ULONG       DefPinLen = 8;		   /* length in bytes of the PIN */
+CK_CHAR_PTR    DefaultPin    = "12345678";
+CK_ULONG       DefaultPinLen = 8;
 
 /* type byte, flag byte, 20 Byte digest (we are using SHA1) */
 /* the pin and version entries only contain the type flag (one byte) */
@@ -161,6 +190,10 @@ CK_ULONG       DefPinLen = 8;		   /* length in bytes of the PIN */
                          *((c)++)=(unsigned char)(((l)>>16L)&0xff), \
                          *((c)++)=(unsigned char)(((l)>>24L)&0xff))
 
+/**
+@todo Check return values of all functions in context of CDB failures to CKR_HOST_MEMORY.
+*/
+
 
 /* {{{ static CK_RV CDB_ParseObject(CK_CHAR_PTR, CK_ULONG, CK_I_OBJ_PTR CK_PTR) */
 static CK_RV CDB_ParseObject(CK_CHAR_PTR buffer, CK_ULONG buff_len, 
@@ -172,8 +205,10 @@ static CK_RV CDB_ParseObject(CK_CHAR_PTR buffer, CK_ULONG buff_len,
   CK_I_OBJ_PTR curr_obj;
   CK_CHAR_PTR read_pos;
   const char* attr_name;
-  CK_ULONG attr_size,tmp_ulong;
+  CK_ULONG tmp_ulong;
 
+  CI_LogEntry("CDB_ParseObject","starting...",rv,2);
+  
   /* create a new object */
   rv = CI_ObjCreateObj(&curr_obj);
   if(rv != CKR_OK)
@@ -206,8 +241,17 @@ static CK_RV CDB_ParseObject(CK_CHAR_PTR buffer, CK_ULONG buff_len,
       read_pos+=sizeof(CK_ULONG);
       
       /* attribute value */
-      new_attr.pValue=realloc(new_attr.pValue, new_attr.ulValueLen);
-      if(new_attr.pValue == NULL_PTR) return CKR_HOST_MEMORY;
+      if (new_attr.ulValueLen > 0)
+      {
+        new_attr.pValue=realloc(new_attr.pValue, new_attr.ulValueLen);
+        if(new_attr.pValue == NULL_PTR) 
+        {
+          rv = CKR_HOST_MEMORY;
+          CI_VarLogEntry("CDB_ParseObject","Setting Attribute '%s' failed. Faild at allocation of %d bytes of memory",
+  			    rv,0,attr_name, new_attr.ulValueLen);
+          return rv;
+        }
+      }
 
       memcpy(new_attr.pValue,read_pos,new_attr.ulValueLen);
       scan_len += new_attr.ulValueLen; 
@@ -215,7 +259,7 @@ static CK_RV CDB_ParseObject(CK_CHAR_PTR buffer, CK_ULONG buff_len,
 
       /* insert new data into object */
       CI_VarLogEntry("CDB_ParseObject","Setting Attribute '%s', size %i",
-		     rv,1,attr_name,new_attr.ulValueLen);
+		     rv,2,attr_name,new_attr.ulValueLen);
 
       rv = CI_ObjSetAttribute(curr_obj,&new_attr);
       if(rv != CKR_OK)
@@ -228,9 +272,10 @@ static CK_RV CDB_ParseObject(CK_CHAR_PTR buffer, CK_ULONG buff_len,
 
     }
 
-  TC_free(new_attr.pValue);
+  free(new_attr.pValue);
   
   *new_obj = curr_obj;  
+  CI_LogEntry("CDB_ParseObject","... complete",rv,2);
   return rv;
 }
 
@@ -304,10 +349,101 @@ static CK_RV CDB_EncodeObject(CK_I_OBJ_PTR pObject, CK_CHAR_PTR CK_PTR ppBuffer,
 
   return CKR_OK;
 }
+
+
 /* }}} */
 
-/* {{{ CK_I_CRYPT_DB_PTR CDB_Open(CK_CHAR_PTR file_name) */
-CK_I_CRYPT_DB_PTR CDB_Open(CK_CHAR_PTR file_name)
+/**
+@fn CK_I_CRYPT_DB_PTR CDB_Create (CK_CHAR_PTR)
+
+If the db has not yet been created, then create it with 
+default pin set. Initialize user's token with pin "12345678"
+
+@returns
+<dl>
+  <dt>Pointer to the database:</dt>
+  <dd>if the database could be successfully created</dd>
+  <dt>NULL_PTR:</dt>
+  <dd>otherwise</dd>
+</dl>
+
+@todo Check wether gdbm_open(..., GDBM_NEWDB, ...) overwrites an existing
+database file. If it does remove the CDB_PinExists calls.
+*/
+
+CK_I_CRYPT_DB_PTR CDB_Create(CK_CHAR_PTR file_name ///< [in] File name of the existing database
+                             )
+{
+  CK_I_CRYPT_DB_PTR retval;
+
+  retval = TC_malloc(sizeof(CK_I_CRYPT_DB));
+  if(retval == NULL_PTR)
+    {
+      CI_LogEntry("CDB_Create","not enough memory",CKR_HOST_MEMORY ,0);
+      return NULL_PTR;
+    }
+  memset(retval, 0, sizeof(CK_I_CRYPT_DB));
+
+  retval->table = gdbm_open(file_name, 0 /* use system default */, 
+			    GDBM_NEWDB, 0600, NULL_PTR);
+  if(retval->table == NULL_PTR)
+    {
+      CI_VarLogEntry("CDB_Create","failure to create table '%s': %s",
+		     CKR_GENERAL_ERROR ,0, 
+		     file_name, gdbm_strerror(gdbm_errno));
+      TC_free(retval);
+
+      return NULL_PTR;      
+		}
+	retval->flags |= CDB_F_TOKEN_EMPTY;	
+
+  /* Initialize user pin */
+  if (CDB_PinExists(retval, CK_FALSE) == CKR_USER_PIN_NOT_INITIALIZED)
+    {
+      CDB_NewPin(retval, CK_FALSE, NULL, 0, DefaultPin, DefaultPinLen);
+    }
+
+  /* Initialize token pin */
+  if (CDB_PinExists(retval, CK_TRUE) == CKR_USER_PIN_NOT_INITIALIZED)
+    {
+      CDB_NewPin(retval, CK_TRUE, NULL, 0, DefaultPin, DefaultPinLen);
+    }
+
+  return retval;
+}
+
+/* }}} */
+
+/**
+CK_I_CRYPT_DB_PTR CDB_Open(CK_CHAR_PTR, int)
+
+The function opens an existing database file either in
+<ul>
+  <li>read-only mode (open_mode=GDBM_READER)
+  <li>read-write mode (open_mode=GDBM_WRITER)
+</ul>
+
+CDB_Open() uses the system default for block size (STATBLKSIZE) to open the
+database.
+
+@note The database can only be opened in read-write mode if the underlying file
+system is read-writable. A read-only mode exists for e.g. CD-ROMs or is
+possible for network shares. This is possible for the database file itself or
+the containing directory.
+
+@returns The function returns the pointer of the database structure. In case of
+one of the following errors it returns a NULL_PTR:
+<ol>
+  <li>the database does not exist
+  <li>the opening mode is not valid
+  <li>the requested opening mode (GDBM_WRITER) is not supportable, because the
+      file system is read-only
+</ol>
+*/
+
+CK_I_CRYPT_DB_PTR CDB_Open(CK_CHAR_PTR file_name, ///< [in] File name of the existing database
+                           int         open_mode  ///< [in] Opening mode for database {GDBM_READER, GDBM_WRITER}
+                           )
 {
   CK_I_CRYPT_DB_PTR retval;
 
@@ -319,8 +455,23 @@ CK_I_CRYPT_DB_PTR CDB_Open(CK_CHAR_PTR file_name)
     }
   memset(retval, 0, sizeof(CK_I_CRYPT_DB));
 
-  retval->table = gdbm_open(file_name, 0 /* use system default */, 
-			    GDBM_WRCREAT, 0600, NULL_PTR);
+  // first check if there is a database file. if not, we don't want to create one!
+  retval->table = gdbm_open(file_name, 0, GDBM_READER, 0600, NULL_PTR);
+  if (retval->table == NULL_PTR)
+    {
+    TC_free(retval);
+    return NULL_PTR;
+    }
+  gdbm_close(retval->table);
+
+  // check if there is an valid open_mode
+  if ((open_mode!=GDBM_READER) && (open_mode!=GDBM_WRITER))
+    {
+    return NULL_PTR;
+    }
+
+  // open the database file
+  retval->table = gdbm_open(file_name, 0, open_mode, 0600, NULL_PTR);
   if(retval->table == NULL_PTR)
     {
       CI_VarLogEntry("CDB_Open","failure to open table '%s': %s",
@@ -330,35 +481,108 @@ CK_I_CRYPT_DB_PTR CDB_Open(CK_CHAR_PTR file_name)
 
       return NULL_PTR;      
     }
-
-   /*
-    * If the db has not yet been created, then create it with 
-    * default pin set.
-    * Initialize user's token with pin "12345678" 
-    */
-  if (CDB_PinExists(retval, FALSE) == CKR_USER_PIN_NOT_INITIALIZED)
-    {
-      /* Initialize token and user pin */
-      CDB_NewPin(retval, TRUE, NULL, 0, DefaultPin, DefPinLen); //SO's Pin
-      CDB_NewPin(retval, FALSE, NULL, 0, DefaultPin, DefPinLen); //User's Pin
-    }
-
-  return retval;
+	return retval;
 }
-/* }}} */
-/* {{{ CK_RV CDB_Close(CK_I_CRYPT_DB_PTR cdb) */
-CK_RV CDB_Close(CK_I_CRYPT_DB_PTR cdb)
+
+
+/**
+@fn CK_RV CDB_Close (CK_I_CRYPT_DB_PTR)
+
+The function closes the database file and resets the database table entry.
+
+@return
+<dl>
+  <dt>CKR_OK:</dt>
+  <dd>always</dd>
+</dl>
+*/
+
+CK_RV CDB_Close (CK_I_CRYPT_DB_PTR cdb ///< [in] Pointer of the database structure
+                 )
 {
   gdbm_close(cdb->table);
   cdb->table = NULL_PTR;
   
   return CKR_OK;
 }
-/* }}} */
 
-/* {{{ CK_RV CDB_CheckPin(CK_I_CRYPT_DB_PTR, CK_BBOOL, CK_CHAR_PTR, CK_ULONG) */
-CK_BBOOL CDB_CheckPin(CK_I_CRYPT_DB_PTR cdb, CK_BBOOL so_pin, 
-		      CK_CHAR_PTR pin , CK_ULONG pinLen)
+
+/**
+@fn CK_BBOOL CDB_IsFileReadOnly (CK_CHAR_PTR)
+
+Assumes the given database file is existing.
+A read-only database file is either in a parent folder with read-only
+attributes or has read-only attribute itself.
+
+@returns
+<dl>
+  <dt>CK_TRUE:</dt>
+  <dd>if the given database file is read-only in file system. This valid, too for not existing files.</dd>
+  <dt>CK_FALSE:</dt>
+  <dd>if the given database file is writeable in file system.
+</dl>
+*/
+
+CK_BBOOL CDB_IsFileReadOnly (CK_CHAR_PTR file_name ///< [in] File name of the existing database
+                             )
+{
+  FILE* pfile;
+  pfile = fopen (file_name, "rb");
+  if (pfile==NULL)
+    {
+    CI_VarLogEntry("CDB_IsFileReadOnly","failure to open database file '%s'", CKR_TOKEN_NOT_PRESENT, 0, file_name);
+    return CK_TRUE;
+  }else
+  {
+    fclose(pfile);
+  }
+
+  pfile = fopen (file_name, "ab");
+  if (pfile==NULL)
+    {
+    CI_VarLogEntry("CDB_IsFileReadOnly","database file '%s' is read-only", CKR_OK, 2, file_name);
+    return CK_TRUE;
+    }
+  else
+    {
+    CI_VarLogEntry("CDB_IsFileReadOnly","database file '%s' is read-write", CKR_OK, 2, file_name);
+    fclose(pfile);
+    return CK_FALSE;
+    }
+}
+
+/**
+@fn CK_RV CDB_CheckPin(CK_I_CRYPT_DB_PTR, CK_BBOOL, CK_CHAR_PTR, CK_ULONG)
+
+The function checks an existing PIN either as
+<ul>
+  <li>security officer PIN (so_pin=CK_TRUE)
+  <li>user PIN             (so_pin=CK_FALSE)
+</ul>
+
+The check is done in 3 steps
+<ol>
+  <li>Read Salt from data.dptr[20-35] first</li>
+  <li>Doing CI_Ceay_SHA1_Update(&ctx, salt, CDB_SALT_LEN)</li>
+  <li>Compare to hash and data.dptr[0-19]</li>
+</ol>
+
+@returns The following return values
+<dl>
+  <dt>CKR_OK</dt>
+  <dd>if the given password is equal to the stored password</dd>
+  <dt>CKR_PIN_INCORRECT:</dt>
+  <dd>if gdbm_fetch() fails with the key "key.dptr[0]=so_pin" - key not extractable?\n
+      if the given password is not the stored password
+  </dd>
+</dl>
+*/
+
+CK_RV CDB_CheckPin(CK_I_CRYPT_DB_PTR cdb,    ///< [in] Pointer to database
+                   CK_BBOOL          so_pin, ///< [in] Boolean type of PIN
+		               CK_CHAR_PTR       pin,    ///< [in] Pointer password as array of char
+                   CK_ULONG          pinLen  ///< [in] Length of password in bytes
+                   )
 {
   datum data, key;
   SHA_CTX ctx;
@@ -378,11 +602,6 @@ CK_BBOOL CDB_CheckPin(CK_I_CRYPT_DB_PTR cdb, CK_BBOOL so_pin,
       return CKR_PIN_INCORRECT;
     }
 
-  /*
-   * 1. Read Salt from data.dptr[20-35] first
-   * 2. doing CI_Ceay_SHA1_Update(&ctx, salt, CDB_SALT_LEN)
-   * 3. compare to hash and data.dptr[0-19]
-   */
   CI_Ceay_SHA1_Init(&ctx);
   CI_Ceay_SHA1_Update(&ctx, &data.dptr[SHA_DIGEST_LENGTH], CDB_SALT_LEN);
   CI_Ceay_SHA1_Update(&ctx, pin, pinLen);
@@ -391,9 +610,9 @@ CK_BBOOL CDB_CheckPin(CK_I_CRYPT_DB_PTR cdb, CK_BBOOL so_pin,
   if(memcmp(data.dptr, hash, SHA_DIGEST_LENGTH) == 0)
     {
       if (so_pin == TRUE)
-	cdb->flags |= CK_I_CDB_F_SO_PIN_SET;
+	      cdb->flags |= CK_I_CDB_F_SO_PIN_SET;
       else
-	cdb->flags |= CK_I_CDB_F_USER_PIN_SET;
+	      cdb->flags |= CK_I_CDB_F_USER_PIN_SET;
       return CKR_OK;
     }
 
@@ -401,11 +620,51 @@ CK_BBOOL CDB_CheckPin(CK_I_CRYPT_DB_PTR cdb, CK_BBOOL so_pin,
 
   return CKR_PIN_INCORRECT;
 }
-/* }}} */
-/* {{{ CK_RV CDB_NewPin(CK_I_CRYPT_DB_PTR,CK_BBOOL,CK_CHAR_PTR,CK_ULONG,CK_CHAR_PTR,CK_ULONG) */
-CK_RV CDB_NewPin(CK_I_CRYPT_DB_PTR cdb, CK_BBOOL so_pin, 
-		 CK_CHAR_PTR old_pin, CK_ULONG old_pinLen, 
-		 CK_CHAR_PTR new_pin, CK_ULONG new_pinLen)
+
+/**
+@fn CK_RV CDB_NewPin (CK_I_CRYPT_DB_PTR,CK_BBOOL,CK_CHAR_PTR,CK_ULONG,CK_CHAR_PTR,CK_ULONG)
+
+The function stores the new PIN either as
+<ul>
+  <li>security officer PIN (so_pin=CK_TRUE)
+  <li>user PIN             (so_pin=CK_FALSE)
+</ul>
+
+The given old PIN will be checked against the stored on in the database. After
+a successfully proof, the new PIN is hashed by SHA1 and its value is be
+replaced in the database by access key CDB_E_SO_PIN respectively
+CDB_E_USER_PIN. If the old PIN is given with a NULL_PTR the function trys to
+get the old key. Finally the function generates a new key to get encryption
+access to the database objects.
+
+@return
+<dl>
+  <dt>CKR_OK:</dt>
+  <dd>if the new PIN was successfully stored in the database
+  <dt>CKR_PIN_INCORRECT:</dt>
+  <dd>if the given old pin is not equal to the stored on ein the database</dd>
+  <dt>CKR_GENERAL_ERROR:</dt>
+  <dd>
+    <ul>
+      <li>if the old_pin==NULL_PTR and so_pin==CK_TRUE and cdb->flags & CDB_F_TOKEN_EMPTY reset</li>
+      <li>if the replacement of the new pin in the database fails</li>
+    </ul>
+ </dd>
+</dl>
+
+@note It is forbidden to change the security officer PIN from default after
+storing some objects in the database. This is may be historical based, that
+Ceay_TokenInit in the past always deletes the entrys of a given database file
+(instead of now creating a new database file)
+*/
+
+CK_RV CDB_NewPin (CK_I_CRYPT_DB_PTR cdb,        ///< [in] Pointer to the database structure
+                  CK_BBOOL          so_pin,     ///< [in] Boolean type of PIN
+		              CK_CHAR_PTR       old_pin,    ///< [in] Pointer to the old PIN
+                  CK_ULONG          old_pinLen, ///< [in] Length of the old PIN in byte
+		              CK_CHAR_PTR       new_pin,    ///< [in] Pointer to the new PIN
+                  CK_ULONG          new_pinLen  ///< [in] Length of the new PIN in byte
+                  )
 {
   CK_RV rv = CKR_OK;
   datum data, key;
@@ -421,7 +680,7 @@ CK_RV CDB_NewPin(CK_I_CRYPT_DB_PTR cdb, CK_BBOOL so_pin,
   if (old_pin != NULL_PTR)
     {
       if(CDB_CheckPin(cdb, so_pin, old_pin, old_pinLen))
-	return CKR_PIN_INCORRECT;
+      	return CKR_PIN_INCORRECT;
     }
   else
     {
@@ -472,7 +731,9 @@ CK_RV CDB_NewPin(CK_I_CRYPT_DB_PTR cdb, CK_BBOOL so_pin,
       CDB_RndPin(cdb, &crypt_key, new_pin, new_pinLen);
     }
   else
-    CDB_RndPin(cdb, &crypt_key, new_pin, new_pinLen); 
+    {
+    CDB_RndPin(cdb, &crypt_key, new_pin, new_pinLen);
+    }
   
   TC_free(crypt_key);  
 
@@ -480,11 +741,81 @@ CK_RV CDB_NewPin(CK_I_CRYPT_DB_PTR cdb, CK_BBOOL so_pin,
   TC_free(key.dptr);
   TC_free(data.dptr);
     
-  return CKR_OK;
+  return rv;
 }
-/* }}} */
-/* {{{ CK_RV CDB_SetPin(CK_I_CRYPT_DB_PTR, CK_BBOOL, CK_CHAR_PTR, CK_ULONG) */
-CK_RV CDB_SetPin(CK_I_CRYPT_DB_PTR cdb, CK_BBOOL so_pin, CK_CHAR_PTR pin, CK_ULONG pinLen)
+
+
+/**
+@fn CK_RV CDB_PinExists(CK_I_CRYPT_DB_PTR, CK_BBOOL)
+
+The function checks the type of PIN either as
+<ul>
+  <li>security officer PIN (so_pin=CK_TRUE)
+  <li>user PIN             (so_pin=CK_FALSE)
+</ul>
+
+The function checks wether the given PIN type exists in the database.
+database.
+
+@return
+<dl>
+  <dt>CKR_OK:</dt>
+  <dd>if the PIN type is stored in the database</dd>
+  <dt>CKR_USER_PIN_NOT_INITIALIZED:</dt>
+  <dd>if the PIN type is not stored in the database</dd>
+</dl>
+*/
+
+CK_RV CDB_PinExists (CK_I_CRYPT_DB_PTR cdb,   ///< [in] Pointer to the database structure
+                     CK_BBOOL          so_pin ///< [in] Boolean type of PIN
+                     )
+{
+  datum key;
+  char buf;
+
+  key.dsize = 1;
+  key.dptr = &buf;
+
+  if(so_pin)
+    key.dptr[0] = CDB_E_SO_PIN;
+  else
+    key.dptr[0] = CDB_E_USER_PIN;
+  
+  if (!gdbm_exists(cdb->table, key))
+    return CKR_USER_PIN_NOT_INITIALIZED;
+
+  return CKR_OK;
+} 
+
+
+/**
+@fn CK_RV CDB_SetPin(CK_I_CRYPT_DB_PTR, CK_BBOOL, CK_CHAR_PTR, CK_ULONG)
+
+The function generates a key by two types of PIN either as
+<ul>
+  <li>security officer PIN (so_pin=CK_TRUE)
+  <li>user PIN             (so_pin=CK_FALSE)
+</ul>
+
+The function uses the PIN to initialize the 3-DES key for the access to the
+database.
+
+@return
+<dl>
+  <dt>CKR_OK:</dt>
+  <dd>always</dd>
+</dl>
+
+@note Do no mistake this function with CDB_NewPin(). This function does not set
+a PIN into the database.
+@todo Therefore the name of this function should be renamed to CDB_SetKey
+*/
+
+CK_RV CDB_SetPin (CK_I_CRYPT_DB_PTR cdb,    ///< [in] Pointer to the database structure
+                  CK_BBOOL          so_pin, ///< [in] Boolean type of PIN
+                  CK_CHAR_PTR       pin,    ///< [in] Pointer to the PIN
+                  CK_ULONG          pinLen  ///< [in] Length of the PIN in byte
+                  )
 {
   CK_CHAR tmp_key_block[24];
   des_key_schedule *tmp_key_sched;
@@ -513,6 +844,76 @@ CK_RV CDB_SetPin(CK_I_CRYPT_DB_PTR cdb, CK_BBOOL so_pin, CK_CHAR_PTR pin, CK_ULO
 
   return CKR_OK;
 }
+
+
+/**
+@fn CK_RV CDB_PutTokenInfo (CK_I_CRYPT_DB_PTR, CK_TOKEN_INFO_PTR)
+*/
+
+CK_RV CDB_PutTokenInfo (CK_I_CRYPT_DB_PTR cdb,       ///< [in] Pointer to the database structure
+                        CK_TOKEN_INFO_PTR pTokenInfo ///< [in] Pointer to the token information
+                        )
+{
+	datum key, data;
+  CK_RV rv = CKR_OK;
+	CK_CHAR key_data;
+
+  key_data = CDB_E_TOKEN_INFO;
+  
+  /* write the key/data to the database */
+  key.dsize = 1;
+  key.dptr = &key_data;
+
+  data.dsize= sizeof (CK_TOKEN_INFO);
+  data.dptr= (char*)pTokenInfo;
+
+  if(gdbm_store(cdb->table,key,data,GDBM_REPLACE) != 0)
+    {
+			rv = CKR_GENERAL_ERROR;
+      CI_VarLogEntry("CDB_SetTokenInfo","could not insert data:%s",
+		     rv,0,gdbm_strerror(gdbm_errno));
+      return rv;
+    }
+  return rv;
+}
+
+
+/* }}} */
+/* {{{ CK_RV CDB_GetTokenInfo (CK_I_CRYPT_DB_PTR cdb, CK_TOKEN_INFO_PTR CK_PTR ppTokenInfo) */
+CK_RV CDB_GetTokenInfo (CK_I_CRYPT_DB_PTR cdb, CK_TOKEN_INFO_PTR CK_PTR ppTokenInfo)
+{
+	datum key;
+	datum data;
+  CK_RV rv = CKR_OK;
+  CK_CHAR key_data;
+
+  key_data = CDB_E_TOKEN_INFO;
+  
+  /* write the key/data to the database */
+  key.dsize = 1;
+  key.dptr = &key_data;
+
+	data = gdbm_fetch(cdb->table,key);
+
+	if (data.dptr == NULL)
+  {
+		rv = CKR_GENERAL_ERROR;
+    CI_LogEntry("CDB_GetTokenInfo","no data was found", rv, 0);
+    return rv;
+  }
+
+	if (data.dsize != sizeof (CK_TOKEN_INFO))
+	{
+		rv = CKR_GENERAL_ERROR;
+    CI_LogEntry("CDB_GetTokenInfo","illegal size of data found in db ", rv, 0);
+    return rv;
+	}
+
+	CK_PTR ppTokenInfo = (CK_TOKEN_INFO CK_PTR)data.dptr;
+  return rv;
+}
+
+
 /* }}} */
 
 /* {{{ CK_RV CDB_GetObjectInit(CK_I_CRYPT_DB_PTR cdb) */
@@ -524,6 +925,8 @@ CK_RV CDB_GetObjectInit(CK_I_CRYPT_DB_PTR cdb)
 
   return CKR_OK;
 } 
+
+
 /* }}} */
 /* {{{ CK_RV CDB_GetObjectUpdate(CK_I_CRYPT_DB_PTR cdb, CK_I_OBJ_PTR CK_PTR next_obj) */
 CK_RV CDB_GetObjectUpdate(CK_I_CRYPT_DB_PTR cdb, CK_I_OBJ_PTR CK_PTR next_obj)
@@ -533,82 +936,94 @@ CK_RV CDB_GetObjectUpdate(CK_I_CRYPT_DB_PTR cdb, CK_I_OBJ_PTR CK_PTR next_obj)
   des_cblock ivec;
   CK_CHAR_PTR crypt_buffer;
   CK_ATTRIBUTE key_attrib;
-
-  do {
+	
+  do 
+	{
     /* get the object */
     if(cdb->old_key.dptr == NULL_PTR)
-      {
-	*next_obj = NULL_PTR;
-	CI_LogEntry("CDB_Open","no further objects",
-		    CKR_OK ,0);
-	return CKR_OK; /* the calling code must check for the empty obj */
-      }
+		{
+			*next_obj = NULL_PTR;
+			CI_LogEntry("CDB_Open","no further objects", CKR_OK ,0);
+			return CKR_OK; /* the calling code must check for the empty obj */
+		}
     
-    data = gdbm_fetch(cdb->table, cdb->old_key);
-    if(data.dptr == NULL_PTR)
-      {
-	CI_VarLogEntry("CDB_Open","failure to fetch next entry: %s",
-		       CKR_GENERAL_ERROR ,0, 
-		       gdbm_strerror(gdbm_errno));
-	*next_obj = NULL_PTR;
-	
-	return CKR_GENERAL_ERROR;            
-      }
-    
+		/* if the entry is an object and ... (1) */
     if (cdb->old_key.dptr[0] == CDB_E_OBJECT)
-      {
-	
+		{
+			/* (1) ... is encrypted, we ... (2) */
+			if ( ((CK_CHAR_PTR)cdb->old_key.dptr)[1] & CDB_F_ENCRYPTED )
+			{
+				/* (2) ... have to check that the pin is provided */
+				if( cdb->flags & CK_I_CDB_F_USER_PIN_SET )
+				{
+					break;
+				}
+			}else
+			{
+				/* (1) ... is not ecrypted, we can get it */
+				break;
+			}
+		}
+		cdb->old_key = gdbm_nextkey(cdb->table, cdb->old_key);
+	}while (TRUE);
+
+	data = gdbm_fetch(cdb->table, cdb->old_key);
+  if(data.dptr == NULL_PTR)
+	{
+		CI_VarLogEntry("CDB_Open","failure to fetch next entry: %s",
+			CKR_GENERAL_ERROR ,0, 
+			gdbm_strerror(gdbm_errno));
+		
+		*next_obj = NULL_PTR;
+		
+		return CKR_GENERAL_ERROR;            
+	}
+		
 	/* decrypt object into a string */
 	if(data.dsize%8 != 0)
-	  {
-	    rv = CKR_GENERAL_ERROR;
-	    CI_VarLogEntry("CDB_GetObjectUpdate","data.size (%d) %% 8 != 0",
-			   rv,0,data.dsize);
-	    return rv; 
-	  }
+	{
+		rv = CKR_GENERAL_ERROR;
+		CI_VarLogEntry("CDB_GetObjectUpdate","data.size (%d) %% 8 != 0",
+			rv,0,data.dsize);
+		return rv; 
+	}
 	if(data.dsize == 0)
-	  {
-	    rv = CKR_GENERAL_ERROR;
-	    CI_VarLogEntry("CDB_GetObjectUpdate","data.size (%d) == 0",
-			   rv,0,data.dsize);
-	    return rv; 
-	  }
-	
+	{
+		rv = CKR_GENERAL_ERROR;
+		CI_VarLogEntry("CDB_GetObjectUpdate","data.size (%d) == 0",
+			rv,0,data.dsize);
+		return rv; 
+	}
+		
 	crypt_buffer = malloc(data.dsize);
 	if(crypt_buffer == NULL_PTR)
-	  return CKR_HOST_MEMORY;
+		return CKR_HOST_MEMORY;
 	
 	/* set the ivec */
 	memcpy(ivec,"A Secret",8);
-  
+	
+	/* only if the object is encrypted, we have to decrypt it */
 	if(((CK_CHAR_PTR)cdb->old_key.dptr)[1]&CDB_F_ENCRYPTED)
-	  {
-	    /* check that the pin is provided */
-	    if(! cdb->flags & CK_I_CDB_F_USER_PIN_SET)
-	      {
-		rv = CKR_USER_NOT_LOGGED_IN;
-		CI_VarLogEntry("CDB_GetObjectUpdate","User pin not set for decryption",rv,0);
-		return rv;
-	      }
-	    /* decode the stuff */
-	    des_ede3_cbc_encrypt(data.dptr,
-				 crypt_buffer,
-				 data.dsize,
-				 cdb->user_key_sched[0],
-				 cdb->user_key_sched[1],
-				 cdb->user_key_sched[2],
-				 &(ivec),
-				 0); /* no encrypt */
-	  }
+	{
+		/* decode the stuff */
+		des_ede3_cbc_encrypt(data.dptr,
+			crypt_buffer,
+			data.dsize,
+			cdb->user_key_sched[0],
+			cdb->user_key_sched[1],
+			cdb->user_key_sched[2],
+			&(ivec),
+			0); /* no encrypt */
+	}
 	else
-	  {
-	    crypt_buffer = data.dptr;
-	  }
+	{
+		crypt_buffer = data.dptr;
+	}
 	
 	/* parse into structure */
 	rv =CDB_ParseObject(crypt_buffer,data.dsize,next_obj);
 	if(rv != CKR_OK)
-	  return rv;
+		return rv;
 	
 	/* add key to structure */
 	key_attrib.type = CKA_PERSISTENT_KEY;
@@ -617,29 +1032,19 @@ CK_RV CDB_GetObjectUpdate(CK_I_CRYPT_DB_PTR cdb, CK_I_OBJ_PTR CK_PTR next_obj)
 	
 	rv = CI_ObjSetAttribute(*next_obj,&key_attrib);
 	if(rv != CKR_OK)
-	  {
-	    CI_ObjDestroyObj(*next_obj);
-	    CI_VarLogEntry("CDB_GetObjectUpdate","Setting Attribute '%s' failed.",
-			   rv,0,CI_AttributeStr(key_attrib.type));
-	    return rv;
-	  }
+	{
+		CI_ObjDestroyObj(*next_obj);
+		CI_VarLogEntry("CDB_GetObjectUpdate","Setting Attribute '%s' failed.",
+			rv,0,CI_AttributeStr(key_attrib.type));
+		return rv;
+	}
 	
 	/* advance the key one element */
 	cdb->old_key = gdbm_nextkey(cdb->table, cdb->old_key);
 	
-	break;
-      }
-    
-    /* advance the key one element */
-    cdb->old_key = gdbm_nextkey(cdb->table, cdb->old_key);
-    /* no error check yet, as there is an object, but the test at the
-     * start of the next invocation will fail and report the lack of
-     * further objects */
-  }while (TRUE);
-  
   return CKR_OK;
-  
 }
+
 /* }}} */
 /* {{{ CK_RV CDB_GetObjectFinal(CK_I_CRYPT_DB_PTR cdb) */
 CK_RV CDB_GetObjectFinal(CK_I_CRYPT_DB_PTR cdb)
@@ -774,8 +1179,25 @@ CK_RV CDB_UpdateObject(CK_I_CRYPT_DB_PTR cdb, CK_I_OBJ_PTR new_obj)
 }
 /* }}} */
 
-/* {{{ CK_RV CDB_DeleteAllObjects(CK_I_CRYPT_DB_PTR cdb) */
-CK_RV CDB_DeleteAllObjects(CK_I_CRYPT_DB_PTR cdb)
+/**
+@fn CK_RV CDB_DeleteAllObjects (CK_I_CRYPT_DB_PTR)
+
+The function deletes entry by entry each key of database. If it fails to delete
+an entry the function returns immediatly with an error. If all entrys were
+deleted, the flag CDB_F_TOKEN_EMPTY is been set.
+
+@return
+<dl>
+  <dt>CKR_OK:</dt>
+  <dd>if all entrys were successfully deleted</dd>
+  <dt>CKR_GENERAL_ERROR:</dt>
+  <dd>if failure occured in deleting an entry of the database<dd>
+</dl>
+
+*/
+
+CK_RV CDB_DeleteAllObjects (CK_I_CRYPT_DB_PTR cdb ///< [in] Pointer to database
+                           )
 {
   CK_RV rv = CKR_OK;
   int ret;
@@ -787,7 +1209,7 @@ CK_RV CDB_DeleteAllObjects(CK_I_CRYPT_DB_PTR cdb)
       if(cdb->old_key.dptr == NULL_PTR)
 	{
 	  rv = CKR_OK;
-	  CI_LogEntry("CDB_Open","no find first key in table",
+	  CI_LogEntry("CDB_DeleteAllObjects", "no find first key in table",
 		      rv ,0);
 
 	  break;
@@ -797,7 +1219,7 @@ CK_RV CDB_DeleteAllObjects(CK_I_CRYPT_DB_PTR cdb)
       if(cdb->old_key.dptr == NULL_PTR)
 	{
 	  rv = CKR_OK;
-	  CI_LogEntry("CDB_Open","no further objects",
+	  CI_LogEntry("CDB_DeleteAllObjects", "no further objects",
 		      rv ,0);
 	  break;
 	}
@@ -806,7 +1228,7 @@ CK_RV CDB_DeleteAllObjects(CK_I_CRYPT_DB_PTR cdb)
       if(ret != 0)
 	{
 	  rv = CKR_GENERAL_ERROR;
-	  CI_VarLogEntry("CDB_Open","failure to delete next entry: %s",
+	  CI_VarLogEntry("CDB_DeleteAllObjects", "failure to delete next entry: %s",
 			 rv ,0, 
 			 gdbm_strerror(gdbm_errno));
 	  return rv;
@@ -819,39 +1241,20 @@ CK_RV CDB_DeleteAllObjects(CK_I_CRYPT_DB_PTR cdb)
 
   return CKR_OK;
 }
-/* }}} */
 
-/* {{{ CK_RV CDB_PinExists(CK_I_CRYPT_DB_PTR cdb, CK_BBOOL so_pin) */
-/* Check if it is a newly created db  */
-CK_RV CDB_PinExists(CK_I_CRYPT_DB_PTR cdb, CK_BBOOL so_pin)
-{
-  datum key;
-  char buf;
 
-  key.dsize = 1;
-  key.dptr = &buf;
+/**
+@fn CK_RV CDB_GetPrivObject (CK_I_CRYPT_DB_PTR, CK_I_OBJ_PTR CK_PTR)
 
-  if(so_pin)
-    key.dptr[0] = CDB_E_SO_PIN;
-  else
-    key.dptr[0] = CDB_E_USER_PIN;
-  
-  if (!gdbm_exists(cdb->table, key))
-    return CKR_USER_PIN_NOT_INITIALIZED;
+The same as CDB_GetObjectUpdate, but it "only" gets private objects out of the db
+USAGE: after user login
 
-  return CKR_OK;
-} 
-/* }}} */
-
-/* {{{ CK_RV CDB_GetPrivObject(CK_I_CRYPT_DB_PTR cdb, CK_I_OBJ_PTR CK_PTR next_obj) */
-/*
-  The same as CDB_GetObjectUpdate, but it "only" gets private objects out of the db
-  USAGE: after user login
-  For what I tested so far, certificates are invisible to users in Netscape
-  This is because all private objects are encoded by user's pin. If a user is not login,
-  the private objects won't be able to be loaded and decoded to the cache memory.in 
-  Ceay_ReadPersistent 
+@note For what I tested so far, certificates are invisible to users in Netscape
+This is because all private objects are encoded by user's pin. If a user is not login,
+the private objects won't be able to be loaded and decoded to the cache memory.in 
+Ceay_ReadPersistent.
 */
+
 CK_RV CDB_GetPrivObject(CK_I_CRYPT_DB_PTR cdb, CK_I_OBJ_PTR CK_PTR next_obj)
 {
   CK_RV rv = CKR_OK;
@@ -951,10 +1354,17 @@ CK_RV CDB_GetPrivObject(CK_I_CRYPT_DB_PTR cdb, CK_I_OBJ_PTR CK_PTR next_obj)
 }
 /* }}} */
 
-/* {{{ CK_RV CDB_RndPin(CK_CHAR_PTR,CK_ULONG) */
-/* Random generate a key to encrypt 
-   private objects */
-CK_RV CDB_RndPin(CK_I_CRYPT_DB_PTR cdb, CK_CHAR_PTR CK_PTR crypt_key, CK_CHAR_PTR pin, CK_ULONG pinLen)
+/**
+@fn CK_RV CDB_RndPin (CK_I_CRYPT_DB_PTR, CK_CHAR_PTR CK_PTR, CK_CHAR_PTR, CK_ULONG)
+
+@todo Therefore the name of this function should be renamed to CDB_RndKey
+*/
+
+CK_RV CDB_RndPin(CK_I_CRYPT_DB_PTR  cdb,       ///< [in]  Pointer to the database structure
+                 CK_CHAR_PTR CK_PTR crypt_key, ///< [out] Pointer to the pointer of the key
+                 CK_CHAR_PTR        pin,       ///< [in]  Pointer to the PIN
+                 CK_ULONG           pinLen     ///< [in]  Length of the PIN in byte
+                 )
 {
   CK_CHAR tmp_key_block[24];
   des_key_schedule tmp_key_sched[3];
@@ -1019,10 +1429,18 @@ CK_RV CDB_RndPin(CK_I_CRYPT_DB_PTR cdb, CK_CHAR_PTR CK_PTR crypt_key, CK_CHAR_PT
   CI_LogEntry("CDB_RndPin","finished...", 0 ,0);	  
   return CKR_OK;
 }
-/* }}} */
 
-/* {{{ CK_CHAR_PTR CDB_GetRndPin(CK_I_CRYPT_DB_PTR, CK_CHAR_PTR, CK_ULONG) */
-CK_CHAR_PTR CDB_GetRndPin(CK_I_CRYPT_DB_PTR cdb,CK_CHAR_PTR pin, CK_ULONG pinLen)
+
+/**
+@fn CK_CHAR_PTR CDB_GetRndPin (CK_I_CRYPT_DB_PTR, CK_CHAR_PTR, CK_ULONG)
+
+@todo Therefore the name of this function should be renamed to CDB_GetRndKey
+*/
+
+CK_CHAR_PTR CDB_GetRndPin (CK_I_CRYPT_DB_PTR cdb,   ///< [in] Pointer to the database structure
+                           CK_CHAR_PTR       pin,   ///< [in] Pointer to the PIN
+                           CK_ULONG          pinLen ///< [in] Length of the PIN in byte
+                           )
 { 
   CK_CHAR rnd_key_block[24];
   des_key_schedule rnd_key_sched[3];
@@ -1070,7 +1488,7 @@ CK_CHAR_PTR CDB_GetRndPin(CK_I_CRYPT_DB_PTR cdb,CK_CHAR_PTR pin, CK_ULONG pinLen
   CI_LogEntry("CDB_GetRndPin","finished...", 0 ,0);
   return crypt_buffer;
 }
-/* }}} */
+
 
 /*
  * Local variables:

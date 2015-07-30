@@ -85,9 +85,16 @@ CK_DEFINE_FUNCTION(CK_RV, C_DigestInit)(
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
 
   CI_VarLogEntry("C_DigestInit", "starting...Session:%i", rv, 1,hSession);
-  CI_CodeFktEntry("C_DigestInit", "%i,%s", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_DigestInit", "%i,%s", 
 		  hSession,
-		  CI_ScanableMechanism(pMechanism));
+		  tmp = CI_ScanableMechanism(pMechanism));
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
@@ -134,12 +141,20 @@ CK_DEFINE_FUNCTION(CK_RV, C_Digest)(
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
   
   CI_LogEntry("C_Digest", "starting...", rv, 1);
-  CI_CodeFktEntry("C_Digest", "%i,%s,%i,%p,%p", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_Digest", "%i,%s,%i,%p,%p", 
 		  hSession,
-		  CI_ScanableByteStream(pData,ulDataLen),
+		  tmp = CI_ScanableByteStream(pData,ulDataLen),
 		  ulDataLen,
 		  pDigest,
 		  pulDigestLen);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
+  
   CI_VarLogEntry("C_Digest", "*pulDigestLen: %i", rv, 1,*pulDigestLen);
 
   /* make sure we are initialized */
@@ -184,10 +199,18 @@ CK_DEFINE_FUNCTION(CK_RV, C_DigestUpdate)(
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
 
   CI_LogEntry("C_DigestUpdate", "starting...", rv, 1);
-  CI_CodeFktEntry("C_DigestUpdate", "%i,%s,%i", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_DigestUpdate", "%i,%s,%i", 
 		  hSession,
-		  CI_ScanableByteStream(pPart,ulPartLen),
+		  tmp = CI_ScanableByteStream(pPart,ulPartLen),
 		  ulPartLen);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
+  
 
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 

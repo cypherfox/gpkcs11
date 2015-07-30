@@ -1,25 +1,26 @@
-/* $Id$ */
-/* 
- * $Log$
- * Revision 1.1  1999/06/16 09:46:11  lbe
- * reorder files
- *
- * Revision 1.1  1998/07/02 17:23:51  lbe
- * Initial revision
- *
- * Revision 1.1  1998/05/19 10:09:42  sage
- * Initial revision
- *
- */
-/* pkcs11f.h include file for PKCS #11.  1997 December 22 */
+/* pkcs11f.h include file for PKCS #11. */
+/* $Revision: 1.1.2.1 $ */
 
-/* This function contains pretty much everything about all the */
+/* License to copy and use this software is granted provided that it is
+ * identified as "RSA Security Inc. PKCS #11 Cryptographic Token Interface
+ * (Cryptoki)" in all material mentioning or referencing this software.
+
+ * License is also granted to make and use derivative works provided that
+ * such works are identified as "derived from the RSA Security Inc. PKCS #11
+ * Cryptographic Token Interface (Cryptoki)" in all material mentioning or 
+ * referencing the derived work.
+
+ * RSA Security Inc. makes no representations concerning either the 
+ * merchantability of this software or the suitability of this software for
+ * any particular purpose. It is provided "as is" without express or implied
+ * warranty of any kind.
+ */
+
+/* This header file contains pretty much everything about all the */
 /* Cryptoki function prototypes.  Because this information is */
 /* used for more than just declaring function prototypes, the */
 /* order of the functions appearing herein is important, and */
 /* should not be altered. */
-
-
 
 /* General-purpose */
 
@@ -126,11 +127,12 @@ CK_PKCS11_FUNCTION_INFO(C_GetMechanismInfo)
 /* C_InitToken initializes a token. */
 CK_PKCS11_FUNCTION_INFO(C_InitToken)
 #ifdef CK_NEED_ARG_LIST
+/* pLabel changed from CK_CHAR_PTR to CK_UTF8CHAR_PTR for v2.10 */
 (
-  CK_SLOT_ID     slotID,    /* ID of the token's slot */
-  CK_CHAR_PTR    pPin,      /* the SO's initial PIN */
-  CK_ULONG       ulPinLen,  /* length in bytes of the PIN */
-  CK_CHAR_PTR    pLabel     /* 32-byte token label (blank padded) */
+  CK_SLOT_ID      slotID,    /* ID of the token's slot */
+  CK_UTF8CHAR_PTR pPin,      /* the SO's initial PIN */
+  CK_ULONG        ulPinLen,  /* length in bytes of the PIN */
+  CK_UTF8CHAR_PTR pLabel     /* 32-byte token label (blank padded) */
 );
 #endif
 
@@ -140,7 +142,7 @@ CK_PKCS11_FUNCTION_INFO(C_InitPIN)
 #ifdef CK_NEED_ARG_LIST
 (
   CK_SESSION_HANDLE hSession,  /* the session's handle */
-  CK_CHAR_PTR       pPin,      /* the normal user's PIN */
+  CK_UTF8CHAR_PTR   pPin,      /* the normal user's PIN */
   CK_ULONG          ulPinLen   /* length in bytes of the PIN */
 );
 #endif
@@ -151,9 +153,9 @@ CK_PKCS11_FUNCTION_INFO(C_SetPIN)
 #ifdef CK_NEED_ARG_LIST
 (
   CK_SESSION_HANDLE hSession,  /* the session's handle */
-  CK_CHAR_PTR       pOldPin,   /* the old PIN */
+  CK_UTF8CHAR_PTR   pOldPin,   /* the old PIN */
   CK_ULONG          ulOldLen,  /* length of the old PIN */
-  CK_CHAR_PTR       pNewPin,   /* the new PIN */
+  CK_UTF8CHAR_PTR   pNewPin,   /* the new PIN */
   CK_ULONG          ulNewLen   /* length of the new PIN */
 );
 #endif
@@ -237,7 +239,7 @@ CK_PKCS11_FUNCTION_INFO(C_Login)
 (
   CK_SESSION_HANDLE hSession,  /* the session's handle */
   CK_USER_TYPE      userType,  /* the user type */
-  CK_CHAR_PTR       pPin,      /* the user's PIN */
+  CK_UTF8CHAR_PTR   pPin,      /* the user's PIN */
   CK_ULONG          ulPinLen   /* the length of the PIN */
 );
 #endif

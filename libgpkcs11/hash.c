@@ -145,6 +145,34 @@ CK_DEFINE_FUNCTION(CK_RV, CI_DestroyHashtable)(
   return CKR_OK;
 }
 /* }}} */
+/* {{{ CI_ClearHashtable */
+CK_DEFINE_FUNCTION(CK_RV, CI_ClearHashtable)(
+  CK_I_HASHTABLE_PTR pHashTable  /* hash table to be destroyed */
+)
+{
+  unsigned int i;
+  CK_I_HASH_BUCKET_PTR next = NULL_PTR;
+  CK_I_HASH_BUCKET_PTR tmp = NULL_PTR;
+  
+  if(pHashTable == NULL_PTR) return CKR_GENERAL_ERROR;
+  
+  for(i=0;i<pHashTable->tab_size;i++)
+  {
+    tmp= pHashTable->table[i];
+    while(tmp != NULL_PTR)
+    {
+      next = tmp->next;
+      TC_free(tmp);
+      tmp = next;
+    }
+    pHashTable->table[i] = NULL_PTR;
+  }
+
+  pHashTable->entries = 0;
+  
+  return CKR_OK;
+}
+/* }}} */
 /* {{{ CI_HashPutEntry */
 CK_DEFINE_FUNCTION(CK_RV, CI_HashPutEntry)(
   CK_I_HASHTABLE_PTR pHashTable,  /* returned ptr to hash table */

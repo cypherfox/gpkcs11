@@ -46,6 +46,10 @@ const char* ctok_encrypt_c_version(){return RCSID;}
 #include "init.h"
 #include "ctok_mem.h"
 
+#include <assert.h>
+#include "CI_Ceay.h"
+
+
 /* {{{ CI_Ceay_EncryptInit */
 CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_EncryptInit)(
   CK_I_SESSION_DATA_PTR  session_data,
@@ -368,7 +372,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_EncryptInit)(
     case CKM_DES3_CBC_PAD:
       /* Code provided by Felix Beassler */
       {
-	int i;
+//	int i;
 	CK_I_CEAY_DES3_INFO_PTR internal_obj = NULL_PTR;
 	
 	//CK_BYTE iv[8]= {117, 167, 130, 237, 51, 219, 28, 129};
@@ -834,8 +838,9 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Encrypt)(
 
 	*pulEncryptedDataLen=ulDataLen;
 
-	TC_free(((CK_I_CEAY_DES_INFO_PTR)session_data->encrypt_state)->sched);
-	TC_free(((CK_I_CEAY_DES_INFO_PTR)session_data->encrypt_state)->ivec);
+  // Seems to be created on the stack
+	//TC_free(((CK_I_CEAY_DES_INFO_PTR)session_data->encrypt_state)->sched);
+	//TC_free(((CK_I_CEAY_DES_INFO_PTR)session_data->encrypt_state)->ivec);
 	TC_free(session_data->encrypt_state);
 	session_data->encrypt_state = NULL_PTR;
 

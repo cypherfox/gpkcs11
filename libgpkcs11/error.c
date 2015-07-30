@@ -119,6 +119,7 @@ const char* Version_error_c(){return RCSID;}
 #include "windows.h"
 #include "winuser.h"
 #include "malloc.h"
+
 #endif
 
 #ifdef HAVE_PURIFY
@@ -715,17 +716,8 @@ CK_DEFINE_FUNCTION(void, CI_LogEntry)(
    * Wem sollten wir das mitteilen? */
   log = fopen(CK_I_global_logging_file,"a");
 
-#if defined(DEBUG) && defined(CK_Win32)
-  if(log == NULL_PTR)
-    {
-      MessageBox(NULL, "CI_VarLogEntry: could not open Log-file", 
-		 "PKCS#11 Notice", MB_OK|MB_ICONWARNING);
-      return;
-    }
-#else
   if(log == NULL_PTR)
     return;
-#endif  
  
   FunctionName = (FunctionName == NULL_PTR)? (CK_C_CHAR_PTR)"(NULL)" : FunctionName;
   ProcessDesc = (ProcessDesc == NULL_PTR)? (CK_C_CHAR_PTR)"(NULL)" : ProcessDesc;
@@ -780,11 +772,58 @@ CK_DEFINE_FUNCTION(void, CI_VarLogEntry)(
 {
   FILE CK_PTR log = NULL_PTR;
   va_list params;
+	char * s_log;
+	unsigned int ui_log_size = 200;
+	unsigned int ui_log_cur_pos = 0;
+	int i_ret = -1;
+	s_log = malloc(ui_log_size);
+	if (s_log ==NULL)
+		return;
 
   va_start (params, level);
 
+  FunctionName = (FunctionName == NULL_PTR)? (CK_C_CHAR_PTR)"(NULL)" : FunctionName;
+  ProcessDesc = (ProcessDesc == NULL_PTR)? (CK_C_CHAR_PTR)"(NULL)" : ProcessDesc;
+
+	while ( i_ret < 0 )
+	{
+		i_ret = _snprintf(s_log + ui_log_cur_pos, ui_log_size - ui_log_cur_pos, 
+			"/* %s(): ", FunctionName);
+		
+		if ( i_ret < 0 )
+		{
+			ui_log_cur_pos = 0;
+			ui_log_size *= 2;
+			s_log = realloc(s_log, ui_log_size);
+			if (s_log == NULL)
+				return;
+			break;
+		}else
+		{
+			ui_log_cur_pos += i_ret;
+		}
+		
+		i_ret = _vsnprintf(s_log + ui_log_cur_pos, ui_log_size - ui_log_cur_pos, 
+			ProcessDesc, params);
+		
+		if ( i_ret < 0 )
+		{
+			ui_log_cur_pos = 0;
+			ui_log_size *= 2;
+			s_log = realloc(s_log, ui_log_size);
+			if (s_log ==NULL)
+				return;
+			break;
+		}
+	}
+  va_end(params);
+
+
   if(level> CK_I_global_loging_level)
+	{
+		free (s_log);
     return;
+	}
   
   /* Log-FileName bestimmen, falls Angabe noch NULL */
 
@@ -795,27 +834,17 @@ CK_DEFINE_FUNCTION(void, CI_VarLogEntry)(
    * Wem sollten wir das mitteilen? */
   log = fopen(CK_I_global_logging_file,"a");
   if(log == NULL)
-#if defined(CK_GENERIC) 
+		{
+		free (s_log);
     return;
-#elif defined(CK_Win32)
-    {
-      MessageBox(NULL, "CI_VarLogEntry: could not open Log-file", 
-		 "PKCS#11 Notice", MB_OK|MB_ICONWARNING);
-      return;
-    }
-#endif  
+	}
+	fprintf(log, "%s", s_log);
 
-  FunctionName = (FunctionName == NULL_PTR)? (CK_C_CHAR_PTR)"(NULL)" : FunctionName;
-  ProcessDesc = (ProcessDesc == NULL_PTR)? (CK_C_CHAR_PTR)"(NULL)" : ProcessDesc;
-
-  fprintf(log,"/* %s(): ", FunctionName);
-
-  vfprintf(log, ProcessDesc, params);
-  va_end(params);
-
-  fprintf(log,"(%s) */\n",  CI_ErrorStr(rv));
+	fprintf(log,"(%s) */\n",  CI_ErrorStr(rv));
 
   fclose(log);
+
+	free (s_log);
 
   return;
 }
@@ -830,9 +859,60 @@ CK_DECLARE_FUNCTION(void, CI_CodeFktEntry)(
   FILE CK_PTR log = NULL_PTR;
   va_list params;
   int len;
+	
+	char * s_log;
+	unsigned int ui_log_size = 200;
+	unsigned int ui_log_cur_pos = 0;
+	int i_ret = -1;
+	s_log = malloc(ui_log_size);
+	if (s_log == NULL)
+		return;
+
+	FunctionName = (FunctionName == NULL_PTR)? (CK_C_CHAR_PTR)"(NULL)" : FunctionName;
+  ProcessDesc = (ProcessDesc == NULL_PTR)? (CK_C_CHAR_PTR)"" : ProcessDesc;
+
+	while (i_ret < 0 )
+	{
+		i_ret = _snprintf(s_log + ui_log_cur_pos, ui_log_size - ui_log_cur_pos,
+			"DO_FKT(%s, (", FunctionName);
+		if ( i_ret < 0 )
+		{
+			ui_log_cur_pos = 0;
+			ui_log_size *= 2;
+			s_log = realloc(s_log, ui_log_size);
+			if (s_log == NULL)
+				return;
+			break;
+		}else
+		{
+			ui_log_cur_pos += i_ret;
+		}
+
+		va_start (params, ProcessDesc);
+		i_ret = _vsnprintf(s_log + ui_log_cur_pos, ui_log_size - ui_log_cur_pos,
+			 ProcessDesc, params);
+  
+		if ( i_ret < 0 ) 
+		{
+			ui_log_cur_pos = 0;
+			ui_log_size *= 2;
+			s_log = realloc(s_log, ui_log_size);
+			if (s_log = NULL)
+				return;
+			break;
+		}else
+		{
+			ui_log_cur_pos += i_ret;
+		}
+		len = i_ret;
+	}
+	va_end(params);
 
   if(CK_I_global_loging_level < 2 )
+	{
+		free (s_log);
     return;
+	}
 
   if ( CK_I_global_logging_file == NULL_PTR ) 
     CI_EvalLogFileName();
@@ -841,25 +921,10 @@ CK_DECLARE_FUNCTION(void, CI_CodeFktEntry)(
    * Wem sollten wir das mitteilen? */
   log = fopen(CK_I_global_logging_file,"a");
   if(log == NULL)
-#if defined(CK_GENERIC) 
+	{
+		free (s_log);
     return;
-#elif defined(CK_Win32)
-    {
-      MessageBox(NULL, "CI_VarLogEntry: could not open Log-file", 
-		 "PKCS#11 Notice", MB_OK|MB_ICONWARNING);
-      return;
-    }
-#endif  
-
-
-  FunctionName = (FunctionName == NULL_PTR)? (CK_C_CHAR_PTR)"(NULL)" : FunctionName;
-  ProcessDesc = (ProcessDesc == NULL_PTR)? (CK_C_CHAR_PTR)"" : ProcessDesc;
-
-  fprintf(log,"DO_FKT(%s, (", FunctionName);
-
-  va_start (params, ProcessDesc);
-  len= vfprintf(log, ProcessDesc, params);
-  va_end(params);
+	}
 
 #if defined(CK_GENERIC)
     purify_printf("doing CI_CodeFktEntry with %d bytes",len);
@@ -868,6 +933,7 @@ CK_DECLARE_FUNCTION(void, CI_CodeFktEntry)(
   fprintf(log,"));\n");
 
   fclose(log);
+	free (s_log);
 
   return;
 }
@@ -876,10 +942,10 @@ CK_DECLARE_FUNCTION(void, CI_CodeFktEntry)(
 #else
 /* {{{ CI_VarLogEntry */
 CK_DEFINE_FUNCTION(void, CI_VarLogEntry)(
-  const CK_CHAR_PTR FunctionName, /* Name of the current function */
-  const CK_CHAR_PTR ProcessDesc,  /* Description of the current process */
-  const CK_RV rv,                 /* return value in case of abort of function */
-  const CK_ULONG level,           /* level above which information would be written */
+  CK_C_CHAR_PTR FunctionName, /* Name of the current function */
+  CK_C_CHAR_PTR ProcessDesc,  /* Description of the current process */
+  CK_RV rv,                 /* return value in case of abort of function */
+  CK_ULONG level,           /* level above which information would be written */
   ...
 )
 {
@@ -888,8 +954,8 @@ CK_DEFINE_FUNCTION(void, CI_VarLogEntry)(
 /* }}} */
 /* {{{ CI_CodeFktEntry */
 CK_DECLARE_FUNCTION(void, CI_CodeFktEntry)(
-  CK_CHAR_PTR FunctionName,     /* Name of the current function */
-  CK_CHAR_PTR ProcessDesc,      /* Description of the current process */
+  CK_C_CHAR_PTR FunctionName,     /* Name of the current function */
+  CK_C_CHAR_PTR ProcessDesc,      /* Description of the current process */
   ...
 )
 {
@@ -960,20 +1026,7 @@ CK_DECLARE_FUNCTION(void,__TC_free)(
   
   /* wir testen nicht ob das öffnen des logs fehlgeschlagen ist. 
    * Wem sollten wir das mitteilen? */
-#if defined(CK_GENERIC) 
   log = fopen(CK_I_global_mem_logging_file,"a");
-#elif defined(CK_Win32)
-  log = fopen(CK_I_global_mem_logging_file,"a");
-  if(log == NULL_PTR)
-    {
-      MessageBox(NULL, "CI_VarLogEntry: could not open Log-file", 
-		 "PKCS#11 Notice", MB_OK|MB_ICONWARNING);
-      return;
-    }
-
-#else
-#error no filename defined
-#endif  
 
 #if defined(CK_Win32)
   /* lets do some heap checking while where at it */
@@ -995,8 +1048,11 @@ CK_DECLARE_FUNCTION(void,__TC_free)(
     }
 #endif  
 
-  fprintf(log,"%s:%u:free:%p:heap %s\n",file,line,ptr,heap_string);
-  fclose(log);
+  if ( log != NULL )
+  {
+	  fprintf(log,"%s:%u:free:%p:heap %s\n",file,line,ptr,heap_string);
+	  fclose(log);
+  }
 
   free(ptr);
 
@@ -1022,19 +1078,7 @@ CK_DECLARE_FUNCTION(void*,__TC_calloc)(
   
   /* wir testen nicht ob das öffnen des logs fehlgeschlagen ist. 
    * Wem sollten wir das mitteilen? */
-#if defined(CK_GENERIC) 
   log = fopen(CK_I_global_mem_logging_file,"a");
-#elif defined(CK_Win32)
-  log = fopen(CK_I_global_mem_logging_file,"a");
-  if(log == NULL_PTR)
-    {
-      MessageBox(NULL, "CI_VarLogEntry: could not open Log-file", 
-		 "PKCS#11 Notice", MB_OK|MB_ICONWARNING);
-      return NULL_PTR;
-    }
-#else
-#error no filename defined
-#endif  
   retval = calloc(nelem,elsize);
 
 #if defined(CK_Win32)
@@ -1057,9 +1101,12 @@ CK_DECLARE_FUNCTION(void*,__TC_calloc)(
     }
 #endif  
 
-  fprintf(log,"%s:%u:calloc:%p:heap %s:%lu bytes\n",
-	  file,line,retval,heap_string,nelem*elsize);
-  fclose(log);
+	if ( log != NULL_PTR )
+	{
+		fprintf(log,"%s:%u:calloc:%p:heap %s:%lu bytes\n",
+		  file,line,retval,heap_string,nelem*elsize);
+		fclose(log);
+	}
 
   return retval;
 }
@@ -1082,19 +1129,7 @@ CK_DECLARE_FUNCTION(void*,__TC_malloc)(
   
   /* wir testen nicht ob das öffnen des logs fehlgeschlagen ist. 
    * Wem sollten wir das mitteilen? */
-#if defined(CK_GENERIC) 
   log = fopen(CK_I_global_mem_logging_file,"a");
-#elif defined(CK_Win32)
-  log = fopen(CK_I_global_mem_logging_file,"a");
-  if(log == NULL_PTR)
-    {
-      MessageBox(NULL, "CI_VarLogEntry: could not open Log-file", 
-		 "PKCS#11 Notice", MB_OK|MB_ICONWARNING);
-      return NULL_PTR;
-    }
-#else
-#error no filename defined
-#endif  
 
   retval = malloc(size);
 
@@ -1118,8 +1153,11 @@ CK_DECLARE_FUNCTION(void*,__TC_malloc)(
     }
 #endif  
 
-  fprintf(log,"%s:%u:malloc:%p:heap %s:%lu bytes\n",file,line,retval,heap_string,size);
-  fclose(log);
+  if ( log != NULL_PTR )
+  {
+	fprintf(log,"%s:%u:malloc:%p:heap %s:%lu bytes\n",file,line,retval,heap_string,size);
+	fclose(log);
+  }
 
   return retval;
 }

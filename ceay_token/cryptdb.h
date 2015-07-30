@@ -66,26 +66,52 @@
 
 #define CK_I_CDB_PAGE_SIZE 2048  
 
-#define CK_I_CDB_F_SO_PIN_SET 1
+#define CK_I_CDB_F_SO_PIN_SET   1
 #define CK_I_CDB_F_USER_PIN_SET 2
 
-typedef struct CK_I_CRYPT_DB{
+typedef struct CK_I_CRYPT_DB
+  {
   GDBM_FILE table;
   datum old_key;
   des_key_schedule so_key_sched[3];
   des_key_schedule user_key_sched[3];
   CK_ULONG flags;
-}CK_I_CRYPT_DB;
+  }
+CK_I_CRYPT_DB;
 
 typedef CK_I_CRYPT_DB CK_PTR CK_I_CRYPT_DB_PTR;
 
-CK_I_CRYPT_DB_PTR CDB_Open(CK_CHAR_PTR file_name);
-CK_RV CDB_Close(CK_I_CRYPT_DB_PTR cdb);
+/// Creates the database file for a new crypto token.
+CK_I_CRYPT_DB_PTR CDB_Create (CK_CHAR_PTR);
+/// Opens the existing database file of a crypto token.
+CK_I_CRYPT_DB_PTR CDB_Open (CK_CHAR_PTR, int);
+/// Closes the database file of a crypto token.
+CK_RV             CDB_Close (CK_I_CRYPT_DB_PTR);
+/// Checks an existing database file for read-only attribute
+CK_BBOOL          CDB_IsFileReadOnly (CK_CHAR_PTR);
 
-CK_BBOOL CDB_CheckPin(CK_I_CRYPT_DB_PTR cdb, CK_BBOOL so_pin, CK_CHAR_PTR pin , CK_ULONG pinLen);
-CK_RV CDB_SetPin(CK_I_CRYPT_DB_PTR cdb, CK_BBOOL so_pin, CK_CHAR_PTR pin, CK_ULONG pinLen);
-CK_RV CDB_NewPin(CK_I_CRYPT_DB_PTR cdb, CK_BBOOL so_pin, CK_CHAR_PTR old_pin, CK_ULONG old_pinLen, 
-		 CK_CHAR_PTR new_pin, CK_ULONG new_pinLen);
+
+CK_CHAR_PTR DefaultPin;    ///< Default so's and user's PIN
+CK_ULONG    DefaultPinLen; ///< Length in bytes of the PIN
+
+/// Checks an given PIN against the entry in the database
+CK_RV CDB_CheckPin (CK_I_CRYPT_DB_PTR, CK_BBOOL, CK_CHAR_PTR , CK_ULONG);
+/// Creates a new PIN and stores it in the database
+CK_RV CDB_NewPin (CK_I_CRYPT_DB_PTR, CK_BBOOL, CK_CHAR_PTR, CK_ULONG, CK_CHAR_PTR, CK_ULONG);
+/// Checks a given PIN type against the database entrys
+CK_RV CDB_PinExists (CK_I_CRYPT_DB_PTR, CK_BBOOL);
+
+
+/// Generates a key to get encrypt private objects by a PIN
+CK_RV CDB_SetPin (CK_I_CRYPT_DB_PTR, CK_BBOOL, CK_CHAR_PTR, CK_ULONG);
+/// Generates a key to encrypt private objects by randomize
+CK_RV CDB_RndPin (CK_I_CRYPT_DB_PTR, CK_CHAR_PTR CK_PTR, CK_CHAR_PTR, CK_ULONG);
+/// Gets the generated key to encrypt private objects
+CK_CHAR_PTR CDB_GetRndPin (CK_I_CRYPT_DB_PTR, CK_CHAR_PTR, CK_ULONG);
+
+
+CK_RV CDB_PutTokenInfo (CK_I_CRYPT_DB_PTR cdb, CK_TOKEN_INFO_PTR pTokenInfo);
+CK_RV CDB_GetTokenInfo (CK_I_CRYPT_DB_PTR cdb, CK_TOKEN_INFO_PTR CK_PTR ppTokenInfo);
 
 CK_RV CDB_GetObjectInit(CK_I_CRYPT_DB_PTR cdb);
 CK_RV CDB_GetObjectUpdate(CK_I_CRYPT_DB_PTR cdb, CK_I_OBJ_PTR CK_PTR next_obj);
@@ -95,12 +121,10 @@ CK_RV CDB_PutObject(CK_I_CRYPT_DB_PTR cdb, CK_I_OBJ_PTR new_obj);
 CK_RV CDB_DeleteObject(CK_I_CRYPT_DB_PTR cdb, CK_I_OBJ_PTR new_obj);
 CK_RV CDB_UpdateObject(CK_I_CRYPT_DB_PTR cdb, CK_I_OBJ_PTR new_obj);
 
-CK_RV CDB_DeleteAllObjects(CK_I_CRYPT_DB_PTR cdb);
+/// Deletes all entrys in a database
+CK_RV CDB_DeleteAllObjects(CK_I_CRYPT_DB_PTR);
 
 CK_RV CDB_GetPrivObject(CK_I_CRYPT_DB_PTR cdb, CK_I_OBJ_PTR CK_PTR next_obj);
-CK_CHAR_PTR CDB_GetRndPin(CK_I_CRYPT_DB_PTR cdb,CK_CHAR_PTR pin, CK_ULONG pinLen);
-CK_RV CDB_RndPin(CK_I_CRYPT_DB_PTR cdb, CK_CHAR_PTR CK_PTR crypt_key, CK_CHAR_PTR pin, CK_ULONG pinLen);
-CK_RV CDB_PinExists(CK_I_CRYPT_DB_PTR cdb, CK_BBOOL so_pin);
 
 #endif /* CRYPTDB_H */
 

@@ -48,6 +48,9 @@ const char* ctok_decrypt_c_version(){return RCSID;}
 
 #include <assert.h>
 
+#include "CI_Ceay.h"
+
+
 /* {{{ CI_Ceay_DecryptInit */
 CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_DecryptInit)(
   CK_I_SESSION_DATA_PTR  session_data,
@@ -419,8 +422,8 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Decrypt)(
   CK_ULONG_PTR      pulDataLen          /* gets p-text size */
 )
 {
-  CK_RV rv;
-
+  CK_RV rv = CKR_OK;
+  CI_LogEntry("C_Decrypt on ceay_tok", "starting...", rv , 2 );  
   switch(session_data->decrypt_mechanism)
     {
       /* {{{ CKM_RSA_PKCS */
@@ -428,42 +431,68 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Decrypt)(
       {
 	CK_BYTE_PTR tmp_buf = NULL_PTR;
 	CK_ULONG key_len;
-	long processed; /* number of bytes processed by the crypto routine */
+	CK_ULONG processed; /* number of bytes processed by the crypto routine */
+
+  CI_LogEntry("C_Decrypt on ceay_tok", "mechanism is CKM_RSA_PKCS", rv , 3 );  	
 	
-	rv = CKR_OK;
+  rv = CKR_OK;
 	key_len = CI_Ceay_RSA_size((RSA CK_PTR)session_data->decrypt_state);
-	
+	CI_VarLogEntry("C_Decrypt on ceay_tok", "RSA_size is %d", rv , 3, key_len );  	
+
 	/* check if this is only a call for the length of the output buffer */
 	if(pData == NULL_PTR)
 	  {
 	    *pulDataLen = key_len-CK_I_PKCS1_MIN_PADDING;
 	    return CKR_OK;
 	  }
-	else /* check that buffer is of sufficent size */
-	  {
-	    if(*pulDataLen < key_len-CK_I_PKCS1_MIN_PADDING) 
-	      {
-		*pulDataLen = key_len-CK_I_PKCS1_MIN_PADDING;
-		rv = CKR_BUFFER_TOO_SMALL;
-		return rv;
-	      }
-	  }
 	
 	/* check for length of input */
 	if(ulEncryptedDataLen != key_len)
-	  { rv = CKR_DATA_LEN_RANGE; goto rsa_pkcs1_err; }
+	  { 
+      rv = CKR_DATA_LEN_RANGE; 
+      CI_LogEntry("C_Decrypt on ceay_tok", "input data has no sufficened length", rv , 0 );  
+      goto rsa_pkcs1_err; 
+    }
 	
 	tmp_buf = CI_ByteStream_new(key_len);
 	if(tmp_buf == NULL_PTR) { rv = CKR_HOST_MEMORY; goto rsa_pkcs1_err; }
 	
+  CI_LogEntry("C_Decrypt on ceay_tok", "Begin decryption...", rv , 3 );  
 	processed = CI_Ceay_RSA_private_decrypt(ulEncryptedDataLen,pEncryptedData,
 					tmp_buf,session_data->decrypt_state,
 					RSA_PKCS1_PADDING);
 	if(processed == -1)
-	  { rv = CKR_GENERAL_ERROR; goto rsa_pkcs1_err; }
-	*pulDataLen = processed;
+	{ 
+    extern void ERR_load_ERR_strings(void);
+    extern void ERR_load_crypto_strings(void);
+    extern void ERR_free_strings(void);
+    extern unsigned long ERR_get_error(void);
+    extern char* ERR_error_string(unsigned long e, char* buf);
+    extern char* ERR_reason_error_string(unsigned long e);
+
+    ERR_load_ERR_strings();
+    ERR_load_crypto_strings();
+    rv = CKR_GENERAL_ERROR;
+    CI_VarLogEntry("CI_Ceay_Decrypt", "openSSL RSA_private_decrypt failed! openSSL-error: %s", rv, 0,
+      ERR_error_string(ERR_get_error(), NULL));
+    ERR_free_strings();
+    goto rsa_pkcs1_err; 
+  }
+  CI_LogEntry("C_Decrypt on ceay_tok", "... Decryption completed", rv , 3 );  
+
 	
-	memcpy(pData,tmp_buf,key_len);
+  /* check, if output buffer has sufficeend size */
+  if ( *pulDataLen < processed )
+  {
+    rv = CKR_BUFFER_TOO_SMALL;
+    CI_VarLogEntry("CI_Ceay_Decrypt",
+      "output buffer too small (needed: %d bytes, provided: %d bytes)", 
+      rv, 0, processed, *pulDataLen);
+    goto rsa_pkcs1_err;
+  }
+
+  *pulDataLen = processed;
+	memcpy(pData,tmp_buf,processed);
 	
       rsa_pkcs1_err:
 	if(tmp_buf != NULL_PTR) TC_free(tmp_buf);
@@ -666,8 +695,11 @@ CK_DEFINE_FUNCTION(CK_RV, CI_Ceay_Decrypt)(
 
 	*pulDataLen=ulEncryptedDataLen;
 
-	TC_free(((CK_I_CEAY_DES_INFO_PTR)session_data->decrypt_state)->sched);
-	TC_free(((CK_I_CEAY_DES_INFO_PTR)session_data->decrypt_state)->ivec);
+
+  // seems to be created on the stack
+//	TC_free(((CK_I_CEAY_DES_INFO_PTR)session_data->decrypt_state)->sched);
+//	TC_free(((CK_I_CEAY_DES_INFO_PTR)session_data->decrypt_state)->ivec);
+	
 	TC_free(session_data->decrypt_state);
 	session_data->decrypt_state = NULL_PTR;
 

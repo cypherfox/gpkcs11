@@ -289,11 +289,12 @@ static unsigned int CK_I_attrib_xlate[][2] = {
 };
 /* }}} */
 /* {{{ Global constants for template/object creation */
-CK_CHAR CK_I_empty_str[] = "";
-CK_BYTE CK_I_empty_bytes[] = "";
-CK_BBOOL CK_I_true = TRUE;
-CK_BBOOL CK_I_false = FALSE;
-CK_ULONG CK_I_ulEmpty = 0;
+CK_CHAR   CK_I_empty_str[] = "";
+CK_BYTE   CK_I_empty_bytes[] = "";
+CK_BBOOL  CK_I_true = TRUE;
+CK_BBOOL  CK_I_false = FALSE;
+CK_ULONG  CK_I_ulEmpty = 0;
+CK_DATE   CK_I_empty_date = {"    ", "  ", "  "};
 /* }}} */
 
 /* {{{ CI_ReturnSession */
@@ -354,10 +355,6 @@ CK_DEFINE_FUNCTION(CK_RV, CI_ReturnSession)(
 /* }}} */
 
 /* {{{ C_CreateObject */
-#define OBJECT_DEFAULT_LOAD 1
-#include "obj_defaults.h"
-#undef OBJECT_DEFAULT_LOAD
-
 CK_DEFINE_FUNCTION(CK_RV, C_CreateObject)(
   CK_SESSION_HANDLE hSession,
   CK_ATTRIBUTE_PTR pTemplate,
@@ -368,16 +365,20 @@ CK_DEFINE_FUNCTION(CK_RV, C_CreateObject)(
   CK_RV rv = CKR_OK;
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
   CK_I_OBJ_PTR new_obj = NULL_PTR;  /* object to be created */
-  CK_BYTE_PTR tmp_str = NULL_PTR;
 
   CI_LogEntry("C_CreateObject", "starting...", rv, 1);
-  CI_CodeFktEntry("C_CreateObject", "%lu,%s,%lu,%p", 
-                  hSession,
-		  tmp_str = CI_PrintTemplate(pTemplate,ulCount),
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_CreateObject", "%lu,%s,%lu,%p", 
+      hSession,
+		  tmp = CI_PrintTemplate(pTemplate,ulCount),
 		  ulCount,
 		  phObject);
-
-  if(tmp_str)TC_free(tmp_str);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
@@ -428,11 +429,10 @@ CK_DEFINE_FUNCTION(CK_RV, C_CreateObject)(
       return rv;
     }
 
-
-  CI_ObjMergeObj(new_obj, CK_I_obj_default, FALSE); /* copy only attribs not already set */
+  CI_ObjCompleteWithDefaults(new_obj);
   if(rv != CKR_OK) 
     {
-      CI_LogEntry("C_CreateObject", "merging objects", rv, 0);
+      CI_LogEntry("C_CreateObject", "completing witch defaults objects", rv, 0);
       return rv;
     }
   
@@ -798,17 +798,21 @@ CK_DEFINE_FUNCTION(CK_RV, C_CopyObject)(
   CK_I_OBJ_PTR old_obj = NULL_PTR;  /* object to be copied */
   CK_I_OBJ_PTR new_obj = NULL_PTR;  /* object to be created */
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
-  CK_BYTE_PTR tmp_str = NULL_PTR;
 
   CI_LogEntry("C_CopyObject", "starting...", rv , 1);
-  CI_CodeFktEntry("C_CopyObject", "%lu,%lu,%s,%lu,%p", 
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_CopyObject", "%lu,%lu,%s,%lu,%p", 
                   hSession,
 		  hObject,
-		  tmp_str = CI_PrintTemplate(pTemplate,ulCount),
+		  tmp = CI_PrintTemplate(pTemplate,ulCount),
 		  ulCount,
 		  phNewObject);
-
-  TC_free(tmp_str);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
@@ -850,12 +854,13 @@ CK_DEFINE_FUNCTION(CK_RV, C_CopyObject)(
 }
 /* }}} */
 /* {{{ C_GetAttributeValue */
-CK_DEFINE_FUNCTION(CK_RV, C_GetAttributeValue)(
-  CK_SESSION_HANDLE hSession,
-  CK_OBJECT_HANDLE hObject,
-  CK_ATTRIBUTE_PTR pTemplate,
-  CK_ULONG ulCount
-)
+CK_DEFINE_FUNCTION(CK_RV, C_GetAttributeValue)
+(
+ CK_SESSION_HANDLE hSession,
+ CK_OBJECT_HANDLE hObject,
+ CK_ATTRIBUTE_PTR pTemplate,
+ CK_ULONG ulCount
+ )
 {
   CK_RV rv = CKR_OK;
   CK_ULONG i;
@@ -866,107 +871,581 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetAttributeValue)(
   CK_BBOOL invalid = FALSE;
   CK_ATTRIBUTE_TYPE ia_type;
   CK_LONG err_retval = -1L;  
-
+  
   CI_LogEntry("C_GetAttributeValue", "starting...", rv , 1);
   
   CI_CodeFktEntry("C_GetAttributeValue", "%lu,%lu,%p,%lu", 
-                  hSession,
+    hSession,
 		  hObject,
-		  pTemplate,
-		  ulCount);
-
+      pTemplate,
+      ulCount);
+  
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
     return CKR_CRYPTOKI_NOT_INITIALIZED;
-
+  
   rv = CI_ReturnSession(hSession, &session_data);
   if(rv != CKR_OK)
-    {
-      CI_VarLogEntry("C_GetAttributeValue", "retrieve session data (hSession: %lu)", rv, 0,
-                     hSession);
-      return rv;
-    }
-
+  {
+    CI_VarLogEntry("C_GetAttributeValue", "retrieve session data (hSession: %lu)", rv, 0,
+      hSession);
+    return rv;
+  }
+  
   rv = CI_ReturnObj(session_data,hObject, &obj);
   if(rv != CKR_OK)
-    {
-      CI_VarLogEntry("C_GetAttributeValue", "retrieve object list (hSession: %lu, hObject: %lu)", 
-		     rv, 0,
-                     hSession, hObject);
-      return rv;
-    }
-
-  /* Rule 1: Check whether the object is sensitive */
+  {
+    CI_VarLogEntry("C_GetAttributeValue", "retrieve object list (hSession: %lu, hObject: %lu)", 
+      rv, 0,
+      hSession, hObject);
+    return rv;
+  }
+  
+  /* Rule 1: Check whether the object is sensitive or extractable */
   template_entry = CI_ObjLookup(obj,CK_IA_SENSITIVE);
   if((template_entry != NULL) &&
-     (TRUE == *((CK_BBOOL CK_PTR)template_entry->pValue)))
-    {
-      sensitive = TRUE;
-    }
-
-  for(i=0; i<ulCount ; i++,pTemplate++)
-    {
-      rv= CI_TranslateAttribute(pTemplate->type,&ia_type);
-      /* Rule 2a: check that the Attribute is a valid one at all */
-      if(rv != CKR_OK)
-	{
-	  invalid = TRUE;
-	  rv = CKR_ATTRIBUTE_TYPE_INVALID;
-	  CI_VarLogEntry("C_GetAttributeValue",
-			 "Value not a valid attribute: 0x%08lx",
-			 rv, 0, pTemplate->type);
-	}
-      else
-	{
-	  /* check that the entry exists */
-	  if(CI_ObjLookup(obj,ia_type) == NULL_PTR) 
-	    {
-	      /* Rule 2b: Attribute invalid for this object */
-	      invalid = TRUE;
-	      rv = CKR_ATTRIBUTE_TYPE_INVALID;
-	      CI_VarLogEntry("C_GetAttributeValue",
-			     "Attribute %s not valid for object",
-			     rv, 0, CI_AttributeStr(pTemplate->type));
-	    }
-	  else
-	    {
-	      /* Rule 3: get the size of the object in order for application to allocate memory */
-	      if(pTemplate->pValue == NULL_PTR) 
-		{
-		  pTemplate->ulValueLen = CI_ObjLookup(obj,ia_type)->ulValueLen;
-		  continue;
-		}
-	      
-	      /* Rule 4: if the buffer pointed to in pTemplate->pValue is large enough, copy the data */
-	      if(pTemplate->ulValueLen >= CI_ObjLookup(obj,ia_type)->ulValueLen)
-		{
-		  pTemplate->ulValueLen = CI_ObjLookup(obj,ia_type)->ulValueLen;
-		  memcpy(pTemplate->pValue, CI_ObjLookup(obj,ia_type)->pValue, pTemplate->ulValueLen);	  
-		}
-	      else /* Rule 5: the buffer is too small */
-		{
-		  invalid = TRUE; 
-		  rv = CKR_BUFFER_TOO_SMALL;
-		}
-	    }
-	}
-      
-      /* Any problems so far? */
-      if( invalid || sensitive )
-	{
-	  /* mark entry for illegal access and return */
-	  memcpy(&(pTemplate->ulValueLen),&err_retval,sizeof(CK_LONG));	  
-	  invalid = FALSE;  /* only for one entry in the template */
-
-	  /* reset the return value that we might have cleared */
-	  rv = (sensitive)?CKR_ATTRIBUTE_SENSITIVE:CKR_ATTRIBUTE_TYPE_INVALID; 
-
-	}
-    }
+    (TRUE == *((CK_BBOOL CK_PTR)template_entry->pValue)))
+  {
+    sensitive = TRUE;
+  }
+  template_entry = CI_ObjLookup(obj,CK_IA_EXTRACTABLE);
+  if((template_entry != NULL) &&
+    (FALSE == *((CK_BBOOL CK_PTR)template_entry->pValue)))
+  {
+    sensitive = TRUE;
+  }
   
-  CI_LogEntry("C_GetAttributeValue", "...complete", rv , 1);	  
-
-  return rv;
+  
+  for(i=0; i<ulCount ; i++,pTemplate++)
+  {
+    rv= CI_TranslateAttribute(pTemplate->type,&ia_type);
+    /* Rule 2a: check that the Attribute is a valid one at all */
+    if(rv != CKR_OK)
+    {
+      invalid = TRUE;
+      rv = CKR_ATTRIBUTE_TYPE_INVALID;
+      CI_VarLogEntry("C_GetAttributeValue",
+        "Value not a valid attribute: 0x%08lx",
+        rv, 0, pTemplate->type);
+    }
+    else
+    {
+      /* check that the entry exists */
+      if(CI_ObjLookup(obj,ia_type) == NULL_PTR) 
+      {
+        /* Rule 2b: Attribute invalid for this object */
+        invalid = TRUE;
+        rv = CKR_ATTRIBUTE_TYPE_INVALID;
+        CI_VarLogEntry("C_GetAttributeValue",
+          "Attribute %s not valid for object",
+          rv, 0, CI_AttributeStr(pTemplate->type));
+      }
+      else
+      {
+        /* Rule 3: get the size of the object in order for application to allocate memory */
+        if(pTemplate->pValue == NULL_PTR) 
+        {
+          pTemplate->ulValueLen = CI_ObjLookup(obj,ia_type)->ulValueLen;
+          continue;
+        }
+        
+        /* Rule 4: if the buffer pointed to in pTemplate->pValue is large enough, copy the data */
+        if(pTemplate->ulValueLen >= CI_ObjLookup(obj,ia_type)->ulValueLen)
+        {
+          pTemplate->ulValueLen = CI_ObjLookup(obj,ia_type)->ulValueLen;
+          memcpy(pTemplate->pValue, CI_ObjLookup(obj,ia_type)->pValue, pTemplate->ulValueLen);	  
+        }
+        else /* Rule 5: the buffer is too small */
+        {
+          invalid = TRUE; 
+          rv = CKR_BUFFER_TOO_SMALL;
+        }
+      }
+    }
+    
+    /* is Attribute invalid? */
+    if( invalid )
+    {
+      /* mark entry for illegal access and return */
+      memcpy(&(pTemplate->ulValueLen),&err_retval,sizeof(CK_LONG));	  
+      invalid = FALSE;  /* only for one entry in the template */
+      
+      /* reset the return value that we might have cleared */
+      rv = CKR_ATTRIBUTE_TYPE_INVALID; 
+    }
+    /* is object sensitive ?
+    we have to check, whether we can reveal the attribute, or not */
+    if ( sensitive )
+    {
+      
+      /* defines for better readability */
+#define REVEALE_ATTRIBUTE break;
+#define DONT_REVEALE_ATTRIBUTE \
+  /* mark entry for illegal access and return */ \
+  memcpy(&(pTemplate->ulValueLen),&err_retval,sizeof(CK_LONG));	  \
+  rv = CKR_ATTRIBUTE_SENSITIVE; \
+      break;
+      /* end defines for better readability */
+      
+      switch ( pTemplate->type )
+      {
+        // These attributes may be revealed in spite of the sensitive attribute
+        /* common attributes (spec 2.1 §9.2)*/
+      case CKA_CLASS:         REVEALE_ATTRIBUTE;   
+      case CKA_TOKEN:         REVEALE_ATTRIBUTE;   
+      case CKA_PRIVATE:       REVEALE_ATTRIBUTE;   
+      case CKA_MODIFIABLE:    REVEALE_ATTRIBUTE;   
+      case CKA_LABEL:         REVEALE_ATTRIBUTE;   
+      default:
+        {
+          /* object class specific attributes */
+          CK_ATTRIBUTE_PTR pObjectClassAttribute;
+          CI_TranslateAttribute(CKA_CLASS, &ia_type);
+          pObjectClassAttribute = CI_ObjLookup(obj,ia_type);
+          if (pObjectClassAttribute == NULL)
+          {
+            CI_VarLogEntry("C_GetAttributeValue",
+              "Invalid Object", rv, 0);
+            DONT_REVEALE_ATTRIBUTE;
+          }
+          switch (*((CK_OBJECT_CLASS CK_PTR)pObjectClassAttribute->pValue))
+          {
+          case CKO_DATA: // (spec 2.1 §9.3)
+            {
+              switch (pTemplate->type)
+              {
+                /* data object attributes */
+              case CKA_APPLICATION: REVEALE_ATTRIBUTE;   
+              case CKA_VALUE:       REVEALE_ATTRIBUTE;   
+              }
+              break;
+            }// case CKO_DATA
+            
+          case CKO_CERTIFICATE: // (spec 2.1 §9.4)
+            {
+              /* common certificate object attributes */
+              switch (pTemplate->type)
+              {
+              case CKA_CERTIFICATE_TYPE:  REVEALE_ATTRIBUTE;   
+              default:
+                {
+                  /* certificate type specific attributes */
+                  CK_ATTRIBUTE_PTR pCertificateType;
+                  CI_TranslateAttribute(CKA_CERTIFICATE_TYPE, &ia_type);
+                  pCertificateType = CI_ObjLookup(obj,ia_type);
+                  if (pCertificateType == NULL)
+                  {
+                    CI_VarLogEntry("C_GetAttributeValue",
+                      "Invalid Object", rv, 0);
+                    DONT_REVEALE_ATTRIBUTE;
+                  }
+                  switch (*((CK_CERTIFICATE_TYPE CK_PTR)pCertificateType->pValue))
+                  {
+                  case CKC_X_509: /* x.509 certificate object attributes (spec 2.1 §9.4.1) */
+                    {
+                      switch (pTemplate->type)
+                      {
+                      case CKA_SUBJECT:       REVEALE_ATTRIBUTE;   
+                      case CKA_ID:            REVEALE_ATTRIBUTE;   
+                      case CKA_ISSUER:        REVEALE_ATTRIBUTE;   
+                      case CKA_SERIAL_NUMBER: REVEALE_ATTRIBUTE;   
+                      case CKA_VALUE:         REVEALE_ATTRIBUTE;   
+                      default:                DONT_REVEALE_ATTRIBUTE;
+                      }
+                      break;
+                    }// case CKC_X_509
+                  default: DONT_REVEALE_ATTRIBUTE;
+                  } // switch
+                } //default
+              } // switch
+            } // case CKO_CERTIFICATE
+          case CKO_PUBLIC_KEY:
+          case CKO_PRIVATE_KEY:
+          case CKO_SECRET_KEY:
+            {
+              /* commmon key object attributes (spec 2.1 §9.5)*/
+              switch (pTemplate->type)
+              {
+              case CKA_KEY_TYPE:      REVEALE_ATTRIBUTE;
+              case CKA_ID:            REVEALE_ATTRIBUTE;
+              case CKA_START_DATE:    REVEALE_ATTRIBUTE;
+              case CKA_END_DATE:      REVEALE_ATTRIBUTE;
+              case CKA_DERIVE:        REVEALE_ATTRIBUTE;
+              case CKA_LOCAL:         REVEALE_ATTRIBUTE;
+              default:                
+                {
+                  /* key class specific attributes */
+                  switch (*((CK_OBJECT_CLASS CK_PTR)pObjectClassAttribute->pValue))
+                  {
+                  case CKO_PUBLIC_KEY:
+                    {/* common public key attributes (spec2.1 §9.6) */
+                      switch (pTemplate->type)
+                      {
+                      case CKA_SUBJECT:         REVEALE_ATTRIBUTE;
+                      case CKA_ENCRYPT:         REVEALE_ATTRIBUTE;
+                      case CKA_VERIFY:          REVEALE_ATTRIBUTE;
+                      case CKA_VERIFY_RECOVER:  REVEALE_ATTRIBUTE;
+                      case CKA_WRAP:            REVEALE_ATTRIBUTE;
+                      default:
+                        {
+                          /* public key type specific attributes */
+                          CK_ATTRIBUTE_PTR pKeyType;
+                          CI_TranslateAttribute(CKA_KEY_TYPE, &ia_type);
+                          pKeyType = CI_ObjLookup(obj,ia_type);
+                          if (pKeyType == NULL)
+                          {
+                            CI_VarLogEntry("C_GetAttributeValue",
+                              "Invalid Object", rv, 0);
+                            DONT_REVEALE_ATTRIBUTE;
+                          }
+                          switch (*((CK_KEY_TYPE CK_PTR)pKeyType->pValue))
+                          {
+                          case CKK_RSA: /* RSA public key attributes (spec 2.1 §9.6.1) */
+                            {
+                              switch (pTemplate->type)
+                              {
+                              case CKA_MODULUS:         REVEALE_ATTRIBUTE;
+                              case CKA_MODULUS_BITS:    REVEALE_ATTRIBUTE;
+                              case CKA_PUBLIC_EXPONENT: REVEALE_ATTRIBUTE;
+                              default:                  DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_RSA
+                          case CKK_DSA: /* DSA public key attributes (spec 2.1 §9.6.2) */
+                            {
+                              switch (pTemplate->type)
+                              {
+                              case CKA_PRIME:       REVEALE_ATTRIBUTE;
+                              case CK_IA_SUBPRIME:  REVEALE_ATTRIBUTE;
+                              case CKA_BASE:        REVEALE_ATTRIBUTE;
+                              case CKA_VALUE:       REVEALE_ATTRIBUTE;
+                              default:              DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_DSA
+                          case CKK_ECDSA:  /* ECDSA public key attributes (spec 2.1 §9.6.3) */
+                            {
+                              switch (pTemplate->type)
+                              {
+                              case CKA_ECDSA_PARAMS:    REVEALE_ATTRIBUTE;
+                              case CKA_EC_POINT:        REVEALE_ATTRIBUTE;
+                              default:                  DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_ECDSA
+                          case CKK_DH:  /* Diffie-Hellman public key attributes (spec 2.1 §9.6.4) */
+                            {
+                              switch (pTemplate->type)
+                              {
+                              case CKA_PRIME:   REVEALE_ATTRIBUTE;
+                              case CKA_BASE:    REVEALE_ATTRIBUTE;
+                              case CKA_VALUE:   REVEALE_ATTRIBUTE;
+                              default:          DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_DH
+                          case CKK_KEA: /* KEA public key attributes (spec 2.1 §9.6.5) */
+                            {
+                              switch (pTemplate->type)
+                              {
+                              case CKA_PRIME:       REVEALE_ATTRIBUTE;
+                              case CK_IA_SUBPRIME:  REVEALE_ATTRIBUTE;
+                              case CKA_BASE:        REVEALE_ATTRIBUTE;
+                              case CKA_VALUE:       REVEALE_ATTRIBUTE;
+                              default:              DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_KEA
+                          default:  DONT_REVEALE_ATTRIBUTE;
+                          } // switch
+                        } // default
+                      } // switch 
+                      break;
+                    } // case CKO_PUBLIC_KEY
+                    
+                  case CKO_PRIVATE_KEY:
+                    {
+                      /* common private key attributes (spec2.1 §9.7) */
+                      switch (pTemplate->type)
+                      {
+                      case CKA_SUBJECT:           REVEALE_ATTRIBUTE;
+                      case CKA_SENSITIVE:         REVEALE_ATTRIBUTE;
+                      case CKA_DECRYPT:           REVEALE_ATTRIBUTE;
+                      case CKA_SIGN:              REVEALE_ATTRIBUTE;
+                      case CKA_SIGN_RECOVER:      REVEALE_ATTRIBUTE;
+                      case CKA_UNWRAP:            REVEALE_ATTRIBUTE;
+                      case CKA_EXTRACTABLE:       REVEALE_ATTRIBUTE;
+                      case CKA_ALWAYS_SENSITIVE:  REVEALE_ATTRIBUTE;
+                      case CKA_NEVER_EXTRACTABLE: REVEALE_ATTRIBUTE;
+                      default:
+                        {
+                          /* public key type specific attributes */
+                          CK_ATTRIBUTE_PTR pKeyType;
+                          CI_TranslateAttribute(CKA_KEY_TYPE, &ia_type);
+                          pKeyType = CI_ObjLookup(obj,ia_type);
+                          if (pKeyType == NULL)
+                          {
+                            CI_VarLogEntry("C_GetAttributeValue",
+                              "Invalid Object", rv, 0);
+                            DONT_REVEALE_ATTRIBUTE;
+                          }
+                          switch ( *((CK_KEY_TYPE CK_PTR)pKeyType->pValue) )
+                          {
+                          case CKK_RSA:   /* RSA private key object attributes (spec 2.1 §9.7.1) */
+                            {
+                              switch (pTemplate->type)
+                              {
+                              case CKA_MODULUS:           REVEALE_ATTRIBUTE;
+                              case CKA_PUBLIC_EXPONENT:   REVEALE_ATTRIBUTE;
+                              case CKA_PRIVATE_EXPONENT:  DONT_REVEALE_ATTRIBUTE;
+                              case CKA_PRIME_1:           DONT_REVEALE_ATTRIBUTE;
+                              case CKA_PRIME_2:           DONT_REVEALE_ATTRIBUTE;
+                              case CKA_EXPONENT_1:        DONT_REVEALE_ATTRIBUTE;
+                              case CKA_EXPONENT_2:        DONT_REVEALE_ATTRIBUTE;
+                              case CKA_COEFFICIENT:       DONT_REVEALE_ATTRIBUTE;
+                              default:                    DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_RSA
+                          case CKK_DSA: /* DSA private key object attributes (spec 2.1 §9.7.2) */
+                            {
+                              switch (pTemplate->type)
+                              {
+                              case CKA_PRIME:       REVEALE_ATTRIBUTE;
+                              case CK_IA_SUBPRIME:  REVEALE_ATTRIBUTE;
+                              case CKA_BASE:        REVEALE_ATTRIBUTE;
+                              case CKA_VALUE:       DONT_REVEALE_ATTRIBUTE;
+                              default:              DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_DSA
+                          case CKK_ECDSA: /* ECDSA private key object attributes (spec 2.1 §9.7.3) */
+                            {
+                              switch (pTemplate->type)
+                              {
+                              case CKA_ECDSA_PARAMS:  REVEALE_ATTRIBUTE;
+                              case CKA_VALUE:         DONT_REVEALE_ATTRIBUTE;
+                              default:                DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_ECDSA
+                          case CKK_DH:  /* Diffie-Hellman private key object attributes (spec 2.1 §9.7.4) */
+                            {
+                              switch (pTemplate->type)
+                              {
+                              case CKA_PRIME:       REVEALE_ATTRIBUTE;
+                              case CKA_BASE:        REVEALE_ATTRIBUTE;
+                              case CKA_VALUE:       DONT_REVEALE_ATTRIBUTE;
+                              case CKA_VALUE_BITS:  DONT_REVEALE_ATTRIBUTE;
+                              default:              DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_DH
+                          case CKK_KEA: /* KEA private key object attributes (spec 2.1 §9.7.5) */
+                            {
+                              switch ( pTemplate->type)
+                              {
+                              case CKA_PRIME:       REVEALE_ATTRIBUTE;
+                              case CK_IA_SUBPRIME:  REVEALE_ATTRIBUTE;
+                              case CKA_BASE:        REVEALE_ATTRIBUTE;
+                              case CKA_VALUE:       DONT_REVEALE_ATTRIBUTE;
+                              default:              DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_KEA
+                          default:  DONT_REVEALE_ATTRIBUTE; 
+                          } // switch
+                        } // default
+                      } // switch 
+                      break;
+                    } // case CKO_PRIVATE_KEY
+                  case CKO_SECRET_KEY:
+                    {
+                      /* common secret key attributes (spec2.1 §9.8) */
+                      switch (pTemplate->type)
+                      {
+                      case CKA_SENSITIVE:         REVEALE_ATTRIBUTE;
+                      case CKA_ENCRYPT:           REVEALE_ATTRIBUTE;
+                      case CKA_DECRYPT:           REVEALE_ATTRIBUTE;
+                      case CKA_SIGN:              REVEALE_ATTRIBUTE;
+                      case CKA_VERIFY:            REVEALE_ATTRIBUTE;
+                      case CKA_WRAP:              REVEALE_ATTRIBUTE;
+                      case CKA_UNWRAP:            REVEALE_ATTRIBUTE;
+                      case CKA_EXTRACTABLE:       REVEALE_ATTRIBUTE;
+                      case CKA_ALWAYS_SENSITIVE:  REVEALE_ATTRIBUTE;
+                      case CKA_NEVER_EXTRACTABLE: REVEALE_ATTRIBUTE;
+                      default:
+                        {
+                          /* secret key type specific attributes */
+                          CK_ATTRIBUTE_PTR pKeyType;
+                          CI_TranslateAttribute(CKA_KEY_TYPE, &ia_type);
+                          pKeyType = CI_ObjLookup(obj,ia_type);
+                          switch (*((CK_KEY_TYPE CK_PTR)pKeyType->pValue))
+                          {
+                          case CKK_GENERIC_SECRET:  /* Generic secret key object attributes (spec 2.1 §9.8.1) */
+                            {
+                              switch (pTemplate->type)
+                              {
+                              case CKA_VALUE:     DONT_REVEALE_ATTRIBUTE;
+                              case CKA_VALUE_LEN: REVEALE_ATTRIBUTE;
+                              default:            DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_GENERIC_SECRET
+                          case CKK_RC2: /* RC2 secret key object attributes (spec 2.1 §9.8.2) */
+                            {
+                              switch (pTemplate->type)
+                              {
+                              case CKA_VALUE:     DONT_REVEALE_ATTRIBUTE;
+                              case CKA_VALUE_LEN: REVEALE_ATTRIBUTE;
+                              default:            DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_RC2
+                          case CKK_RC4: /* RC4 secret key object attributes (spec 2.1 §9.8.3) */
+                            {
+                              switch (pTemplate->type)
+                              {
+                              case CKA_VALUE:     DONT_REVEALE_ATTRIBUTE;
+                              case CKA_VALUE_LEN: REVEALE_ATTRIBUTE;
+                              default:            DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_RC4
+                          case CKK_RC5: /* RC5 secret key object attributes (spec 2.1 §9.8.4) */
+                            {
+                              switch(pTemplate->type)
+                              {
+                              case CKA_VALUE:     DONT_REVEALE_ATTRIBUTE;
+                              case CKA_VALUE_LEN: REVEALE_ATTRIBUTE;
+                              default:            DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_RC5
+                          case CKK_DES: /* DES secret key object attributes (spec 2.1 §9.8.5) */
+                            {
+                              switch (pTemplate->type)
+                              {
+                              case CKA_VALUE:   DONT_REVEALE_ATTRIBUTE;
+                              default:          DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_DES
+                          case CKK_DES2:  /* DES2 secret key object attributes (spec 2.1 §9.8.6) */
+                            {
+                              switch(pTemplate->type)
+                              {
+                              case CKA_VALUE:   DONT_REVEALE_ATTRIBUTE;
+                              default:          DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_DES2
+                          case CKK_DES3:  /* DES3 secret key object attributes (spec 2.1 §9.8.7) */
+                            {
+                              switch(pTemplate->type)
+                              {
+                              case CKA_VALUE:   DONT_REVEALE_ATTRIBUTE;
+                              default:          DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_DES3
+                          case CKK_CAST: /* CAST secret key object attributes (spec 2.1 §9.8.8) */
+                            {
+                              switch(pTemplate->type)
+                              {
+                              case CKA_VALUE:     DONT_REVEALE_ATTRIBUTE;
+                              case CKA_VALUE_LEN: REVEALE_ATTRIBUTE;
+                              default:            DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_CAST
+                          case CKK_CAST3: /* CAST3 secret key object attributes (spec 2.1 §9.8.9) */
+                            {
+                              switch(pTemplate->type)
+                              {
+                              case CKA_VALUE:     DONT_REVEALE_ATTRIBUTE;
+                              case CKA_VALUE_LEN: REVEALE_ATTRIBUTE;
+                              default:            DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_CAST3
+                          case /*CKK_CAST5*/ CKK_CAST128: /* CAST5 aka CAST128 secret key object attributes (spec 2.1 §9.8.10) */
+                            {
+                              switch(pTemplate->type)
+                              {
+                              case CKA_VALUE:     DONT_REVEALE_ATTRIBUTE;
+                              case CKA_VALUE_LEN: REVEALE_ATTRIBUTE;
+                              default:            DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_CAST128
+                          case CKK_IDEA: /* IDEA secret key object attributes (spec 2.1 §9.8.11) */
+                            {
+                              switch(pTemplate->type)
+                              {
+                              case CKA_VALUE: DONT_REVEALE_ATTRIBUTE;
+                              default:        DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_IDEA
+                          case CKK_CDMF:  /* CDMF secret key object attributes (spec 2.1 §9.8.12) */
+                            {
+                              switch(pTemplate->type)
+                              {
+                              case CKA_VALUE:   DONT_REVEALE_ATTRIBUTE;
+                              default:          DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_CDMF
+                          case CKK_SKIPJACK:  /* SKIPJACK secret key object attributes (spec 2.1 §9.8.13) */
+                            {
+                              switch(pTemplate->type)
+                              {
+                              case CKA_VALUE:   DONT_REVEALE_ATTRIBUTE;
+                              default:          DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_SKIPJACK
+                          case CKK_BATON: /* BATON secret key object attributes (spec 2.1 §9.8.14) */
+                            {
+                              switch (pTemplate->type)
+                              {
+                              case CKA_VALUE: DONT_REVEALE_ATTRIBUTE;
+                              default:        DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_BATON
+                          case CKK_JUNIPER: /* JUNIPER secret key object attributes (spec 2.1 §9.8.15) */
+                            {
+                              switch(pTemplate->type)
+                              {
+                              case CKA_VALUE: DONT_REVEALE_ATTRIBUTE;
+                              default:        DONT_REVEALE_ATTRIBUTE;
+                              }
+                              break;
+                            } // case CKK_JUNIPER
+                          default: DONT_REVEALE_ATTRIBUTE;
+                            } // switch
+                          } // default
+                        } // switch
+                        break;
+                      } // case CKO_SECRET_KEY
+                    default: DONT_REVEALE_ATTRIBUTE;
+                    } // switch
+                  } // default
+                } // switch
+                break;
+              } // case CKA_*_KEY
+              default: DONT_REVEALE_ATTRIBUTE
+            } // switch
+          } // default
+        } //switch
+      } // if (sensitive)
+    } // for ...
+    
+    CI_LogEntry("C_GetAttributeValue", "...complete", rv , 1);	  
+    
+    return rv;
 }
 /* }}} */
 /* {{{ C_SetAttributeValue */
@@ -981,16 +1460,20 @@ CK_DEFINE_FUNCTION(CK_RV, C_SetAttributeValue)(
   CK_ULONG i;
   CK_I_OBJ_PTR obj = NULL_PTR; 
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
-  CK_BYTE_PTR tmp_str = NULL_PTR;
   
   CI_LogEntry("C_SetAttributeValue", "starting...", rv , 1);	  
-  CI_CodeFktEntry("C_SetAttributeValue", "%lu,%lu,%s%,%lu", 
-                  hSession,
-		  hObject,
-		  tmp_str = CI_PrintTemplate(pTemplate,ulCount),
-		  ulCount);
 
-  TC_free(tmp_str);
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_SetAttributeValue", "%lu,%lu,%s%,%lu", 
+      hSession,
+		  hObject,
+		  tmp = CI_PrintTemplate(pTemplate,ulCount),
+		  ulCount);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
@@ -1048,15 +1531,19 @@ CK_DEFINE_FUNCTION(CK_RV, C_FindObjectsInit)(
   CK_I_FIND_STATE_PTR find_state = NULL_PTR;
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
   CK_VOID_PTR mutex = NULL_PTR;
-  CK_BYTE_PTR tmp_str = NULL_PTR;
 
   CI_LogEntry("C_FindObjectsInit", "starting...", rv , 1);	  
-  CI_CodeFktEntry("C_FindObjectsInit", "%lu,%s,%lu", 
-                  hSession,
-		  tmp_str = CI_PrintTemplate(pTemplate,ulCount),
-		  ulCount);
 
-  TC_free(tmp_str);
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_FindObjectsInit", "%lu,%s,%lu", 
+      hSession,
+		  tmp = CI_PrintTemplate(pTemplate,ulCount),
+		  ulCount);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
@@ -2072,31 +2559,7 @@ CK_DEFINE_FUNCTION(CK_RV, CI_ObjInitialize)(
       
       temp_info = NULL_PTR;
     }
-
-  /* Create the default object */
-  if(CK_I_obj_default == NULL_PTR)
-    {
-      rv = CI_ObjCreateObj(&CK_I_obj_default);
-      if(rv != CKR_OK) 
-	{
-	  CI_LogEntry("CI_ObjInitialize", "creating default object", rv, 0);
-	  return rv;
-	}
-      
-      rv = CI_ObjReadTemplate(CK_I_obj_default, CK_I_obj_default_arr,
-			      CK_I_OBJ_DEFAULTS_SIZE);
-      if(rv != CKR_OK) 
-	{
-	  CI_LogEntry("CI_ObjInitialize", "reading template", rv, 0);
-	  return rv;
-	}
-    }
-  else
-    {
-      rv = CKR_GENERAL_ERROR;
-      CI_LogEntry("CI_ObjInitialize", "default object already created", rv, 0);
-      return rv;
-    }
+	
 
 obj_init_error:
   if(rv != CKR_OK)
@@ -2157,19 +2620,6 @@ CK_DEFINE_FUNCTION(CK_RV, CI_ObjFinalize)(
   CK_RV rv = CKR_OK;
 
   CI_LogEntry("CI_ObjFinalize","starting...",rv,0);
-
-  /* free global default template */
-  rv = CI_ObjDestroyObj(CK_I_obj_default);
-  if(rv != CKR_OK) 
-    {
-      CI_LogEntry("CI_ObjFinalize","destroy object",rv,0);
-      return rv;
-    }
-  /* The pointer to the default object (now destroyed) must be
-   * reinitialized to NULL_PTR. It has been initialized in the function
-   * CI_ObjInitialize, called by C_Initialize.
-   */
-  CK_I_obj_default = NULL_PTR;
 
   /**** löschen des Attribute Lookups *****/
   rv = CI_HashIterateInit(CK_IA_ck2internal,&iter);
@@ -2434,8 +2884,310 @@ CK_DEFINE_FUNCTION(CK_RV, CI_TokenObjCommit)(
   return (methods->TokenObjCommit)(session_data, 
 				   phObject, object);  
 }
-/* }}} */
 
+
+
+#define OBJECT_DEFAULT_LOAD 1
+#include "obj_defaults.h"
+#undef OBJECT_DEFAULT_LOAD
+/* }}} */
+/* {{{ CI_ObjCompleteWithDefaults */
+CK_DEFINE_FUNCTION(CK_RV, CI_ObjCompleteWithDefaults)
+( 
+ CK_I_OBJ_PTR pObject 
+)
+{
+  CK_RV rv = CKR_OK;
+  CK_ATTRIBUTE_PTR pObjectClassAttribute;
+  CK_ATTRIBUTE_PTR pCertificateType;
+  CK_ATTRIBUTE_TYPE ia_type;
+  CK_I_OBJ_PTR pDefaultObj;
+
+  CI_TranslateAttribute(CKA_CLASS, &ia_type);
+  pObjectClassAttribute = CI_ObjLookup(pObject,ia_type);
+  if (pObjectClassAttribute == NULL)
+  {
+    rv = CKR_TEMPLATE_INCOMPLETE;
+    CI_VarLogEntry("C_GetAttributeValue",
+    "Invalid Object", rv, 0);
+    return rv;
+  }
+
+  /* Set the default common attributes (spec2.1 §9.2)*/ 
+  rv = CI_ObjCreateObj(&pDefaultObj);
+  if(rv != CKR_OK) 
+	{
+	  CI_LogEntry("CI_ObjCompleteWithDefaults", "creating default object", rv, 0);
+	  return rv;
+	}
+      
+  rv = CI_ObjReadTemplate(pDefaultObj, CK_I_obj_attr_defaults_common, CK_I_OBJ_ATTR_DEFAULTS_COMMON_SIZE);
+  if(rv != CKR_OK) 
+	{
+	  CI_LogEntry("CI_ObjCompleteWithDefaults", "reading template", rv, 0);
+	  return rv;
+	}
+
+  rv = CI_ObjMergeObj(pObject, pDefaultObj, FALSE); /* copy only attribs not already set */
+  if(rv != CKR_OK) 
+  {
+    CI_LogEntry("CI_ObjCompleteWithDefaults", "merging objects", rv, 0);
+    return rv;
+  }
+
+  rv = CI_ObjDestroyObj(pDefaultObj);
+  if(rv != CKR_OK) 
+  {
+    CI_LogEntry("CI_ObjCompleteWithDefaults", "destroying object", rv, 0);
+    return rv;
+  }
+  pDefaultObj = NULL;
+
+  switch (*((CK_OBJECT_CLASS CK_PTR)pObjectClassAttribute->pValue))
+  {
+  case CKO_DATA:
+    {
+      /* data object default attributes (spec2.1 §9.3)*/
+      rv = CI_ObjCreateObj(&pDefaultObj);
+      if(rv != CKR_OK) 
+      {
+        CI_LogEntry("CI_ObjCompleteWithDefaults", "creating default object", rv, 0);
+        return rv;
+      }
+      
+      rv = CI_ObjReadTemplate(pDefaultObj, CK_I_obj_attr_defaults_data, CK_I_OBJ_ATTR_DEFAULTS_DATA_SIZE);
+      if(rv != CKR_OK) 
+      {
+        CI_LogEntry("CI_ObjCompleteWithDefaults", "reading template", rv, 0);
+        return rv;
+      }
+      
+      rv = CI_ObjMergeObj(pObject, pDefaultObj, FALSE); /* copy only attribs not already set */
+      if(rv != CKR_OK) 
+      {
+        CI_LogEntry("CI_ObjCompleteWithDefaults", "merging objects", rv, 0);
+        return rv;
+      }
+      
+      rv = CI_ObjDestroyObj(pDefaultObj);
+      if(rv != CKR_OK) 
+      {
+        CI_LogEntry("CI_ObjCompleteWithDefaults", "destroying object", rv, 0);
+        return rv;
+      }
+      pDefaultObj = NULL;
+      break;
+    }
+
+  case CKO_CERTIFICATE:
+    {
+      /* common certificate object default attributes (spec2.1 §9.5) */
+      /* no common default attributes defined by spec */
+
+      CI_TranslateAttribute(CKA_CERTIFICATE_TYPE, &ia_type);
+      pCertificateType = CI_ObjLookup(pObject,ia_type);
+      if (pCertificateType == NULL)
+      {
+        rv = CKR_TEMPLATE_INCOMPLETE;
+        CI_VarLogEntry("C_GetAttributeValue",
+          "Invalid Object", rv, 0);
+        return rv;
+      }
+      
+      switch (*((CK_CERTIFICATE_TYPE CK_PTR)pCertificateType->pValue))
+      {
+      case CKC_X_509: /* x.509 certificate object default attributes (spec 2.1 §9.4.1) */
+        {
+          rv = CI_ObjCreateObj(&pDefaultObj);
+          if(rv != CKR_OK) 
+          {
+            CI_LogEntry("CI_ObjCompleteWithDefaults", "creating default object", rv, 0);
+            return rv;
+          }
+          
+          rv = CI_ObjReadTemplate(pDefaultObj, CK_I_obj_attr_defaults_certificate_x509, CK_I_OBJ_ATTR_DEFAULTS_CERTIFICATE_X509_SIZE);
+          if(rv != CKR_OK) 
+          {
+            CI_LogEntry("CI_ObjCompleteWithDefaults", "reading template", rv, 0);
+            return rv;
+          }
+          
+          rv = CI_ObjMergeObj(pObject, pDefaultObj, FALSE); /* copy only attribs not already set */
+          if(rv != CKR_OK) 
+          {
+            CI_LogEntry("CI_ObjCompleteWithDefaults", "merging objects", rv, 0);
+            return rv;
+          }
+          
+          rv = CI_ObjDestroyObj(pDefaultObj);
+          if(rv != CKR_OK) 
+          {
+            CI_LogEntry("CI_ObjCompleteWithDefaults", "destroying object", rv, 0);
+            return rv;
+          }
+          pDefaultObj = NULL;
+          break;
+        }// case CKC_X_509
+      default: 
+        {
+          rv = CKR_TEMPLATE_INCONSISTENT;
+          CI_LogEntry("CI_ObjCompleteWithDefaults", "depatch object type", rv, 0);
+          return rv;
+        }
+      } // switch
+      break;
+    } // case
+     
+  case CKO_PUBLIC_KEY:
+  case CKO_PRIVATE_KEY:
+  case CKO_SECRET_KEY:
+    {
+      /* common key object default attributes (spec2.1 §9.5) */
+      rv = CI_ObjCreateObj(&pDefaultObj);
+      if(rv != CKR_OK) 
+      {
+        CI_LogEntry("CI_ObjCompleteWithDefaults", "creating default object", rv, 0);
+        return rv;
+      }
+      
+      rv = CI_ObjReadTemplate(pDefaultObj, CK_I_obj_attr_defaults_key_common, CK_I_OBJ_ATTR_DEFAULTS_KEY_COMMON_SIZE);
+      if(rv != CKR_OK) 
+      {
+        CI_LogEntry("CI_ObjCompleteWithDefaults", "reading template", rv, 0);
+        return rv;
+      }
+      
+      rv = CI_ObjMergeObj(pObject, pDefaultObj, FALSE); /* copy only attribs not already set */
+      if(rv != CKR_OK) 
+      {
+        CI_LogEntry("CI_ObjCompleteWithDefaults", "merging objects", rv, 0);
+        return rv;
+      }
+      
+      rv = CI_ObjDestroyObj(pDefaultObj);
+      if(rv != CKR_OK) 
+      {
+        CI_LogEntry("CI_ObjCompleteWithDefaults", "destroying object", rv, 0);
+        return rv;
+      }
+      pDefaultObj = NULL;
+    
+      switch (*((CK_OBJECT_CLASS CK_PTR)pObjectClassAttribute->pValue))
+      {
+      case CKO_PUBLIC_KEY:
+        {
+          /* common public key default attributes (spec2.1 §9.6) */
+          rv = CI_ObjCreateObj(&pDefaultObj);
+          if(rv != CKR_OK) 
+          {
+            CI_LogEntry("CI_ObjCompleteWithDefaults", "creating default object", rv, 0);
+            return rv;
+          }
+          
+          rv = CI_ObjReadTemplate(pDefaultObj, CK_I_obj_attr_defaults_key_public_common, CK_I_OBJ_ATTR_DEFAULTS_KEY_PUBLIC_COMMON_SIZE);
+          if(rv != CKR_OK) 
+          {
+            CI_LogEntry("CI_ObjCompleteWithDefaults", "reading template", rv, 0);
+            return rv;
+          }
+          
+          rv = CI_ObjMergeObj(pObject, pDefaultObj, FALSE); /* copy only attribs not already set */
+          if(rv != CKR_OK) 
+          {
+            CI_LogEntry("CI_ObjCompleteWithDefaults", "merging objects", rv, 0);
+            return rv;
+          }
+          
+          rv = CI_ObjDestroyObj(pDefaultObj);
+          if(rv != CKR_OK) 
+          {
+            CI_LogEntry("CI_ObjCompleteWithDefaults", "destroying object", rv, 0);
+            return rv;
+          }
+          pDefaultObj = NULL;
+          break;
+        } // case CKO_PUBLIC_KEY
+        
+      case CKO_PRIVATE_KEY:
+        {
+          /* common private key default attributes (spec2.1 §9.7) */
+          rv = CI_ObjCreateObj(&pDefaultObj);
+          if(rv != CKR_OK) 
+          {
+            CI_LogEntry("CI_ObjCompleteWithDefaults", "creating default object", rv, 0);
+            return rv;
+          }
+          
+          rv = CI_ObjReadTemplate(pDefaultObj, CK_I_obj_attr_defaults_key_private_common, CK_I_OBJ_ATTR_DEFAULTS_KEY_PRIVATE_COMMON_SIZE);
+          if(rv != CKR_OK) 
+          {
+            CI_LogEntry("CI_ObjCompleteWithDefaults", "reading template", rv, 0);
+            return rv;
+          }
+          
+          rv = CI_ObjMergeObj(pObject, pDefaultObj, FALSE); /* copy only attribs not already set */
+          if(rv != CKR_OK) 
+          {
+            CI_LogEntry("CI_ObjCompleteWithDefaults", "merging objects", rv, 0);
+            return rv;
+          }
+          
+          rv = CI_ObjDestroyObj(pDefaultObj);
+          if(rv != CKR_OK) 
+          {
+            CI_LogEntry("CI_ObjCompleteWithDefaults", "destroying object", rv, 0);
+            return rv;
+          }
+          pDefaultObj = NULL;
+          break;
+        } // case CKO_PRIVATE_KEY
+      
+      
+      case CKO_SECRET_KEY:
+        {
+          /* common secret key default attributes (spec2.1 §9.8) */
+          rv = CI_ObjCreateObj(&pDefaultObj);
+          if(rv != CKR_OK) 
+          {
+            CI_LogEntry("CI_ObjCompleteWithDefaults", "creating default object", rv, 0);
+            return rv;
+          }
+          
+          rv = CI_ObjReadTemplate(pDefaultObj, CK_I_obj_attr_defaults_key_secret_common, CK_I_OBJ_ATTR_DEFAULTS_KEY_SECRET_COMMON_SIZE);
+          if(rv != CKR_OK) 
+          {
+            CI_LogEntry("CI_ObjCompleteWithDefaults", "reading template", rv, 0);
+            return rv;
+          }
+          
+          rv = CI_ObjMergeObj(pObject, pDefaultObj, FALSE); /* copy only attribs not already set */
+          if(rv != CKR_OK) 
+          {
+            CI_LogEntry("CI_ObjCompleteWithDefaults", "merging objects", rv, 0);
+            return rv;
+          }
+          
+          rv = CI_ObjDestroyObj(pDefaultObj);
+          if(rv != CKR_OK) 
+          {
+            CI_LogEntry("CI_ObjCompleteWithDefaults", "destroying object", rv, 0);
+            return rv;
+          }
+          pDefaultObj = NULL;
+          break;
+        } // case CKO_SECRET_KEY
+      } // switch
+      break;
+    } // case keys
+  default: 
+    {
+      rv = CKR_TEMPLATE_INCONSISTENT;
+      CI_LogEntry("CI_ObjCompleteWithDefaults", "depatch object type", rv, 0);
+      return rv;
+    }
+  } // switch
+  return rv;
+}
 
 /*
  * Local variables:

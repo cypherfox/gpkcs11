@@ -126,18 +126,24 @@ CK_DEFINE_FUNCTION(CK_RV, C_GenerateKey)(
   CK_RV rv = CKR_OK;
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
   CK_I_OBJ_PTR new_key = NULL_PTR;  /* object to be created */
-  CK_BYTE_PTR tmp1 = NULL_PTR,tmp2 = NULL_PTR;
 
   CI_LogEntry("C_GenerateKey", "starting...", rv, 1);
-  CI_CodeFktEntry("C_GenerateKey", "%i,%s,%s,%i,%p", 
-                  hSession,
-                  tmp1 = CI_ScanableMechanism(pMechanism),
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CK_CHAR_PTR tmp2 = NULL;
+    CI_CodeFktEntry("C_GenerateKey", "%i,%s,%s,%i,%p", 
+      hSession,
+      tmp = CI_ScanableMechanism(pMechanism),
 		  tmp2 = CI_PrintTemplate(pTemplate,ulCount),
 		  ulCount,
 		  phKey);
+    TC_free(tmp);
+    TC_free(tmp2);
+  }
+#endif // NO_LOGGING
 
-  TC_free(tmp1);
-  TC_free(tmp2);
 
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
@@ -216,21 +222,28 @@ CK_DEFINE_FUNCTION(CK_RV, C_GenerateKeyPair)(
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
   CK_I_OBJ_PTR new_private_key = NULL_PTR;  
   CK_I_OBJ_PTR new_public_key = NULL_PTR;  
-  CK_CHAR_PTR tmp1, tmp2, tmp3;
   
   CI_LogEntry("C_GenerateKeyPair", "starting...", rv, 1);
-  CI_CodeFktEntry("C_GenerateKeyPair", "%i,%s,%s,%i,%s,%i,%p,%p", 
-                  hSession,
-                  tmp1 = CI_ScanableMechanism(pMechanism),
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CK_CHAR_PTR tmp2 = NULL;
+    CK_CHAR_PTR tmp3 = NULL;
+    CI_CodeFktEntry("C_GenerateKeyPair", "%i,%s,%s,%i,%s,%i,%p,%p", 
+      hSession,
+      tmp = CI_ScanableMechanism(pMechanism),
 		  tmp2 = CI_PrintTemplate(pPublicKeyTemplate,ulPublicKeyAttributeCount),
 		  ulPublicKeyAttributeCount,
 		  tmp3 = CI_PrintTemplate(pPrivateKeyTemplate,ulPrivateKeyAttributeCount),
 		  ulPrivateKeyAttributeCount,
 		  phPublicKey,
 		  phPrivateKey);
-  TC_free(tmp1);
-  TC_free(tmp2);
-  TC_free(tmp3);
+    TC_free(tmp);
+    TC_free(tmp2);
+    TC_free(tmp3);
+  }
+#endif // NO_LOGGING
 
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
@@ -338,17 +351,22 @@ CK_DEFINE_FUNCTION(CK_RV, C_WrapKey)
   CK_I_OBJ_PTR key_obj = NULL_PTR;  /* key to be wrapped */
   CK_I_OBJ_PTR wrapper = NULL_PTR;  /* key to be used for wrapping */
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
-  CK_BYTE_PTR tmp = NULL_PTR;
 
   CI_LogEntry("C_WrapKey", "starting...", rv, 1);
-  CI_CodeFktEntry("C_WrapKey", "%i,%s,%i,%i,%p,%p", 
-                  hSession,
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CI_CodeFktEntry("C_WrapKey", "%i,%s,%i,%i,%p,%p", 
+      hSession,
 		  tmp = CI_ScanableMechanism(pMechanism),
 		  hWrappingKey,
 		  hKey,
 		  pWrappedKey,
 		  pulWrappedKeyLen);
-  TC_free(tmp);
+    TC_free(tmp);
+  }
+#endif // NO_LOGGING
 
   CI_VarLogEntry("C_WrapKey", "*pulWrappedKeyLen: %i", rv, 1, *pulWrappedKeyLen);
 		  
@@ -446,15 +464,27 @@ CK_DEFINE_FUNCTION(CK_RV, C_UnwrapKey)
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
 
   CI_LogEntry("C_UnwrapKey", "starting...", rv, 1);
-  CI_CodeFktEntry("C_UnwrapKey", "%i,%s,%i,%s,%i,%s,%i,%p", 
-                  hSession,
-                  CI_ScanableMechanism(pMechanism),
+  
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CK_CHAR_PTR tmp2 = NULL;
+    CK_CHAR_PTR tmp3 = NULL;
+    CI_CodeFktEntry("C_UnwrapKey", "%i,%s,%i,%s,%i,%s,%i,%p", 
+      hSession,
+      tmp = CI_ScanableMechanism(pMechanism),
 		  hUnwrappingKey,
-		  CI_ScanableByteStream(pWrappedKey,ulWrappedKeyLen),
+		  tmp2 = CI_ScanableByteStream(pWrappedKey,ulWrappedKeyLen),
 		  ulWrappedKeyLen,
-		  CI_PrintTemplate(pTemplate,ulAttributeCount),
+		  tmp3 = CI_PrintTemplate(pTemplate,ulAttributeCount),
 		  ulAttributeCount,
 		  phKey);
+    TC_free(tmp);
+    TC_free(tmp2);
+    TC_free(tmp3);
+  }
+#endif // NO_LOGGING
+      
 
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
@@ -569,20 +599,25 @@ CK_DEFINE_FUNCTION(CK_RV, C_DeriveKey)
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
   CK_I_OBJ_PTR base_key = NULL_PTR;  /* object to be derived from */
   CK_I_OBJ_PTR new_key = NULL_PTR;  /* object to be created */
-  CK_BYTE_PTR tmp1 = NULL_PTR;
-  CK_BYTE_PTR tmp2 = NULL_PTR;
 
   CI_LogEntry("C_DeriveKey", "starting...", rv, 1);
-  CI_CodeFktEntry("C_DeriveKey", "%i,%s,%i,%s,%i,%p", 
-                  hSession,
-                  tmp1 = CI_ScanableMechanism(pMechanism),
+
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CK_CHAR_PTR tmp2 = NULL;
+    CI_CodeFktEntry("C_DeriveKey", "%i,%s,%i,%s,%i,%p", 
+      hSession,
+      tmp = CI_ScanableMechanism(pMechanism),
 		  hBaseKey,
 		  tmp2 = CI_PrintTemplate(pTemplate,ulAttributeCount),
 		  ulAttributeCount,
 		  phKey);
+    TC_free(tmp);
+    TC_free(tmp2);
+  }
+#endif // NO_LOGGING
 
-  TC_free(tmp1);
-  TC_free(tmp2);
   
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 

@@ -89,6 +89,10 @@ extern CK_DECLARE_FUNCTION(CK_RV, CI_DestroyHashtable)(
   CK_I_HASHTABLE_PTR pHashTable  /* hash table to be destroyed */
 );
 
+extern CK_DECLARE_FUNCTION(CK_RV, CI_ClearHashtable)(
+  CK_I_HASHTABLE_PTR pHashTable  /* hash table to be cleared */
+);
+
 CK_DECLARE_FUNCTION(CK_RV, CI_HashPutEntry)(
   CK_I_HASHTABLE_PTR pHashTable,  /* returned ptr to hash table */
   CK_ULONG key,                /* key of data, base for hash */

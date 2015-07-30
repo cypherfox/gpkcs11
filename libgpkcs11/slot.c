@@ -171,10 +171,11 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetSlotList)(
       }
   if(pSlotList == NULL_PTR) /* only query the number of slots */
     {
-      *pulCount= count;
-
       rv = CKR_OK;
       CI_LogEntry("C_GetSlotList", "computing needed size of List-Array", rv, 1);
+      *pulCount= count;
+      CI_VarLogEntry("C_GetSlotList", "*pulCount: %i", rv, 1, *pulCount);
+
       return rv;
     }
 
@@ -297,11 +298,6 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetTokenInfo)(
     }
   token_data = slot_data->token_data;
 
-  strncpy((char*)pInfo->label,           (char*)token_data->token_info->label, 32);
-  strncpy((char*)pInfo->manufacturerID,  (char*)token_data->token_info->manufacturerID, 32);
-  strncpy((char*)pInfo->model,           (char*)token_data->token_info->model, 16);
-  strncpy((char*)pInfo->serialNumber,    (char*)token_data->token_info->serialNumber, 16);   
-  
   pInfo->flags                 = token_data->token_info->flags;  
   pInfo->ulMaxSessionCount     = token_data->token_info->ulMaxSessionCount;
   pInfo->ulSessionCount        = token_data->token_info->ulSessionCount;
@@ -317,7 +313,19 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetTokenInfo)(
   pInfo->hardwareVersion.minor = token_data->token_info->hardwareVersion.minor;
   pInfo->firmwareVersion.major = token_data->token_info->firmwareVersion.major;
   pInfo->firmwareVersion.minor = token_data->token_info->firmwareVersion.minor;
+
+  strncpy((char*)pInfo->manufacturerID,  (char*)token_data->token_info->manufacturerID, 32);
+  strncpy((char*)pInfo->model,           (char*)token_data->token_info->model, 16);
   
+  if(slot_data->token_data->token_info->flags & CKF_TOKEN_INITIALIZED == 0)
+    {
+      CI_LogEntry("C_GetTokenInfo", "getting token data", rv, 1);
+      return rv;
+    }
+
+  strncpy((char*)pInfo->label,           (char*)token_data->token_info->label, 32);
+  strncpy((char*)pInfo->serialNumber,    (char*)token_data->token_info->serialNumber, 16);   
+
   /* call the method for special or dynamic values */
   if(slot_data->methods->GetTokenInfo != NULL_PTR)
     rv = (slot_data->methods->GetTokenInfo)(CK_I_slot_info_table[slotID], pInfo);
@@ -403,8 +411,19 @@ CK_DEFINE_FUNCTION(CK_RV, C_GetMechanismInfo)(
   return rv;
 }
 /* }}} */
+
+/**
+C_InitPIN() initializes the normal user's PIN.
+
+It checks
+<ul>
+  <li>that Cryptoki is initialized
+  <li>that C_OpenSession() was previously called with CKS_RW_SO_FUNCTIONS
+  <li>
+</ul>
+*/
+
 /* {{{ C_InitPIN */
-/* C_InitPIN initializes the normal user's PIN. */
 CK_DEFINE_FUNCTION(CK_RV, C_InitPIN)
 (
   CK_SESSION_HANDLE hSession,  /* the session's handle */
@@ -414,14 +433,8 @@ CK_DEFINE_FUNCTION(CK_RV, C_InitPIN)
 {
   CK_I_SESSION_DATA_PTR session_data = NULL_PTR;
   CK_RV rv = CKR_OK;
-  CK_CHAR_PTR tmp;
 
   CI_LogEntry("C_InitPIN", "starting...", rv, 1);
-  CI_CodeFktEntry("C_InitPin", "%i,%s,%i", 
-                  hSession,
-                  tmp =CI_ScanableByteStream(pPin,ulPinLen),
-		  ulPinLen);
-  TC_free(tmp);
 
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
@@ -466,20 +479,27 @@ CK_DEFINE_FUNCTION(CK_RV, C_SetPIN)
   CK_RV rv = CKR_OK;
 
   CI_LogEntry("C_SetPIN", "starting...", rv, 1);
-  CI_CodeFktEntry("C_SetPIN", "%i,%s,%i,%s,%i", 
-                  hSession,
+  
 #ifndef PRINT_PINS
-                  "<opaque old PIN>",
+  CI_CodeFktEntry("C_SetPIN", "%i,%s", 
+  hSession,
+  "<opaque old PIN>");
 #else /* PRINT_PINS */
+#ifndef NO_LOGGING
+  {
+    CK_CHAR_PTR tmp = NULL;
+    CK_CHAR_PTR tmp2 = NULL;
+    CI_CodeFktEntry("C_SetPIN", "%i,%s", 
+      hSession,
 		  tmp = CI_ScanableByteStream(pOldPin,ulOldLen),
+      ulOldLen
+      tmp2 = CI_ScanableByteStream(pNewPin,ulNewLen),
+      ulNewLen);
+    TC_free(tmp);
+    TC_free(tmp2);
+  }
+#endif // NO_LOGGING
 #endif /* PRINT_PINS */
-		  ulOldLen,
-#ifndef PRINT_PINS
-                  "<opaque new PIN>",
-#else /* PRINT_PINS */
-		  tmp = CI_ScanableByteStream(pNewPin,ulNewLen),
-#endif /* PRINT_PINS */
-		  ulNewLen);
 
   /* make sure we are initialized */
   if (!(CK_I_global_flags & CK_IGF_INITIALIZED)) 
